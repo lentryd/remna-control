@@ -9,9 +9,9 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
-	"vpn-control/internal/apperr"
-	"vpn-control/internal/audit"
-	"vpn-control/internal/backup"
+	"remna-control/internal/apperr"
+	"remna-control/internal/audit"
+	"remna-control/internal/backup"
 )
 
 // maxBackupSize caps uploaded archives (also the app's body limit).

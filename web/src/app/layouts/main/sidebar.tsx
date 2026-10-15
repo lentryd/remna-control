@@ -40,7 +40,7 @@ export function Sidebar({ collapsed, onToggleCollapsed, onNavigate }: SidebarPro
     return (
         <div className={clsx({ [classes.collapsed]: collapsed })} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             <div className={classes.brand} data-mobile={!onToggleCollapsed || undefined}>
-                <Link aria-label="VPN Control" className={classes.brandLink} onClick={onNavigate} to="/">
+                <Link aria-label="Remna Control" className={classes.brandLink} onClick={onNavigate} to="/">
                     <Wordmark compact={collapsed} />
                 </Link>
                 {onToggleCollapsed && !collapsed && (

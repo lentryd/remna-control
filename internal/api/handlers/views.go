@@ -4,13 +4,13 @@ import (
 	"context"
 	"time"
 
-	"vpn-control/ent"
-	"vpn-control/ent/predicate"
-	"vpn-control/ent/subscription"
-	"vpn-control/ent/subscriptionaddon"
-	"vpn-control/internal/billing"
-	"vpn-control/internal/money"
-	"vpn-control/internal/remnawave"
+	"remna-control/ent"
+	"remna-control/ent/predicate"
+	"remna-control/ent/subscription"
+	"remna-control/ent/subscriptionaddon"
+	"remna-control/internal/billing"
+	"remna-control/internal/money"
+	"remna-control/internal/remnawave"
 )
 
 type RwUserView struct {

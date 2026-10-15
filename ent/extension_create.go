@@ -6,8 +6,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"remna-control/ent/extension"
 	"time"
-	"vpn-control/ent/extension"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

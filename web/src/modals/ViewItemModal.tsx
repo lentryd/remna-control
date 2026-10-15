@@ -297,7 +297,7 @@ function SubscriptionEditor({ sub, close }: { sub: Subscription; close: () => vo
     )
 
     return (
-        <form className="vpnc-fade" onSubmit={save}>
+        <form className="remnac-fade" onSubmit={save}>
             <IdentityPanel rw={sub.rw_user} />
             <FormColumns
                 left={
@@ -430,7 +430,7 @@ function AddonEditor({ addon, sub, close }: { addon: AddonItem; sub: Subscriptio
     )
 
     return (
-        <form className="vpnc-fade" onSubmit={save}>
+        <form className="remnac-fade" onSubmit={save}>
             <IdentityPanel rw={addon.rw_user} />
             <FormColumns
                 left={

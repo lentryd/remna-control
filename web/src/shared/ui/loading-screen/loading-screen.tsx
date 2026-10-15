@@ -8,7 +8,7 @@ export function LoadingScreen({ height = '100dvh', text }: { height?: string; te
     return (
         <Center style={{ height: full ? height : `max(240px, calc(${height} - 80px))` }}>
             <Stack align="center" gap="md">
-                {full ? <Logo size={36} style={{ animation: 'vpnc-pulse 1.4s ease-in-out infinite' }} /> : <Loader size="sm" />}
+                {full ? <Logo size={36} style={{ animation: 'remnac-pulse 1.4s ease-in-out infinite' }} /> : <Loader size="sm" />}
                 {text && (
                     <Text c="dimmed" size="sm">
                         {text}

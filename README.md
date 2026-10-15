@@ -2,7 +2,7 @@
 
 <img src="web/public/favicon.svg" width="72" alt="">
 
-# VPN Control
+# Remna Control
 
 **A back office for VPN services running on [Remnawave](https://github.com/remnawave/panel)**
 
@@ -13,8 +13,8 @@ Customers, subscriptions, payments with auto-renewal, tariffs, add-ons, referral
 [![Mantine](https://img.shields.io/badge/Mantine-9-339AF0?logo=mantine&logoColor=white)](web/package.json)
 [![SQLite](https://img.shields.io/badge/SQLite-no%20CGO-003B57?logo=sqlite&logoColor=white)](internal/store)
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue)](LICENSE)
-[![Release](https://img.shields.io/github/v/release/lentryd/vpn-control)](https://github.com/lentryd/vpn-control/releases)
-[![Test](https://github.com/lentryd/vpn-control/actions/workflows/test.yaml/badge.svg)](https://github.com/lentryd/vpn-control/actions/workflows/test.yaml)
+[![Release](https://img.shields.io/github/v/release/lentryd/remna-control)](https://github.com/lentryd/remna-control/releases)
+[![Test](https://github.com/lentryd/remna-control/actions/workflows/test.yaml/badge.svg)](https://github.com/lentryd/remna-control/actions/workflows/test.yaml)
 
 **English** · [Русский](README.ru.md)
 
@@ -24,7 +24,7 @@ Customers, subscriptions, payments with auto-renewal, tariffs, add-ons, referral
 
 ## Why
 
-Remnawave manages VPN users well, but it doesn't track money. Who paid, for how long, what they owe, who referred them, and what the servers cost: these usually end up in a spreadsheet. VPN Control keeps that bookkeeping and pushes the result to the panel. A recorded payment extends the right panel users, and a tariff change updates their limits and squads.
+Remnawave manages VPN users well, but it doesn't track money. Who paid, for how long, what they owe, who referred them, and what the servers cost: these usually end up in a spreadsheet. Remna Control keeps that bookkeeping and pushes the result to the panel. A recorded payment extends the right panel users, and a tariff change updates their limits and squads.
 
 ## Features
 
@@ -64,15 +64,15 @@ Remnawave manages VPN users well, but it doesn't track money. Who paid, for how 
 
 ## Quick start
 
-You need a Remnawave panel and Docker. VPN Control runs as a separate container in the panel's docker network. A ready image is published at `ghcr.io/lentryd/vpn-control` for `linux/amd64` and `linux/arm64`, so you don't need to clone or build anything.
+You need a Remnawave panel and Docker. Remna Control runs as a separate container in the panel's docker network. A ready image is published at `ghcr.io/lentryd/vpn-control` for `linux/amd64` and `linux/arm64`, so you don't need to clone or build anything.
 
 1. In the panel, create an API token (**API tokens**) with the scopes `users:*`, `internal-squads:read`, `nodes:read`, `bandwidth-stats:read` and `infra-billing:read`, or with `*`.
 2. On the server, make a folder and download the example [`compose.yml`](compose.yml) and [`.env.example`](.env.example) into it:
 
    ```bash
-   mkdir vpn-control && cd vpn-control
-   curl -fsSL -o compose.yml https://raw.githubusercontent.com/lentryd/vpn-control/main/compose.yml
-   curl -fsSL -o .env https://raw.githubusercontent.com/lentryd/vpn-control/main/.env.example
+   mkdir remna-control && cd remna-control
+   curl -fsSL -o compose.yml https://raw.githubusercontent.com/lentryd/remna-control/main/compose.yml
+   curl -fsSL -o .env https://raw.githubusercontent.com/lentryd/remna-control/main/.env.example
    ```
 
 3. Fill in `.env`: `REMNAWAVE_TOKEN`, `APP_DOMAIN` and `JWT_SECRET` (`openssl rand -hex 32`). Check `REMNAWAVE_NETWORK`, `TRAEFIK_CERTRESOLVER` and `TRAEFIK_ENTRYPOINTS` against your panel's setup.
@@ -92,7 +92,7 @@ You need a Remnawave panel and Docker. VPN Control runs as a separate container 
 docker compose pull && docker compose up -d
 ```
 
-The data lives in the `vpn-control-data` volume and survives updates. Migrations run on start, and a snapshot is taken on schedule (see [Backups](#backups)). To pin a version, use a release tag instead of `latest`, for example `image: ghcr.io/lentryd/vpn-control:1.0.0`. Releases are listed on the [Releases](https://github.com/lentryd/vpn-control/releases) page.
+The data lives in the `vpn-control-data` volume and survives updates. Migrations run on start, and a snapshot is taken on schedule (see [Backups](#backups)). To pin a version, use a release tag instead of `latest`, for example `image: ghcr.io/lentryd/vpn-control:1.0.0`. Releases are listed on the [Releases](https://github.com/lentryd/remna-control/releases) page.
 
 ### Deployment notes
 
@@ -296,4 +296,4 @@ git tag v1.0.0 && git push origin v1.0.0
 
 [AGPL-3.0](LICENSE). The theme, layout and some UI components are adapted from [remnawave/frontend](https://github.com/remnawave/frontend) (AGPL-3.0). See [`web/THIRD_PARTY.md`](web/THIRD_PARTY.md).
 
-VPN Control is an independent project and is not affiliated with the Remnawave team.
+Remna Control is an independent project and is not affiliated with the Remnawave team.

@@ -6,10 +6,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"remna-control/ent/addon"
+	"remna-control/ent/subscriptionaddon"
+	"remna-control/ent/tariff"
 	"time"
-	"vpn-control/ent/addon"
-	"vpn-control/ent/subscriptionaddon"
-	"vpn-control/ent/tariff"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

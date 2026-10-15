@@ -45,8 +45,8 @@ body {
 
 /* ── mantine-react-table: flattened to match the cards it sits in ─────────
    (this MRT build uses CSS-module classes, so rules hang off Mantine's
-   static Table classes inside DataTableCard's .vpnc-table wrapper) */
-.vpnc-table {
+   static Table classes inside DataTableCard's .remnac-table wrapper) */
+.remnac-table {
     --mrt-base-background-color: var(--app-surface);
     --mrt-row-hover-background-color: var(--app-row-hover);
     --mrt-pinned-row-background-color: var(--app-surface);
@@ -54,22 +54,22 @@ body {
     --mrt-selected-row-background-color: var(--app-row-hover);
 }
 
-.vpnc-table .mrt-table-paper {
+.remnac-table .mrt-table-paper {
     background: transparent;
     box-shadow: none;
     border: 0;
 }
 
-.vpnc-table .mantine-Table-table {
+.remnac-table .mantine-Table-table {
     --table-border-color: var(--app-border);
     font-variant-numeric: tabular-nums;
 }
 
-.vpnc-table .mantine-Table-thead {
+.remnac-table .mantine-Table-thead {
     box-shadow: none;
 }
 
-.vpnc-table .mantine-Table-th {
+.remnac-table .mantine-Table-th {
     background: var(--app-surface-2);
     border-bottom: 1px solid var(--app-border);
     font-size: 12px;
@@ -79,70 +79,70 @@ body {
     vertical-align: middle;
 }
 
-.vpnc-table .mantine-Table-th [class*='MRT_TableHeadCell-module_content-actions'],
-.vpnc-table .mantine-Table-th [class*='MRT_TableHeadCellResizeHandle'] {
+.remnac-table .mantine-Table-th [class*='MRT_TableHeadCell-module_content-actions'],
+.remnac-table .mantine-Table-th [class*='MRT_TableHeadCellResizeHandle'] {
     opacity: 0;
     transition: opacity 120ms ease;
 }
 
-.vpnc-table .mantine-Table-th:hover [class*='MRT_TableHeadCell-module_content-actions'],
-.vpnc-table .mantine-Table-th:hover [class*='MRT_TableHeadCellResizeHandle'] {
+.remnac-table .mantine-Table-th:hover [class*='MRT_TableHeadCell-module_content-actions'],
+.remnac-table .mantine-Table-th:hover [class*='MRT_TableHeadCellResizeHandle'] {
     opacity: 1;
 }
 
-.vpnc-table .mantine-Table-td {
+.remnac-table .mantine-Table-td {
     font-size: var(--mantine-font-size-sm);
     background-color: var(--app-surface);
 }
 
-.vpnc-table .mantine-Table-tbody .mantine-Table-tr:last-child {
+.remnac-table .mantine-Table-tbody .mantine-Table-tr:last-child {
     border-bottom: 0;
 }
 
-.vpnc-table .mantine-Table-tbody .mantine-Table-tr:hover > .mantine-Table-td {
+.remnac-table .mantine-Table-tbody .mantine-Table-tr:hover > .mantine-Table-td {
     background-color: color-mix(in srgb, var(--app-surface) 97%, var(--mantine-color-text));
 }
 
 /* pinned columns: a hairline instead of MRT's inset shadow */
-.vpnc-table [data-column-pinned],
-.vpnc-table [data-column-pinned]::before {
+.remnac-table [data-column-pinned],
+.remnac-table [data-column-pinned]::before {
     box-shadow: none !important;
 }
 
-.vpnc-table .mantine-Table-td[data-column-pinned] {
+.remnac-table .mantine-Table-td[data-column-pinned] {
     background-color: var(--app-surface) !important;
     opacity: 1 !important;
 }
 
-.vpnc-table .mantine-Table-tbody .mantine-Table-tr:hover > .mantine-Table-td[data-column-pinned] {
+.remnac-table .mantine-Table-tbody .mantine-Table-tr:hover > .mantine-Table-td[data-column-pinned] {
     background-color: color-mix(in srgb, var(--app-surface) 97%, var(--mantine-color-text)) !important;
 }
 
-.vpnc-table [data-first-right-pinned] {
+.remnac-table [data-first-right-pinned] {
     border-left: 1px solid var(--app-border);
 }
 
-.vpnc-table [data-last-left-pinned] {
+.remnac-table [data-last-left-pinned] {
     border-right: 1px solid var(--app-border);
 }
 
-.vpnc-table .mantine-Table-th[data-column-pinned] {
+.remnac-table .mantine-Table-th[data-column-pinned] {
     background: var(--app-surface-2) !important;
     opacity: 1 !important;
 }
 
-.vpnc-table [class*='MRT_TopToolbar-module_root'],
-.vpnc-table [class*='MRT_BottomToolbar-module_root'] {
+.remnac-table [class*='MRT_TopToolbar-module_root'],
+.remnac-table [class*='MRT_BottomToolbar-module_root'] {
     background: var(--app-surface);
     box-shadow: none;
 }
 
-.vpnc-table [class*='MRT_BottomToolbar-module_root'] {
+.remnac-table [class*='MRT_BottomToolbar-module_root'] {
     border-top: 1px solid var(--app-border);
 }
 
-.vpnc-table [class*='MRT_TableHeadCellFilterContainer'] input,
-.vpnc-table .mantine-Table-th input {
+.remnac-table [class*='MRT_TableHeadCellFilterContainer'] input,
+.remnac-table .mantine-Table-th input {
     font-size: 12px;
 }
 
@@ -160,7 +160,7 @@ body {
     border-bottom: 1px solid var(--app-border);
 }
 
-@keyframes vpnc-pulse {
+@keyframes remnac-pulse {
     0%,
     100% {
         opacity: 1;
@@ -188,7 +188,7 @@ body {
     min-width: 0;
 }
 
-.vpnc-empty {
+.remnac-empty {
     display: block;
     width: 100%;
     padding: 28px 16px;
@@ -245,47 +245,47 @@ body {
 /* Enter animations. `backwards` fill drops the transform once the animation
    ends, so it doesn't turn the page into a containing block for fixed
    descendants. */
-@keyframes vpnc-enter {
+@keyframes remnac-enter {
     from {
         opacity: 0;
         transform: translateY(6px);
     }
 }
 
-@keyframes vpnc-fade {
+@keyframes remnac-fade {
     from {
         opacity: 0;
     }
 }
 
-.vpnc-enter {
-    animation: vpnc-enter 0.22s cubic-bezier(0.2, 0, 0, 1) backwards;
+.remnac-enter {
+    animation: remnac-enter 0.22s cubic-bezier(0.2, 0, 0, 1) backwards;
 }
 
-.vpnc-fade {
-    animation: vpnc-fade 0.2s ease-out backwards;
+.remnac-fade {
+    animation: remnac-fade 0.2s ease-out backwards;
 }
 
 /* FormStack: sections appear one after another */
-.vpnc-stagger > :nth-child(2) {
+.remnac-stagger > :nth-child(2) {
     animation-delay: 40ms;
 }
-.vpnc-stagger > :nth-child(3) {
+.remnac-stagger > :nth-child(3) {
     animation-delay: 80ms;
 }
-.vpnc-stagger > :nth-child(4) {
+.remnac-stagger > :nth-child(4) {
     animation-delay: 120ms;
 }
-.vpnc-stagger > :nth-child(5) {
+.remnac-stagger > :nth-child(5) {
     animation-delay: 160ms;
 }
-.vpnc-stagger > :nth-child(n + 6) {
+.remnac-stagger > :nth-child(n + 6) {
     animation-delay: 200ms;
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .vpnc-enter,
-    .vpnc-fade {
+    .remnac-enter,
+    .remnac-fade {
         animation: none;
     }
 }

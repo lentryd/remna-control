@@ -10,9 +10,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 
-	"vpn-control/internal/api/handlers"
-	appmiddleware "vpn-control/internal/api/middleware"
-	"vpn-control/internal/apperr"
+	"remna-control/internal/api/handlers"
+	appmiddleware "remna-control/internal/api/middleware"
+	"remna-control/internal/apperr"
 )
 
 type Deps struct {

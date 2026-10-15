@@ -97,9 +97,9 @@
             "no_categories": "Не выбрано ни одной категории",
             "unknown_category": "Неизвестная категория {{key}}",
             "not_zip": "Файл не является zip-архивом",
-            "no_manifest": "В архиве нет manifest.json — это не бэкап vpn-control",
+            "no_manifest": "В архиве нет manifest.json — это не бэкап Remna Control",
             "bad_manifest": "Некорректный manifest.json: {{error}}",
-            "not_backup": "Это не бэкап vpn-control",
+            "not_backup": "Это не бэкап Remna Control",
             "newer_format": "Бэкап создан более новой версией формата ({{version}}) — обновите приложение"
         },
         "tariff": {
@@ -1149,7 +1149,7 @@
         "password": "Пароль",
         "password_placeholder": "Ваш пароль",
         "submit": "Войти",
-        "welcome": "Вход в VPN Control",
+        "welcome": "Вход в Remna Control",
         "footer": "Бэк-офис вашего VPN на Remnawave"
     },
     "shell": {

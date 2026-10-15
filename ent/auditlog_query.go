@@ -6,8 +6,8 @@ import (
 	"context"
 	"fmt"
 	"math"
-	"vpn-control/ent/auditlog"
-	"vpn-control/ent/predicate"
+	"remna-control/ent/auditlog"
+	"remna-control/ent/predicate"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

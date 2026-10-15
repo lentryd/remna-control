@@ -25,7 +25,7 @@ const DEFAULT_EXPIRES_IN_DAYS = 30
 // What subpage needs to read the add-on catalog.
 const SUBPAGE_PRESET_KEYS = ['addons:list']
 
-// What vpn-control-bot needs: find/create customers, link a Telegram id,
+// What remna-control-bot needs: find/create customers, link a Telegram id,
 // read their card (subscriptions, balance, referrals) and the tariffs;
 // the two lists are for notifications (traffic, payment reminders); the
 // rest takes payments: quote and extend items, record payments, provision

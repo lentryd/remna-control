@@ -7,9 +7,9 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
-	"vpn-control/internal/api/handlers"
-	appmiddleware "vpn-control/internal/api/middleware"
-	"vpn-control/internal/config"
+	"remna-control/internal/api/handlers"
+	appmiddleware "remna-control/internal/api/middleware"
+	"remna-control/internal/config"
 )
 
 // Every scope catalog endpoint is routed (the bare app answers the

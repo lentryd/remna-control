@@ -4,8 +4,8 @@ package ent
 
 import (
 	"context"
-	"vpn-control/ent/expense"
-	"vpn-control/ent/predicate"
+	"remna-control/ent/expense"
+	"remna-control/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

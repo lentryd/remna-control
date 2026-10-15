@@ -6,9 +6,9 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
-	"vpn-control/internal/api/handlers"
-	appmiddleware "vpn-control/internal/api/middleware"
-	"vpn-control/web"
+	"remna-control/internal/api/handlers"
+	appmiddleware "remna-control/internal/api/middleware"
+	"remna-control/web"
 )
 
 // RegisterRoutes wires the route table. The app owns its domain: JSON

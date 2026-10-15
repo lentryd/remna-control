@@ -6,13 +6,13 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
-	"vpn-control/ent"
-	"vpn-control/ent/extension"
-	"vpn-control/ent/rwuser"
-	"vpn-control/internal/audit"
-	"vpn-control/internal/billing"
-	"vpn-control/internal/money"
-	"vpn-control/internal/remnawave"
+	"remna-control/ent"
+	"remna-control/ent/extension"
+	"remna-control/ent/rwuser"
+	"remna-control/internal/audit"
+	"remna-control/internal/billing"
+	"remna-control/internal/money"
+	"remna-control/internal/remnawave"
 )
 
 func (h *Handlers) ListSubscriptions(c *fiber.Ctx) error {

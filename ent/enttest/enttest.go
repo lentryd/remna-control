@@ -5,11 +5,11 @@ package enttest
 import (
 	"context"
 
-	"vpn-control/ent"
+	"remna-control/ent"
 	// required by schema hooks.
-	_ "vpn-control/ent/runtime"
+	_ "remna-control/ent/runtime"
 
-	"vpn-control/ent/migrate"
+	"remna-control/ent/migrate"
 
 	"entgo.io/ent/dialect/sql/schema"
 )

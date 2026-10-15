@@ -9,11 +9,11 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 
-	"vpn-control/internal/apperr"
-	"vpn-control/internal/audit"
+	"remna-control/internal/apperr"
+	"remna-control/internal/audit"
 )
 
-const SessionCookie = "vpnctl_session"
+const SessionCookie = "remnactl_session"
 
 // SessionTTL is how long an admin stays logged in.
 const SessionTTL = 7 * 24 * time.Hour

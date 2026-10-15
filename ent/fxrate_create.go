@@ -6,7 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"vpn-control/ent/fxrate"
+	"remna-control/ent/fxrate"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

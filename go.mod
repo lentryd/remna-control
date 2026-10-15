@@ -1,4 +1,4 @@
-module vpn-control
+module remna-control
 
 go 1.26.4
 

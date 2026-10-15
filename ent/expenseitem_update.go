@@ -6,10 +6,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"remna-control/ent/expenseitem"
+	"remna-control/ent/predicate"
+	"remna-control/internal/metered"
 	"time"
-	"vpn-control/ent/expenseitem"
-	"vpn-control/ent/predicate"
-	"vpn-control/internal/metered"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

@@ -4,9 +4,9 @@ package ent
 
 import (
 	"fmt"
+	"remna-control/ent/trafficsnapshot"
 	"strings"
 	"time"
-	"vpn-control/ent/trafficsnapshot"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

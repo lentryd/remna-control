@@ -7,13 +7,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 
-	"vpn-control/ent"
-	"vpn-control/ent/addon"
-	"vpn-control/ent/apitoken"
-	"vpn-control/internal/addons"
-	appmiddleware "vpn-control/internal/api/middleware"
-	"vpn-control/internal/apperr"
-	"vpn-control/internal/audit"
+	"remna-control/ent"
+	"remna-control/ent/addon"
+	"remna-control/ent/apitoken"
+	"remna-control/internal/addons"
+	appmiddleware "remna-control/internal/api/middleware"
+	"remna-control/internal/apperr"
+	"remna-control/internal/audit"
 )
 
 type tokenView struct {

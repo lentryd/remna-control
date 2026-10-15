@@ -6,15 +6,15 @@ import (
 	"net/http"
 	"time"
 
-	"vpn-control/ent"
-	"vpn-control/ent/extension"
-	"vpn-control/ent/subscription"
-	"vpn-control/ent/subscriptionaddon"
-	"vpn-control/ent/tariff"
-	"vpn-control/internal/apperr"
-	"vpn-control/internal/audit"
-	"vpn-control/internal/remnawave"
-	"vpn-control/internal/rwsync"
+	"remna-control/ent"
+	"remna-control/ent/extension"
+	"remna-control/ent/subscription"
+	"remna-control/ent/subscriptionaddon"
+	"remna-control/ent/tariff"
+	"remna-control/internal/apperr"
+	"remna-control/internal/audit"
+	"remna-control/internal/remnawave"
+	"remna-control/internal/rwsync"
 )
 
 func extensionKind(k string) extension.Kind { return extension.Kind(k) }

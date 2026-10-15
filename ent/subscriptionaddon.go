@@ -4,13 +4,13 @@ package ent
 
 import (
 	"fmt"
+	"remna-control/ent/addon"
+	"remna-control/ent/rwuser"
+	"remna-control/ent/subscription"
+	"remna-control/ent/subscriptionaddon"
+	"remna-control/ent/tariff"
 	"strings"
 	"time"
-	"vpn-control/ent/addon"
-	"vpn-control/ent/rwuser"
-	"vpn-control/ent/subscription"
-	"vpn-control/ent/subscriptionaddon"
-	"vpn-control/ent/tariff"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

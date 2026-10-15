@@ -8,8 +8,8 @@ import (
 	"math"
 	"time"
 
-	"vpn-control/ent"
-	"vpn-control/internal/metered"
+	"remna-control/ent"
+	"remna-control/internal/metered"
 )
 
 // ToRub converts minor units of a currency to kopecks:

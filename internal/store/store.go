@@ -13,11 +13,11 @@ import (
 	"github.com/google/uuid"
 	"modernc.org/sqlite"
 
-	"vpn-control/ent"
-	"vpn-control/ent/apitoken"
-	"vpn-control/ent/ledgerentry"
-	"vpn-control/ent/migrate"
-	"vpn-control/ent/referralaccrual"
+	"remna-control/ent"
+	"remna-control/ent/apitoken"
+	"remna-control/ent/ledgerentry"
+	"remna-control/ent/migrate"
+	"remna-control/ent/referralaccrual"
 )
 
 func init() {

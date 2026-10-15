@@ -3,15 +3,15 @@ package handlers
 import (
 	"github.com/gofiber/fiber/v2"
 
-	"vpn-control/ent"
-	"vpn-control/ent/subscription"
-	"vpn-control/ent/subscriptionaddon"
-	"vpn-control/ent/tariff"
-	"vpn-control/ent/tariffperiod"
-	"vpn-control/internal/apperr"
-	"vpn-control/internal/audit"
-	"vpn-control/internal/money"
-	"vpn-control/internal/store"
+	"remna-control/ent"
+	"remna-control/ent/subscription"
+	"remna-control/ent/subscriptionaddon"
+	"remna-control/ent/tariff"
+	"remna-control/ent/tariffperiod"
+	"remna-control/internal/apperr"
+	"remna-control/internal/audit"
+	"remna-control/internal/money"
+	"remna-control/internal/store"
 )
 
 type PeriodView struct {

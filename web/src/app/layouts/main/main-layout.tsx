@@ -22,7 +22,7 @@ export function MainLayout() {
     const { pathname } = useLocation()
     const desktop = useMediaQuery('(min-width: 64em)', true, { getInitialValueInEffect: false })
     const [mobileOpened, mobile] = useDisclosure(false)
-    const [collapsed, setCollapsed] = useLocalStorage({ key: 'vpnc:sidebar-collapsed', defaultValue: false })
+    const [collapsed, setCollapsed] = useLocalStorage({ key: 'remnac:sidebar-collapsed', defaultValue: false })
     const narrow = desktop && collapsed
 
     return (

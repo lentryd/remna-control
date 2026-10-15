@@ -12,13 +12,13 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
-	"vpn-control/ent"
-	"vpn-control/ent/auditlog"
-	"vpn-control/internal/apperr"
-	"vpn-control/internal/fx"
-	"vpn-control/internal/remnawave"
-	"vpn-control/internal/rwsync"
-	"vpn-control/internal/settings"
+	"remna-control/ent"
+	"remna-control/ent/auditlog"
+	"remna-control/internal/apperr"
+	"remna-control/internal/fx"
+	"remna-control/internal/remnawave"
+	"remna-control/internal/rwsync"
+	"remna-control/internal/settings"
 )
 
 // GetSettings returns every setting, plus the read-only "_base_locked"

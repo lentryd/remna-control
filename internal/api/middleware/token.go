@@ -11,10 +11,10 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
-	"vpn-control/ent"
-	"vpn-control/ent/apitoken"
-	"vpn-control/internal/apperr"
-	"vpn-control/internal/audit"
+	"remna-control/ent"
+	"remna-control/ent/apitoken"
+	"remna-control/internal/apperr"
+	"remna-control/internal/audit"
 )
 
 // ScopeEndpoint is one public API endpoint a token can be allowed.

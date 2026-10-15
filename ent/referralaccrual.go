@@ -4,10 +4,10 @@ package ent
 
 import (
 	"fmt"
+	"remna-control/ent/payment"
+	"remna-control/ent/referralaccrual"
 	"strings"
 	"time"
-	"vpn-control/ent/payment"
-	"vpn-control/ent/referralaccrual"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

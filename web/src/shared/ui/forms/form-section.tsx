@@ -6,14 +6,14 @@ import { PiFloppyDiskDuotone } from 'react-icons/pi'
 import { ModalFooter } from '../modal-footer'
 import { useTranslation } from 'react-i18next'
 
-// Inside a FormStack sections appear one after another (.vpnc-stagger
+// Inside a FormStack sections appear one after another (.remnac-stagger
 // delays), standalone they animate on their own.
 const StaggerContext = createContext(false)
 
 export function FormStack({ children, style }: { children: ReactNode; style?: React.CSSProperties }) {
     return (
         <StaggerContext.Provider value>
-            <Stack className="vpnc-stagger" gap="md" style={style}>
+            <Stack className="remnac-stagger" gap="md" style={style}>
                 {children}
             </Stack>
         </StaggerContext.Provider>
@@ -47,7 +47,7 @@ export function FormSection({
     children: ReactNode
 }) {
     return (
-        <div className="vpnc-enter">
+        <div className="remnac-enter">
             <Card padding="md" radius="lg" style={{ boxShadow: 'none' }}>
                 <Group align="flex-start" justify="space-between" mb="md" wrap="nowrap">
                     <Group align="flex-start" gap={10} miw={0} wrap="nowrap">

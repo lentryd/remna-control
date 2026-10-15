@@ -5,7 +5,7 @@ package hook
 import (
 	"context"
 	"fmt"
-	"vpn-control/ent"
+	"remna-control/ent"
 )
 
 // The APITokenFunc type is an adapter to allow the use of ordinary

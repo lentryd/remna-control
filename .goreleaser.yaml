@@ -46,7 +46,7 @@ kos:
     sbom: none
     creation_time: "{{ .CommitTimestamp }}"
     labels:
-      org.opencontainers.image.source: https://github.com/lentryd/vpn-control
+      org.opencontainers.image.source: https://github.com/lentryd/remna-control
       org.opencontainers.image.description: A back office for VPN services running on Remnawave
       org.opencontainers.image.licenses: AGPL-3.0-only
     tags:

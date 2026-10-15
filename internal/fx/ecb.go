@@ -37,7 +37,7 @@ func (e *ECB) Fetch(ctx context.Context, date time.Time) (map[string]float64, er
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("User-Agent", "vpn-control/1.0")
+	req.Header.Set("User-Agent", "remna-control/1.0")
 	resp, err := e.http.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("fetch ECB rates: %w", err)

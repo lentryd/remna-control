@@ -7,12 +7,12 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
-	"vpn-control/ent"
-	"vpn-control/ent/expenseitem"
-	"vpn-control/internal/apperr"
-	"vpn-control/internal/money"
-	"vpn-control/internal/remnawave"
-	"vpn-control/internal/settings"
+	"remna-control/ent"
+	"remna-control/ent/expenseitem"
+	"remna-control/internal/apperr"
+	"remna-control/internal/money"
+	"remna-control/internal/remnawave"
+	"remna-control/internal/settings"
 )
 
 type ExpiringItem struct {

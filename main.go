@@ -13,17 +13,17 @@ import (
 
 	"github.com/joho/godotenv"
 
-	"vpn-control/internal/api"
-	"vpn-control/internal/api/handlers"
-	"vpn-control/internal/backup"
-	"vpn-control/internal/billing"
-	"vpn-control/internal/config"
-	"vpn-control/internal/expenses"
-	"vpn-control/internal/fx"
-	"vpn-control/internal/remnawave"
-	"vpn-control/internal/rwsync"
-	"vpn-control/internal/settings"
-	"vpn-control/internal/store"
+	"remna-control/internal/api"
+	"remna-control/internal/api/handlers"
+	"remna-control/internal/backup"
+	"remna-control/internal/billing"
+	"remna-control/internal/config"
+	"remna-control/internal/expenses"
+	"remna-control/internal/fx"
+	"remna-control/internal/remnawave"
+	"remna-control/internal/rwsync"
+	"remna-control/internal/settings"
+	"remna-control/internal/store"
 )
 
 // Set via -ldflags; "dev"/"none" when built with a plain `go build`.

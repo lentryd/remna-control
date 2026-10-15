@@ -4,8 +4,8 @@ package ent
 
 import (
 	"fmt"
+	"remna-control/ent/fxrate"
 	"strings"
-	"vpn-control/ent/fxrate"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

@@ -2,7 +2,7 @@
 
 <img src="web/public/favicon.svg" width="72" alt="">
 
-# VPN Control
+# Remna Control
 
 **Админка VPN-сервиса поверх панели [Remnawave](https://github.com/remnawave/panel)**
 
@@ -13,8 +13,8 @@
 [![Mantine](https://img.shields.io/badge/Mantine-9-339AF0?logo=mantine&logoColor=white)](web/package.json)
 [![SQLite](https://img.shields.io/badge/SQLite-без%20CGO-003B57?logo=sqlite&logoColor=white)](internal/store)
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue)](LICENSE)
-[![Release](https://img.shields.io/github/v/release/lentryd/vpn-control)](https://github.com/lentryd/vpn-control/releases)
-[![Test](https://github.com/lentryd/vpn-control/actions/workflows/test.yaml/badge.svg)](https://github.com/lentryd/vpn-control/actions/workflows/test.yaml)
+[![Release](https://img.shields.io/github/v/release/lentryd/remna-control)](https://github.com/lentryd/remna-control/releases)
+[![Test](https://github.com/lentryd/remna-control/actions/workflows/test.yaml/badge.svg)](https://github.com/lentryd/remna-control/actions/workflows/test.yaml)
 
 [English](README.md) · **Русский**
 
@@ -24,7 +24,7 @@
 
 ## Зачем
 
-Remnawave хорошо управляет пользователями VPN, но не ведёт учёт денег. Кто сколько заплатил, до какого числа, кто должен, кто кого привёл и сколько стоят серверы — обычно всё это живёт в таблице. VPN Control ведёт этот учёт и сам отправляет результат в панель: записанный платёж продлевает нужных пользователей, а смена тарифа меняет их лимиты и сквады.
+Remnawave хорошо управляет пользователями VPN, но не ведёт учёт денег. Кто сколько заплатил, до какого числа, кто должен, кто кого привёл и сколько стоят серверы — обычно всё это живёт в таблице. Remna Control ведёт этот учёт и сам отправляет результат в панель: записанный платёж продлевает нужных пользователей, а смена тарифа меняет их лимиты и сквады.
 
 ## Возможности
 
@@ -64,15 +64,15 @@ Remnawave хорошо управляет пользователями VPN, но
 
 ## Быстрый старт
 
-Нужны панель Remnawave и Docker. VPN Control работает отдельным контейнером в docker-сети панели. Готовый образ публикуется в `ghcr.io/lentryd/vpn-control` для `linux/amd64` и `linux/arm64`, поэтому клонировать и собирать ничего не нужно.
+Нужны панель Remnawave и Docker. Remna Control работает отдельным контейнером в docker-сети панели. Готовый образ публикуется в `ghcr.io/lentryd/vpn-control` для `linux/amd64` и `linux/arm64`, поэтому клонировать и собирать ничего не нужно.
 
 1. Создайте в панели API-токен (**API tokens**) со scope `users:*`, `internal-squads:read`, `nodes:read`, `bandwidth-stats:read`, `infra-billing:read` или просто `*`.
 2. На сервере создайте папку и скачайте в неё пример [`compose.yml`](compose.yml) и [`.env.example`](.env.example):
 
    ```bash
-   mkdir vpn-control && cd vpn-control
-   curl -fsSL -o compose.yml https://raw.githubusercontent.com/lentryd/vpn-control/main/compose.yml
-   curl -fsSL -o .env https://raw.githubusercontent.com/lentryd/vpn-control/main/.env.example
+   mkdir remna-control && cd remna-control
+   curl -fsSL -o compose.yml https://raw.githubusercontent.com/lentryd/remna-control/main/compose.yml
+   curl -fsSL -o .env https://raw.githubusercontent.com/lentryd/remna-control/main/.env.example
    ```
 
 3. Заполните `.env`: `REMNAWAVE_TOKEN`, `APP_DOMAIN` и `JWT_SECRET` (`openssl rand -hex 32`). Сверьте `REMNAWAVE_NETWORK`, `TRAEFIK_CERTRESOLVER` и `TRAEFIK_ENTRYPOINTS` с настройками своей панели.
@@ -92,7 +92,7 @@ Remnawave хорошо управляет пользователями VPN, но
 docker compose pull && docker compose up -d
 ```
 
-Данные хранятся в volume `vpn-control-data` и переживают обновления. Миграции применяются при старте, снапшоты делаются по расписанию (см. [Резервные копии](#резервные-копии)). Чтобы зафиксировать версию, укажите вместо `latest` тег релиза, например `image: ghcr.io/lentryd/vpn-control:1.0.0`. Список версий — на странице [Releases](https://github.com/lentryd/vpn-control/releases).
+Данные хранятся в volume `vpn-control-data` и переживают обновления. Миграции применяются при старте, снапшоты делаются по расписанию (см. [Резервные копии](#резервные-копии)). Чтобы зафиксировать версию, укажите вместо `latest` тег релиза, например `image: ghcr.io/lentryd/vpn-control:1.0.0`. Список версий — на странице [Releases](https://github.com/lentryd/remna-control/releases).
 
 ### Детали развёртывания
 
@@ -296,4 +296,4 @@ git tag v1.0.0 && git push origin v1.0.0
 
 [AGPL-3.0](LICENSE). Тема, раскладка и часть UI-компонентов адаптированы из [remnawave/frontend](https://github.com/remnawave/frontend) (AGPL-3.0), подробнее — в [`web/THIRD_PARTY.md`](web/THIRD_PARTY.md).
 
-VPN Control — независимый проект, не связанный с командой Remnawave.
+Remna Control — независимый проект, не связанный с командой Remnawave.

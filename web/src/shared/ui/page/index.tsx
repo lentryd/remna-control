@@ -16,8 +16,8 @@ export const Page = forwardRef<HTMLDivElement, PageProps>(({ children, title, ..
 
     return (
         <>
-            <title>{`${title} · VPN Control`}</title>
-            <div className="vpnc-enter">
+            <title>{`${title} · Remna Control`}</title>
+            <div className="remnac-enter">
                 <Box ref={ref} {...other}>
                     {children}
                 </Box>

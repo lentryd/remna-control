@@ -5,11 +5,11 @@ package ent
 import (
 	"encoding/json"
 	"fmt"
+	"remna-control/ent/rwuser"
+	"remna-control/ent/subscription"
+	"remna-control/ent/subscriptionaddon"
 	"strings"
 	"time"
-	"vpn-control/ent/rwuser"
-	"vpn-control/ent/subscription"
-	"vpn-control/ent/subscriptionaddon"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

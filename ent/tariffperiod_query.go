@@ -6,9 +6,9 @@ import (
 	"context"
 	"fmt"
 	"math"
-	"vpn-control/ent/predicate"
-	"vpn-control/ent/tariff"
-	"vpn-control/ent/tariffperiod"
+	"remna-control/ent/predicate"
+	"remna-control/ent/tariff"
+	"remna-control/ent/tariffperiod"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

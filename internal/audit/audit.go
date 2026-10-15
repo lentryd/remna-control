@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"log/slog"
 
-	"vpn-control/ent"
+	"remna-control/ent"
 )
 
 type actorKey struct{}

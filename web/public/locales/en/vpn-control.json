@@ -97,9 +97,9 @@
             "no_categories": "No categories selected",
             "unknown_category": "Unknown category {{key}}",
             "not_zip": "The file isn't a zip archive",
-            "no_manifest": "The archive has no manifest.json — it isn't a vpn-control backup",
+            "no_manifest": "The archive has no manifest.json — it isn't a Remna Control backup",
             "bad_manifest": "Invalid manifest.json: {{error}}",
-            "not_backup": "This isn't a vpn-control backup",
+            "not_backup": "This isn't a Remna Control backup",
             "newer_format": "The backup uses a newer format ({{version}}) — update the app"
         },
         "tariff": {
@@ -1111,7 +1111,7 @@
         "password": "Password",
         "password_placeholder": "Your password",
         "submit": "Sign in",
-        "welcome": "Sign in to VPN Control",
+        "welcome": "Sign in to Remna Control",
         "footer": "Back office for your Remnawave VPN"
     },
     "shell": {

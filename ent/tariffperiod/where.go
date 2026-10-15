@@ -3,7 +3,7 @@
 package tariffperiod
 
 import (
-	"vpn-control/ent/predicate"
+	"remna-control/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

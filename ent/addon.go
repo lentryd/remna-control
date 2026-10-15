@@ -5,9 +5,9 @@ package ent
 import (
 	"encoding/json"
 	"fmt"
+	"remna-control/ent/addon"
 	"strings"
 	"time"
-	"vpn-control/ent/addon"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

@@ -67,7 +67,7 @@ function Block({
 
 // Blocks rise in one after another.
 const rise = (index: number, className?: string) => ({
-    className: className ? `vpnc-enter ${className}` : 'vpnc-enter',
+    className: className ? `remnac-enter ${className}` : 'remnac-enter',
     style: { animationDelay: `${index * 40}ms` }
 })
 
@@ -394,7 +394,7 @@ function ExpiringTable({ data, windowDays }: { data: ExpiringItem[]; windowDays:
             icon={<IconClockExclamation />}
             initialState={{ sorting: [{ id: 'days_left', desc: false }] }}
             onRowClick={openItem}
-            renderEmptyRowsFallback={() => <Text className="vpnc-empty">{t('dashboard.nothing_expiring')}</Text>}
+            renderEmptyRowsFallback={() => <Text className="remnac-empty">{t('dashboard.nothing_expiring')}</Text>}
             renderRowActions={({ row }) => (
                 <Button
                     leftSection={<IconCalendarPlus size={14} />}
@@ -539,7 +539,7 @@ function TrafficLowTable({ data }: { data: TrafficItem[] }) {
             icon={<IconGauge />}
             initialState={{ sorting: [{ id: 'used_pct', desc: true }] }}
             onRowClick={openItem}
-            renderEmptyRowsFallback={() => <Text className="vpnc-empty">{t('dashboard.nothing_traffic_low')}</Text>}
+            renderEmptyRowsFallback={() => <Text className="remnac-empty">{t('dashboard.nothing_traffic_low')}</Text>}
             storageKey="dashboard-traffic-low"
             title={t('dashboard.traffic_low')}
         />

@@ -11,16 +11,16 @@ import (
 	"sync"
 	"time"
 
-	"vpn-control/ent"
-	"vpn-control/ent/expense"
-	"vpn-control/ent/expenseitem"
-	"vpn-control/ent/rwuser"
-	"vpn-control/ent/trafficsnapshot"
-	"vpn-control/internal/apperr"
-	"vpn-control/internal/audit"
-	"vpn-control/internal/fx"
-	"vpn-control/internal/metered"
-	"vpn-control/internal/remnawave"
+	"remna-control/ent"
+	"remna-control/ent/expense"
+	"remna-control/ent/expenseitem"
+	"remna-control/ent/rwuser"
+	"remna-control/ent/trafficsnapshot"
+	"remna-control/internal/apperr"
+	"remna-control/internal/audit"
+	"remna-control/internal/fx"
+	"remna-control/internal/metered"
+	"remna-control/internal/remnawave"
 )
 
 type Service struct {

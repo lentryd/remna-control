@@ -14,15 +14,15 @@ import (
 	"sync"
 	"time"
 
-	"vpn-control/ent"
-	"vpn-control/ent/addon"
-	"vpn-control/ent/customer"
-	"vpn-control/ent/rwuser"
-	"vpn-control/ent/subscription"
-	"vpn-control/ent/subscriptionaddon"
-	"vpn-control/ent/tariff"
-	"vpn-control/internal/addons"
-	"vpn-control/internal/remnawave"
+	"remna-control/ent"
+	"remna-control/ent/addon"
+	"remna-control/ent/customer"
+	"remna-control/ent/rwuser"
+	"remna-control/ent/subscription"
+	"remna-control/ent/subscriptionaddon"
+	"remna-control/ent/tariff"
+	"remna-control/internal/addons"
+	"remna-control/internal/remnawave"
 )
 
 type Service struct {

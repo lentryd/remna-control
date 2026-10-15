@@ -8,7 +8,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 
-	"vpn-control/internal/metered"
+	"remna-control/internal/metered"
 )
 
 // Payment is money received from a customer.

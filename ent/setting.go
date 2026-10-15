@@ -4,8 +4,8 @@ package ent
 
 import (
 	"fmt"
+	"remna-control/ent/setting"
 	"strings"
-	"vpn-control/ent/setting"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

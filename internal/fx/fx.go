@@ -11,8 +11,8 @@ import (
 	"sync"
 	"time"
 
-	"vpn-control/ent"
-	"vpn-control/ent/fxrate"
+	"remna-control/ent"
+	"remna-control/ent/fxrate"
 )
 
 // Source publishes rates for one date: units of base per one unit of each

@@ -17,7 +17,7 @@ export function Wordmark({ size = 24, compact }: { size?: number; compact?: bool
             <Logo size={size} />
             {!compact && (
                 <Text c="var(--app-text-strong)" fw={650} fz={15} lh={1} style={{ letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>
-                    VPN Control
+                    Remna Control
                 </Text>
             )}
         </Group>

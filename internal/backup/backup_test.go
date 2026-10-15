@@ -9,11 +9,11 @@ import (
 	"testing"
 	"time"
 
-	"vpn-control/ent"
-	"vpn-control/ent/migrate"
-	"vpn-control/ent/payment"
-	"vpn-control/ent/tariff"
-	"vpn-control/internal/store"
+	"remna-control/ent"
+	"remna-control/ent/migrate"
+	"remna-control/ent/payment"
+	"remna-control/ent/tariff"
+	"remna-control/internal/store"
 )
 
 func TestCategoriesCoverSchema(t *testing.T) {

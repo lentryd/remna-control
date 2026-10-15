@@ -33,7 +33,7 @@ func (c *CBR) Fetch(ctx context.Context, date time.Time) (map[string]float64, er
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("User-Agent", "vpn-control/1.0")
+	req.Header.Set("User-Agent", "remna-control/1.0")
 	resp, err := c.http.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("fetch CBR rates: %w", err)

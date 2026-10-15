@@ -7,9 +7,9 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
-	"vpn-control/internal/api/middleware"
-	"vpn-control/internal/apperr"
-	"vpn-control/internal/remnawave"
+	"remna-control/internal/api/middleware"
+	"remna-control/internal/apperr"
+	"remna-control/internal/remnawave"
 )
 
 type loginRequest struct {

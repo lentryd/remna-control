@@ -18,8 +18,8 @@ import (
 	"strings"
 	"time"
 
-	"vpn-control/ent/migrate"
-	"vpn-control/internal/apperr"
+	"remna-control/ent/migrate"
+	"remna-control/internal/apperr"
 )
 
 const (
@@ -291,7 +291,7 @@ func Open(data []byte) (*Archive, error) {
 		}
 	}
 	if manifest == nil {
-		return nil, apperr.New("backup.no_manifest", "the archive has no manifest.json; it isn't a vpn-control backup")
+		return nil, apperr.New("backup.no_manifest", "the archive has no manifest.json; it isn't a Remna Control backup")
 	}
 	rc, err := manifest.Open()
 	if err != nil {
@@ -302,7 +302,7 @@ func Open(data []byte) (*Archive, error) {
 		return nil, apperr.Wrap(err, "backup.bad_manifest", "invalid manifest.json: {{error}}")
 	}
 	if a.Manifest.Format != Format {
-		return nil, apperr.New("backup.not_backup", "this isn't a vpn-control backup")
+		return nil, apperr.New("backup.not_backup", "this isn't a Remna Control backup")
 	}
 	if a.Manifest.Version > Version {
 		return nil, apperr.New("backup.newer_format", "the backup uses a newer format ({{version}}); update the app", "version", a.Manifest.Version)

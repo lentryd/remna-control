@@ -5,12 +5,12 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
-	"vpn-control/ent"
-	"vpn-control/ent/addon"
-	"vpn-control/ent/subscriptionaddon"
-	"vpn-control/ent/tariff"
-	"vpn-control/internal/apperr"
-	"vpn-control/internal/audit"
+	"remna-control/ent"
+	"remna-control/ent/addon"
+	"remna-control/ent/subscriptionaddon"
+	"remna-control/ent/tariff"
+	"remna-control/internal/apperr"
+	"remna-control/internal/audit"
 )
 
 type catalogAddonView struct {

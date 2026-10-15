@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"vpn-control/ent/expenseitem"
-	"vpn-control/internal/fx"
-	"vpn-control/internal/store"
+	"remna-control/ent/expenseitem"
+	"remna-control/internal/fx"
+	"remna-control/internal/store"
 )
 
 func TestCreateAdvancesDueDate(t *testing.T) {

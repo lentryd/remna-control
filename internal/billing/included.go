@@ -7,13 +7,13 @@ import (
 	"log/slog"
 	"time"
 
-	"vpn-control/ent"
-	"vpn-control/ent/subscription"
-	"vpn-control/ent/subscriptionaddon"
-	"vpn-control/ent/tariff"
-	"vpn-control/internal/audit"
-	"vpn-control/internal/remnawave"
-	"vpn-control/internal/rwsync"
+	"remna-control/ent"
+	"remna-control/ent/subscription"
+	"remna-control/ent/subscriptionaddon"
+	"remna-control/ent/tariff"
+	"remna-control/internal/audit"
+	"remna-control/internal/remnawave"
+	"remna-control/internal/rwsync"
 )
 
 // Included add-ons come with a base tariff (Tariff.included_addons): each is

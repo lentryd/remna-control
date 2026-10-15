@@ -12,12 +12,12 @@ import (
 	"testing"
 	"time"
 
-	"vpn-control/ent"
-	"vpn-control/ent/subscriptionaddon"
-	"vpn-control/ent/tariff"
-	"vpn-control/internal/remnawave"
-	"vpn-control/internal/settings"
-	"vpn-control/internal/store"
+	"remna-control/ent"
+	"remna-control/ent/subscriptionaddon"
+	"remna-control/ent/tariff"
+	"remna-control/internal/remnawave"
+	"remna-control/internal/settings"
+	"remna-control/internal/store"
 )
 
 // fakePanel is an in-memory Remnawave users API.

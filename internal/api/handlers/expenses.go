@@ -7,14 +7,14 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
-	"vpn-control/ent"
-	"vpn-control/ent/expense"
-	"vpn-control/ent/expenseitem"
-	"vpn-control/internal/apperr"
-	"vpn-control/internal/audit"
-	"vpn-control/internal/expenses"
-	"vpn-control/internal/metered"
-	"vpn-control/internal/money"
+	"remna-control/ent"
+	"remna-control/ent/expense"
+	"remna-control/ent/expenseitem"
+	"remna-control/internal/apperr"
+	"remna-control/internal/audit"
+	"remna-control/internal/expenses"
+	"remna-control/internal/metered"
+	"remna-control/internal/money"
 )
 
 type ExpenseView struct {

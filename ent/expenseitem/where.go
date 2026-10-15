@@ -3,8 +3,8 @@
 package expenseitem
 
 import (
+	"remna-control/ent/predicate"
 	"time"
-	"vpn-control/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
 )

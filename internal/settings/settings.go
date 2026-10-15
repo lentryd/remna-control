@@ -6,8 +6,8 @@ import (
 	"context"
 	"strconv"
 
-	"vpn-control/ent"
-	"vpn-control/ent/setting"
+	"remna-control/ent"
+	"remna-control/ent/setting"
 )
 
 const (

@@ -3,7 +3,7 @@
 package fxrate
 
 import (
-	"vpn-control/ent/predicate"
+	"remna-control/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
 )
