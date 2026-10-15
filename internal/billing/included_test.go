@@ -262,3 +262,36 @@ func TestSyncIncludedToSubscribers(t *testing.T) {
 		t.Errorf("after removal: included=%v status=%s", sa.Included, f.panel.users[*sa.RwUserID].Status)
 	}
 }
+
+func TestProvisionRetryIsIdempotent(t *testing.T) {
+	f := setup(t)
+	first := f.provision(t, f.plain)
+	// The caller timed out and asks again: same subscription, no second user.
+	again := f.provision(t, f.plain)
+	if again.ID != first.ID || len(f.panel.users) != 1 {
+		t.Fatalf("retry made sub %d (was %d), %d panel users", again.ID, first.ID, len(f.panel.users))
+	}
+}
+
+func TestProvisionFinishesHalfDone(t *testing.T) {
+	f := setup(t)
+	// The panel user exists but the first attempt died before linking it.
+	f.panel.users[1] = &remnawave.User{ID: 1, Username: "alice", Status: remnawave.StatusActive, ExpireAt: f.now.AddDate(0, 1, 0)}
+	f.panel.next = 1
+	sub := f.provision(t, f.plain)
+	if sub.RwUserID == nil || *sub.RwUserID != 1 || len(f.panel.users) != 1 {
+		t.Fatalf("sub = %+v, %d panel users", sub, len(f.panel.users))
+	}
+}
+
+func TestProvisionRefusesAnotherCustomersUser(t *testing.T) {
+	f := setup(t)
+	f.provision(t, f.plain)
+	other := f.db.Customer.Create().SetName("Bob").SaveX(f.ctx)
+	_, err := f.svc.ProvisionSubscription(f.ctx, ProvisionInput{
+		CustomerID: other.ID, TariffID: f.plain, Username: "alice", Months: 1, AllowDebt: true,
+	})
+	if err == nil {
+		t.Fatal("another customer's panel user must not be adopted")
+	}
+}

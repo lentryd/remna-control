@@ -8,6 +8,7 @@ import (
 
 	"remna-control/ent"
 	"remna-control/ent/extension"
+	"remna-control/ent/rwuser"
 	"remna-control/ent/subscription"
 	"remna-control/ent/subscriptionaddon"
 	"remna-control/ent/tariff"
@@ -87,21 +88,43 @@ func (s *Service) ProvisionSubscription(ctx context.Context, in ProvisionInput) 
 	if err != nil {
 		return nil, err
 	}
+
+	// A retry after a timeout must not fail on the user the first attempt
+	// already made: replay the finished provision, or finish a half-done one.
+	existing, err := s.rw.GetUserByUsername(ctx, in.Username)
+	switch {
+	case err == nil:
+		done, err := s.provisioned(ctx, c.ID, existing)
+		if err != nil || done != nil {
+			return done, err
+		}
+	case !remnawave.IsNotFound(err):
+		return nil, err
+	default:
+		existing = nil
+	}
+
 	if err := s.checkBalance(ctx, c.ID, in.Amount, in.AllowDebt); err != nil {
 		return nil, err
 	}
 
 	now := s.now()
 	to := now.AddDate(0, in.Months, in.Days)
-	req, err := createRequest(t, in.Username, to, descriptionFor(c.Name, in.Label))
-	if err != nil {
-		return nil, err
-	}
-	req.TelegramID = c.TelegramID
-	u, err := s.rw.CreateUser(ctx, req)
-	audit.Log(ctx, s.db, "rw.create_user", "customer", c.ID, req, err)
-	if err != nil {
-		return nil, err
+	u := existing
+	if u == nil {
+		req, err := createRequest(t, in.Username, to, descriptionFor(c.Name, in.Label))
+		if err != nil {
+			return nil, err
+		}
+		req.TelegramID = c.TelegramID
+		u, err = s.rw.CreateUser(ctx, req)
+		audit.Log(ctx, s.db, "rw.create_user", "customer", c.ID, req, err)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		// Created by an earlier attempt, never linked: keep its own expiry.
+		to = u.ExpireAt
 	}
 	if err := rwsync.Upsert(ctx, s.db, u); err != nil {
 		return nil, err
@@ -121,6 +144,31 @@ func (s *Service) ProvisionSubscription(ctx context.Context, in ProvisionInput) 
 		return sub, apperr.Wrap(err, "billing.included_partial", "the subscription was created, but not all of the tariff's add-ons connected: {{error}}")
 	}
 	return sub, nil
+}
+
+// provisioned says whether the panel user u already backs a subscription. It
+// returns that subscription when it is the customer's (a replayed request), an
+// error when u belongs to someone else, and nil, nil when u is free to adopt.
+func (s *Service) provisioned(ctx context.Context, customerID int, u *remnawave.User) (*ent.Subscription, error) {
+	taken := func() error {
+		return apperr.Status(http.StatusConflict, "billing.username_taken", "panel user {{name}} already belongs to another subscription", "name", u.Username)
+	}
+	sub, err := s.db.Subscription.Query().Where(subscription.HasRwUserWith(rwuser.ID(u.ID))).Only(ctx)
+	switch {
+	case err == nil:
+		if sub.CustomerID != customerID {
+			return nil, taken()
+		}
+		return sub, nil
+	case !ent.IsNotFound(err):
+		return nil, err
+	}
+	if linked, err := s.db.SubscriptionAddon.Query().Where(subscriptionaddon.RwUserID(u.ID)).Exist(ctx); err != nil {
+		return nil, err
+	} else if linked {
+		return nil, taken()
+	}
+	return nil, nil
 }
 
 // termLabel is durationLabel, or "бессрочно" for an unlimited expiry.
