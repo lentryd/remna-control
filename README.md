@@ -137,6 +137,7 @@ Everything is set through environment variables. See [`.env.example`](.env.examp
 | `TZ` | `UTC` | Time zone used to show dates and to cut periods |
 | `SYNC_INTERVAL` | `10m` | Panel users sync |
 | `TRAFFIC_SYNC_INTERVAL` | `1h` | Node traffic sync for metered expenses |
+| `PANEL_SYNC_INTERVAL` | `5m` | Push tariff params to panel users and do due "by subscription" traffic resets |
 | `ADDONS_FILE` / `ADDONS_CONFIG` | `./addons.yml` | Optional add-ons file (host path / path inside the app) |
 | `DB_PATH` | `./data/vpn-control.db` | SQLite database |
 
@@ -202,6 +203,8 @@ curl -H "Authorization: Bearer vpc_…" "https://control.example.com/api/v1/addo
 | `DELETE /api/v1/subscriptions/{id}` | `subscriptions:delete` | Unlink a subscription |
 | `POST /api/v1/subscriptions/{id}/addons` | `subscriptions:connect_addon` | Connect an add-on |
 | `PUT /api/v1/subscription-addons/{id}` | `subscriptions:update_addon` | Update a connected add-on |
+| `PUT /api/v1/subscriptions/{id}/traffic-anchor` | `subscriptions:traffic_anchor` | Set the traffic reset anchor of a subscription |
+| `PUT /api/v1/subscription-addons/{id}/traffic-anchor` | `subscriptions:addon_traffic_anchor` | Set the traffic reset anchor of an add-on |
 | `DELETE /api/v1/subscription-addons/{id}` | `subscriptions:delete_addon` | Unlink a connected add-on |
 | `GET /api/v1/items/{kind}/{id}/quote` | `items:quote` | Quote an extension (kind: subscription | addon) |
 | `POST /api/v1/items/{kind}/{id}/extend` | `items:extend` | Extend from the balance |

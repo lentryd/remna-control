@@ -39,6 +39,10 @@ type SubscriptionAddon struct {
 	AutoExtend bool `json:"auto_extend,omitempty"`
 	// Included holds the value of the "included" field.
 	Included bool `json:"included,omitempty"`
+	// TrafficAnchorAt holds the value of the "traffic_anchor_at" field.
+	TrafficAnchorAt *time.Time `json:"traffic_anchor_at,omitempty"`
+	// TrafficResetAt holds the value of the "traffic_reset_at" field.
+	TrafficResetAt *time.Time `json:"traffic_reset_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the SubscriptionAddonQuery when eager-loading is set.
 	Edges        SubscriptionAddonEdges `json:"edges"`
@@ -113,7 +117,7 @@ func (*SubscriptionAddon) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case subscriptionaddon.FieldID, subscriptionaddon.FieldSubscriptionID, subscriptionaddon.FieldAddonID, subscriptionaddon.FieldTariffID, subscriptionaddon.FieldRwUserID, subscriptionaddon.FieldPriceOverride:
 			values[i] = new(sql.NullInt64)
-		case subscriptionaddon.FieldCreatedAt, subscriptionaddon.FieldUpdatedAt:
+		case subscriptionaddon.FieldCreatedAt, subscriptionaddon.FieldUpdatedAt, subscriptionaddon.FieldTrafficAnchorAt, subscriptionaddon.FieldTrafficResetAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -192,6 +196,20 @@ func (_m *SubscriptionAddon) assignValues(columns []string, values []any) error 
 				return fmt.Errorf("unexpected type %T for field included", values[i])
 			} else if value.Valid {
 				_m.Included = value.Bool
+			}
+		case subscriptionaddon.FieldTrafficAnchorAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field traffic_anchor_at", values[i])
+			} else if value.Valid {
+				_m.TrafficAnchorAt = new(time.Time)
+				*_m.TrafficAnchorAt = value.Time
+			}
+		case subscriptionaddon.FieldTrafficResetAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field traffic_reset_at", values[i])
+			} else if value.Valid {
+				_m.TrafficResetAt = new(time.Time)
+				*_m.TrafficResetAt = value.Time
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -281,6 +299,16 @@ func (_m *SubscriptionAddon) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("included=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Included))
+	builder.WriteString(", ")
+	if v := _m.TrafficAnchorAt; v != nil {
+		builder.WriteString("traffic_anchor_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.TrafficResetAt; v != nil {
+		builder.WriteString("traffic_reset_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

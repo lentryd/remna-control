@@ -25,6 +25,14 @@ type fakePanel struct {
 	mu    sync.Mutex
 	users map[int]*remnawave.User
 	next  int
+	// resets counts reset-traffic calls; failReset makes them answer 500.
+	resets    int
+	failReset bool
+	// failResetFor makes reset-traffic fail for one user id; patches
+	// counts PATCH calls; failPatch makes them answer 500.
+	failResetFor int
+	patches      int
+	failPatch    bool
 }
 
 func (p *fakePanel) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -37,7 +45,11 @@ func (p *fakePanel) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		var req remnawave.CreateUserRequest
 		_ = json.NewDecoder(r.Body).Decode(&req)
 		p.next++
-		u := &remnawave.User{ID: p.next, Username: req.Username, Status: req.Status, ExpireAt: req.ExpireAt}
+		u := &remnawave.User{ID: p.next, Username: req.Username, Status: req.Status, ExpireAt: req.ExpireAt,
+			TrafficLimitStrategy: req.TrafficLimitStrategy, HwidDeviceLimit: req.HwidDeviceLimit}
+		if req.TrafficLimitBytes != nil {
+			u.TrafficLimitBytes = *req.TrafficLimitBytes
+		}
 		for _, sq := range req.ActiveInternalSquads {
 			u.ActiveInternalSquads = append(u.ActiveInternalSquads, remnawave.Squad{UUID: sq})
 		}
@@ -46,12 +58,32 @@ func (p *fakePanel) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case r.Method == http.MethodPatch && path == "/api/users":
 		var req remnawave.UpdateUserRequest
 		_ = json.NewDecoder(r.Body).Decode(&req)
+		p.patches++
+		if p.failPatch {
+			http.Error(w, `{"message":"boom"}`, http.StatusInternalServerError)
+			return
+		}
 		u := p.users[req.ID]
 		if req.ExpireAt != nil {
 			u.ExpireAt = *req.ExpireAt
 		}
 		if req.Status != "" {
 			u.Status = req.Status
+		}
+		if req.TrafficLimitBytes != nil {
+			u.TrafficLimitBytes = *req.TrafficLimitBytes
+		}
+		if req.TrafficLimitStrategy != "" {
+			u.TrafficLimitStrategy = req.TrafficLimitStrategy
+		}
+		if req.HwidDeviceLimit != nil {
+			u.HwidDeviceLimit = req.HwidDeviceLimit
+		}
+		if len(req.ActiveInternalSquads) > 0 {
+			u.ActiveInternalSquads = nil
+			for _, sq := range req.ActiveInternalSquads {
+				u.ActiveInternalSquads = append(u.ActiveInternalSquads, remnawave.Squad{UUID: sq})
+			}
 		}
 		reply(u)
 	case strings.HasPrefix(path, "/api/users/by-username/"):
@@ -68,6 +100,16 @@ func (p *fakePanel) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		id, _ := strconv.Atoi(strings.Split(path, "/")[3])
 		u := p.users[id]
 		u.Status = map[bool]string{true: remnawave.StatusActive, false: remnawave.StatusDisabled}[strings.HasSuffix(path, "enable")]
+		reply(u)
+	case r.Method == http.MethodPost && strings.HasSuffix(path, "/actions/reset-traffic"):
+		id, _ := strconv.Atoi(strings.Split(path, "/")[3])
+		if p.failReset || p.failResetFor == id {
+			http.Error(w, `{"message":"boom"}`, http.StatusInternalServerError)
+			return
+		}
+		u := p.users[id]
+		u.UserTraffic.UsedTrafficBytes = 0
+		p.resets++
 		reply(u)
 	case r.Method == http.MethodGet && strings.HasPrefix(path, "/api/users/"):
 		id, _ := strconv.Atoi(strings.TrimPrefix(path, "/api/users/"))
@@ -293,5 +335,41 @@ func TestProvisionRefusesAnotherCustomersUser(t *testing.T) {
 	})
 	if err == nil {
 		t.Fatal("another customer's panel user must not be adopted")
+	}
+}
+
+func (f *fixture) panelUser(t *testing.T, username string) *remnawave.User {
+	t.Helper()
+	f.panel.mu.Lock()
+	defer f.panel.mu.Unlock()
+	for _, u := range f.panel.users {
+		if u.Username == username {
+			return u
+		}
+	}
+	t.Fatalf("no panel user %q", username)
+	return nil
+}
+
+func TestProvision_SubscriptionStrategySendsNoReset(t *testing.T) {
+	f := setup(t)
+	f.db.Tariff.UpdateOneID(f.plain).SetTrafficStrategy(StrategySubscription).SetTrafficLimitBytes(200 << 30).ExecX(f.ctx)
+	f.provision(t, f.plain)
+
+	u := f.panelUser(t, "alice")
+	if u.TrafficLimitStrategy != "NO_RESET" || u.TrafficLimitBytes != 200<<30 {
+		t.Fatalf("strategy %q limit %d", u.TrafficLimitStrategy, u.TrafficLimitBytes)
+	}
+}
+
+func TestIncludedAddon_InheritsParentStrategy(t *testing.T) {
+	f := setup(t)
+	f.db.Tariff.UpdateOneID(f.premium).SetTrafficStrategy(StrategySubscription).ExecX(f.ctx)
+	f.db.Tariff.UpdateOneID(f.white).SetTrafficStrategy("MONTH_ROLLING").SetTrafficLimitBytes(50 << 30).ExecX(f.ctx)
+	f.provision(t, f.premium)
+
+	u := f.panelUser(t, "white_alice")
+	if u.TrafficLimitStrategy != "NO_RESET" || u.TrafficLimitBytes != 50<<30 {
+		t.Fatalf("strategy %q limit %d", u.TrafficLimitStrategy, u.TrafficLimitBytes)
 	}
 }

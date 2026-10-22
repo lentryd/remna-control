@@ -32,6 +32,10 @@ const (
 	FieldAutoExtend = "auto_extend"
 	// FieldIncluded holds the string denoting the included field in the database.
 	FieldIncluded = "included"
+	// FieldTrafficAnchorAt holds the string denoting the traffic_anchor_at field in the database.
+	FieldTrafficAnchorAt = "traffic_anchor_at"
+	// FieldTrafficResetAt holds the string denoting the traffic_reset_at field in the database.
+	FieldTrafficResetAt = "traffic_reset_at"
 	// EdgeSubscription holds the string denoting the subscription edge name in mutations.
 	EdgeSubscription = "subscription"
 	// EdgeAddon holds the string denoting the addon edge name in mutations.
@@ -84,6 +88,8 @@ var Columns = []string{
 	FieldPriceOverride,
 	FieldAutoExtend,
 	FieldIncluded,
+	FieldTrafficAnchorAt,
+	FieldTrafficResetAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -160,6 +166,16 @@ func ByAutoExtend(opts ...sql.OrderTermOption) OrderOption {
 // ByIncluded orders the results by the included field.
 func ByIncluded(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIncluded, opts...).ToFunc()
+}
+
+// ByTrafficAnchorAt orders the results by the traffic_anchor_at field.
+func ByTrafficAnchorAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTrafficAnchorAt, opts...).ToFunc()
+}
+
+// ByTrafficResetAt orders the results by the traffic_reset_at field.
+func ByTrafficResetAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTrafficResetAt, opts...).ToFunc()
 }
 
 // BySubscriptionField orders the results by subscription field.

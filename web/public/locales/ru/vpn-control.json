@@ -174,7 +174,8 @@
             "DAY": "Каждый день",
             "WEEK": "Каждую неделю",
             "MONTH": "Каждый месяц",
-            "MONTH_ROLLING": "Месяц от создания"
+            "MONTH_ROLLING": "Месяц от создания",
+            "SUBSCRIPTION": "По подписке"
         },
         "date_short": "DD.MM"
     },
@@ -373,6 +374,7 @@
         "traffic_limit_hint": "0 — без лимита",
         "traffic_reset": "Сброс трафика",
         "traffic_reset_hint": "Когда обнулять счётчик",
+        "traffic_reset_subscription_hint": "Сброс в день оплаты каждый месяц; панель не сбрасывает сама",
         "hwid": "Лимит устройств (HWID)",
         "hwid_hint": "Пусто — как в панели по умолчанию",
         "squads_label": "Внутренние сквады",
@@ -523,6 +525,9 @@
         "renewal": "Продление",
         "auto_extend_hint": "Продлевать из платежей клиента",
         "auto_extend": "Автопродление",
+        "traffic_anchor": "Дата отсчёта сброса",
+        "traffic_anchor_hint": "От этой даты каждый месяц сбрасывается трафик",
+        "traffic_anchor_edit": "Изменить дату отсчёта",
         "link": "Привязать",
         "new_title": "Новая подписка",
         "no_managed_tariffs": "Нет базовых тарифов с параметрами панели. Включите «Управлять параметрами пользователя» и выберите сквады у тарифа.",
@@ -1005,6 +1010,8 @@
             "subscriptions_delete": "Отвязать подписку",
             "subscriptions_connect_addon": "Подключить аддон",
             "subscriptions_update_addon": "Изменить подключённый аддон",
+            "subscriptions_traffic_anchor": "Дата отсчёта сброса трафика подписки",
+            "subscriptions_addon_traffic_anchor": "Дата отсчёта сброса трафика дополнения",
             "subscriptions_delete_addon": "Отвязать подключённый аддон",
             "items_quote": "Расчёт продления (kind: subscription | addon)",
             "items_extend": "Продлить с баланса",

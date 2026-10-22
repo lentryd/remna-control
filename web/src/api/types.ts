@@ -45,6 +45,8 @@ export interface AddonItem {
     auto_extend: boolean
     // included add-ons come with the subscription's tariff: free, extended with it
     included: boolean
+    // non-null only while traffic resets by subscription
+    traffic_anchor_at: string | null
     rw_user: RwUser | null
 }
 
@@ -60,6 +62,8 @@ export interface Subscription {
     price_override: number | null
     price: number
     auto_extend: boolean
+    // non-null only while traffic resets by subscription
+    traffic_anchor_at: string | null
     rw_user: RwUser | null
     addons: AddonItem[]
     created_at: string

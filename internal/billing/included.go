@@ -103,7 +103,7 @@ func (s *Service) includedChanges(ctx context.Context, sub *ent.Subscription, ne
 // needs.
 func (s *Service) loadSubForIncluded(ctx context.Context, id int) (*ent.Subscription, error) {
 	return s.db.Subscription.Query().Where(subscription.ID(id)).
-		WithRwUser().WithCustomer().
+		WithRwUser().WithCustomer().WithTariff().
 		WithAddons(func(q *ent.SubscriptionAddonQuery) {
 			q.WithAddon().WithRwUser().WithTariff(func(q *ent.TariffQuery) { q.WithPeriods() })
 		}).
@@ -148,7 +148,7 @@ func (s *Service) applyIncluded(ctx context.Context, subID int, removed map[int]
 				s.recordExtension(ctx, "connect", &target{kind: KindAddon, id: sa.ID, customerID: sub.CustomerID}, nil, 0, 0, 0, &now, &to, nil, nil)
 			}
 		case "include":
-			err = s.includePaid(ctx, *ch.SubscriptionAddonID, tariffFor[ch.AddonID], to)
+			err = s.includePaid(ctx, *ch.SubscriptionAddonID, tariffFor[ch.AddonID], sub.Edges.Tariff, to)
 		case "remove":
 			how, ok := removed[*ch.SubscriptionAddonID]
 			if !ok {
@@ -183,15 +183,17 @@ func (s *Service) SyncIncluded(ctx context.Context, tariffID int, removedHow str
 }
 
 // includePaid turns a connected add-on into an included one: the included
-// tariff's parameters, the subscription's expiry.
-func (s *Service) includePaid(ctx context.Context, saID int, t *ent.Tariff, to time.Time) error {
+// tariff's parameters, the subscription's expiry. Its own reset marker is
+// dropped, so it starts following the subscription's resets without an
+// extra one at once.
+func (s *Service) includePaid(ctx context.Context, saID int, t, parent *ent.Tariff, to time.Time) error {
 	sa, err := s.db.SubscriptionAddon.Get(ctx, saID)
 	if err != nil {
 		return err
 	}
 	if sa.RwUserID != nil {
 		upd := remnawave.UpdateUserRequest{ID: *sa.RwUserID, ExpireAt: &to, Status: remnawave.StatusActive}
-		applyTariffToUpdate(t, &upd)
+		DesiredParams(t, EffectiveStrategy(t, parent, true), &to).Apply(&upd)
 		u, err := s.rw.UpdateUser(ctx, upd)
 		audit.Log(ctx, s.db, "rw.include_addon", "subscription_addon", sa.ID, upd, err)
 		if err != nil {
@@ -201,6 +203,7 @@ func (s *Service) includePaid(ctx context.Context, saID int, t *ent.Tariff, to t
 	}
 	return s.db.SubscriptionAddon.UpdateOneID(saID).
 		SetIncluded(true).SetTariffID(t.ID).ClearPriceOverride().SetAutoExtend(true).
+		ClearTrafficResetAt().
 		Exec(ctx)
 }
 

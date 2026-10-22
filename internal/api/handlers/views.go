@@ -64,6 +64,8 @@ type AddonView struct {
 	// Included add-ons come with the subscription's tariff (price 0).
 	Included bool        `json:"included"`
 	RwUser   *RwUserView `json:"rw_user"`
+	// TrafficAnchorAt drives SUBSCRIPTION traffic resets; null when inactive.
+	TrafficAnchorAt *time.Time `json:"traffic_anchor_at"`
 }
 
 type SubscriptionView struct {
@@ -80,7 +82,9 @@ type SubscriptionView struct {
 	AutoExtend    bool        `json:"auto_extend"`
 	RwUser        *RwUserView `json:"rw_user"`
 	Addons        []AddonView `json:"addons"`
-	CreatedAt     time.Time   `json:"created_at"`
+	// TrafficAnchorAt drives SUBSCRIPTION traffic resets; null when inactive.
+	TrafficAnchorAt *time.Time `json:"traffic_anchor_at"`
+	CreatedAt       time.Time  `json:"created_at"`
 }
 
 // Monthly is the subscription's price plus its add-ons' prices (rubles).
@@ -92,7 +96,16 @@ func (s SubscriptionView) Monthly() float64 {
 	return m
 }
 
-func addonView(sa *ent.SubscriptionAddon) AddonView {
+// withAnchor sets the view's anchor and, when set, takes the next reset from it.
+func withAnchor(anchor *time.Time, u *RwUserView) *time.Time {
+	if anchor != nil && u != nil {
+		n := billing.NextReset(*anchor, time.Now(), time.Local)
+		u.NextTrafficResetAt = &n
+	}
+	return anchor
+}
+
+func addonView(sa *ent.SubscriptionAddon, sub *ent.Subscription) AddonView {
 	v := AddonView{
 		ID: sa.ID, SubscriptionID: sa.SubscriptionID, AddonID: sa.AddonID, TariffID: sa.TariffID,
 		PriceOverride: money.ToMajorPtr(sa.PriceOverride),
@@ -105,6 +118,7 @@ func addonView(sa *ent.SubscriptionAddon) AddonView {
 	if sa.Edges.Tariff != nil {
 		v.TariffName = sa.Edges.Tariff.Name
 	}
+	v.TrafficAnchorAt = withAnchor(billing.AddonResetAnchor(sa, sub), v.RwUser)
 	return v
 }
 
@@ -123,8 +137,9 @@ func subscriptionView(sub *ent.Subscription) SubscriptionView {
 	if t := sub.Edges.Tariff; t != nil {
 		v.TariffName = t.Name
 	}
+	v.TrafficAnchorAt = withAnchor(billing.SubscriptionResetAnchor(sub), v.RwUser)
 	for _, sa := range sub.Edges.Addons {
-		v.Addons = append(v.Addons, addonView(sa))
+		v.Addons = append(v.Addons, addonView(sa, sub))
 	}
 	return v
 }

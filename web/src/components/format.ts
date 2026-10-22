@@ -93,7 +93,7 @@ export const durationLabel = (months: number, days: number) =>
 export const GB = 1024 ** 3
 
 // Traffic reset strategies of the panel.
-export const STRATEGIES = ['NO_RESET', 'DAY', 'WEEK', 'MONTH', 'MONTH_ROLLING'] as const
+export const STRATEGIES = ['NO_RESET', 'DAY', 'WEEK', 'MONTH', 'MONTH_ROLLING', 'SUBSCRIPTION'] as const
 
 // trafficPct is the share of the traffic limit used, null without a limit.
 export const trafficPct = (u: { used_traffic_bytes: number; traffic_limit_bytes: number } | null | undefined) =>

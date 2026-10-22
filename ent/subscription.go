@@ -36,6 +36,10 @@ type Subscription struct {
 	PriceOverride *int64 `json:"price_override,omitempty"`
 	// AutoExtend holds the value of the "auto_extend" field.
 	AutoExtend bool `json:"auto_extend,omitempty"`
+	// TrafficAnchorAt holds the value of the "traffic_anchor_at" field.
+	TrafficAnchorAt *time.Time `json:"traffic_anchor_at,omitempty"`
+	// TrafficResetAt holds the value of the "traffic_reset_at" field.
+	TrafficResetAt *time.Time `json:"traffic_reset_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the SubscriptionQuery when eager-loading is set.
 	Edges        SubscriptionEdges `json:"edges"`
@@ -110,7 +114,7 @@ func (*Subscription) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case subscription.FieldLabel:
 			values[i] = new(sql.NullString)
-		case subscription.FieldCreatedAt, subscription.FieldUpdatedAt:
+		case subscription.FieldCreatedAt, subscription.FieldUpdatedAt, subscription.FieldTrafficAnchorAt, subscription.FieldTrafficResetAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -183,6 +187,20 @@ func (_m *Subscription) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field auto_extend", values[i])
 			} else if value.Valid {
 				_m.AutoExtend = value.Bool
+			}
+		case subscription.FieldTrafficAnchorAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field traffic_anchor_at", values[i])
+			} else if value.Valid {
+				_m.TrafficAnchorAt = new(time.Time)
+				*_m.TrafficAnchorAt = value.Time
+			}
+		case subscription.FieldTrafficResetAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field traffic_reset_at", values[i])
+			} else if value.Valid {
+				_m.TrafficResetAt = new(time.Time)
+				*_m.TrafficResetAt = value.Time
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -269,6 +287,16 @@ func (_m *Subscription) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("auto_extend=")
 	builder.WriteString(fmt.Sprintf("%v", _m.AutoExtend))
+	builder.WriteString(", ")
+	if v := _m.TrafficAnchorAt; v != nil {
+		builder.WriteString("traffic_anchor_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.TrafficResetAt; v != nil {
+		builder.WriteString("traffic_reset_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

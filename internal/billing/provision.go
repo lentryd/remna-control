@@ -3,6 +3,7 @@ package billing
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -28,18 +29,7 @@ func (s *Service) tariff(ctx context.Context, id int) (*ent.Tariff, error) {
 	return t, nil
 }
 
-// applyTariffToUpdate copies a tariff's Remnawave user parameters.
-func applyTariffToUpdate(t *ent.Tariff, upd *remnawave.UpdateUserRequest) {
-	limit := t.TrafficLimitBytes
-	upd.TrafficLimitBytes = &limit
-	upd.TrafficLimitStrategy = t.TrafficStrategy
-	upd.HwidDeviceLimit = t.HwidLimit
-	if len(t.SquadUuids) > 0 {
-		upd.ActiveInternalSquads = t.SquadUuids
-	}
-}
-
-func createRequest(t *ent.Tariff, username string, expireAt time.Time, description string) (remnawave.CreateUserRequest, error) {
+func createRequest(t *ent.Tariff, strategy, username string, expireAt time.Time, description string) (remnawave.CreateUserRequest, error) {
 	if len(t.SquadUuids) == 0 {
 		return remnawave.CreateUserRequest{}, apperr.New("tariff.no_squads", "tariff {{name}} has no squads; the user would get no servers", "name", t.Name)
 	}
@@ -49,7 +39,7 @@ func createRequest(t *ent.Tariff, username string, expireAt time.Time, descripti
 		ExpireAt:             expireAt,
 		Status:               remnawave.StatusActive,
 		TrafficLimitBytes:    &limit,
-		TrafficLimitStrategy: t.TrafficStrategy,
+		TrafficLimitStrategy: PanelStrategy(strategy, &expireAt),
 		HwidDeviceLimit:      t.HwidLimit,
 		ActiveInternalSquads: t.SquadUuids,
 		Description:          description,
@@ -112,7 +102,7 @@ func (s *Service) ProvisionSubscription(ctx context.Context, in ProvisionInput) 
 	to := now.AddDate(0, in.Months, in.Days)
 	u := existing
 	if u == nil {
-		req, err := createRequest(t, in.Username, to, descriptionFor(c.Name, in.Label))
+		req, err := createRequest(t, t.TrafficStrategy, in.Username, to, descriptionFor(c.Name, in.Label))
 		if err != nil {
 			return nil, err
 		}
@@ -129,9 +119,16 @@ func (s *Service) ProvisionSubscription(ctx context.Context, in ProvisionInput) 
 	if err := rwsync.Upsert(ctx, s.db, u); err != nil {
 		return nil, err
 	}
-	sub, err := s.db.Subscription.Create().
-		SetCustomerID(c.ID).SetTariffID(t.ID).SetRwUserID(u.ID).SetLabel(in.Label).
-		Save(ctx)
+	create := s.db.Subscription.Create().
+		SetCustomerID(c.ID).SetTariffID(t.ID).SetRwUserID(u.ID).SetLabel(in.Label)
+	// A fresh traffic month: nothing to reset yet.
+	if !Unlimited(&to) {
+		create.SetTrafficAnchorAt(now)
+	}
+	if resetsActive(t.TrafficStrategy, t.ManageRw, &to) {
+		create.SetTrafficResetAt(now)
+	}
+	sub, err := create.Save(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -221,7 +218,7 @@ func (s *Service) ConnectAddon(ctx context.Context, in ConnectAddonInput) (*ent.
 		return nil, apperr.New("billing.term_required", "set the term")
 	}
 	sub, err := s.db.Subscription.Query().Where(subscription.ID(in.SubscriptionID)).
-		WithRwUser().WithCustomer().Only(ctx)
+		WithRwUser().WithCustomer().WithTariff().Only(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -283,6 +280,8 @@ type term struct{ months, days int }
 func (s *Service) connectAddonUser(ctx context.Context, sub *ent.Subscription, t *ent.Tariff, to time.Time, extendBy *term, included bool) (*ent.SubscriptionAddon, time.Time, error) {
 	a := t.Edges.Addon
 	username := a.Prefix + sub.Edges.RwUser.Username + a.Suffix
+	strategy := EffectiveStrategy(t, sub.Edges.Tariff, included)
+	now := s.now()
 	var u *remnawave.User
 	existing, err := s.rw.GetUserByUsername(ctx, username)
 	switch {
@@ -290,17 +289,17 @@ func (s *Service) connectAddonUser(ctx context.Context, sub *ent.Subscription, t
 		// Adopt a user created by hand: apply the tariff parameters, and
 		// never shorten what it already has.
 		if extendBy != nil {
-			to = ExtendFrom(s.now(), &existing.ExpireAt).AddDate(0, extendBy.months, extendBy.days)
+			to = ExtendFrom(now, &existing.ExpireAt).AddDate(0, extendBy.months, extendBy.days)
 		} else if existing.ExpireAt.After(to) && !included {
 			to = existing.ExpireAt
 		}
 		upd := remnawave.UpdateUserRequest{ID: existing.ID, ExpireAt: &to, Status: remnawave.StatusActive}
-		applyTariffToUpdate(t, &upd)
+		DesiredParams(t, strategy, &to).Apply(&upd)
 		u, err = s.rw.UpdateUser(ctx, upd)
 		audit.Log(ctx, s.db, "rw.adopt_addon_user", "subscription", sub.ID, upd, err)
 	case remnawave.IsNotFound(err):
 		var req remnawave.CreateUserRequest
-		req, err = createRequest(t, username, to, descriptionFor(sub.Edges.Customer.Name, a.Name))
+		req, err = createRequest(t, strategy, username, to, descriptionFor(sub.Edges.Customer.Name, a.Name))
 		if err != nil {
 			return nil, to, err
 		}
@@ -314,9 +313,16 @@ func (s *Service) connectAddonUser(ctx context.Context, sub *ent.Subscription, t
 	if err := rwsync.Upsert(ctx, s.db, u); err != nil {
 		return nil, to, err
 	}
-	sa, err := s.db.SubscriptionAddon.Create().
-		SetSubscriptionID(sub.ID).SetAddonID(a.ID).SetTariffID(t.ID).SetRwUserID(u.ID).SetIncluded(included).
-		Save(ctx)
+	create := s.db.SubscriptionAddon.Create().
+		SetSubscriptionID(sub.ID).SetAddonID(a.ID).SetTariffID(t.ID).SetRwUserID(u.ID).SetIncluded(included)
+	// Included add-ons follow the subscription's anchor.
+	if !included && !Unlimited(&to) {
+		create.SetTrafficAnchorAt(now)
+	}
+	if !included && resetsActive(strategy, t.ManageRw, &to) {
+		create.SetTrafficResetAt(now)
+	}
+	sa, err := create.Save(ctx)
 	return sa, to, err
 }
 
@@ -423,11 +429,20 @@ func (s *Service) ChangeTariff(ctx context.Context, in ChangeTariffInput) error 
 	if err != nil {
 		return err
 	}
+	// Resets become ours: backfill a missing anchor, and count the due point
+	// as handled, without resetting.
+	if (cur.anchor == nil || cur.resetAt == nil) && cur.expireAt != nil && resetsActive(t.TrafficStrategy, t.ManageRw, cur.expireAt) {
+		s.mu.Lock()
+		if err := s.backfillAnchor(ctx, in.Kind, in.ID, cur.anchor, *cur.expireAt, s.now()); err != nil {
+			slog.Error("traffic anchor backfill", "kind", in.Kind, "id", in.ID, "error", err)
+		}
+		s.mu.Unlock()
+	}
 
 	var rwErr error
 	if t.ManageRw && cur.rwUserID != nil {
 		upd := remnawave.UpdateUserRequest{ID: *cur.rwUserID}
-		applyTariffToUpdate(t, &upd)
+		DesiredParams(t, t.TrafficStrategy, cur.expireAt).Apply(&upd)
 		var u *remnawave.User
 		u, rwErr = s.rw.UpdateUser(ctx, upd)
 		if rwErr == nil {

@@ -1,13 +1,14 @@
-import { Badge, Box, Button, Card, Group, Text, ThemeIcon, Tooltip, UnstyledButton } from '@mantine/core'
-import { IconCalendarPlus, IconPuzzle, IconRepeat, IconStack2 } from '@tabler/icons-react'
+import { ActionIcon, Badge, Box, Button, Card, Group, Text, ThemeIcon, Tooltip, UnstyledButton } from '@mantine/core'
+import { IconCalendarPlus, IconPencil, IconPuzzle, IconRepeat, IconStack2 } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 
 import type { RwUser, Subscription } from '@/api/types'
 import { openExtendModal } from '@/modals/ExtendModal'
+import { openTrafficAnchorModal } from '@/modals/SubscriptionModals'
 import { openViewAddonModal, openViewSubscriptionModal } from '@/modals/ViewItemModal'
 
 import { ExpireCell, OnlineCell, StatusBadge, TrafficCell, TrafficMini, trafficHint, trafficResetColor } from './badges'
-import { fmtDate } from './format'
+import { fmtDate, fmtDateTime } from './format'
 import { AddonActions, SubscriptionActions } from './ItemActions'
 import classes from './subscription-card.module.css'
 import { Money } from './ui'
@@ -117,6 +118,23 @@ export function SubscriptionCard({ sub }: { sub: Subscription }) {
                 >
                     <TrafficCell user={sub.rw_user} withReset={false} />
                 </Fact>
+                {sub.traffic_anchor_at && (
+                    <Fact label={t('sub.traffic_anchor')}>
+                        <Group gap={4} wrap="nowrap">
+                            <Text size="sm">{fmtDateTime(sub.traffic_anchor_at)}</Text>
+                            <Tooltip label={t('sub.traffic_anchor_edit')}>
+                                <ActionIcon
+                                    aria-label={t('sub.traffic_anchor_edit')}
+                                    onClick={() => openTrafficAnchorModal({ kind: 'subscription', id: sub.id, title: sub.title, anchor: sub.traffic_anchor_at! })}
+                                    size="sm"
+                                    variant="subtle"
+                                >
+                                    <IconPencil size={14} />
+                                </ActionIcon>
+                            </Tooltip>
+                        </Group>
+                    </Fact>
+                )}
                 <Fact label={t('card.last_online')}>
                     <OnlineCell user={sub.rw_user} />
                 </Fact>
@@ -143,6 +161,12 @@ export function SubscriptionCard({ sub }: { sub: Subscription }) {
                                             {a.tariff_name || t('view.no_tariff')}
                                             {' · '}
                                             {a.included ? t('card.in_tariff') : <Money value={a.price} />}
+                                            {a.traffic_anchor_at && !a.included && (
+                                                <>
+                                                    {' · '}
+                                                    {t('sub.traffic_anchor')}: {fmtDateTime(a.traffic_anchor_at)}
+                                                </>
+                                            )}
                                         </Text>
                                     </Box>
                                 </Group>
@@ -151,6 +175,18 @@ export function SubscriptionCard({ sub }: { sub: Subscription }) {
                             <TrafficMini user={a.rw_user} w="100%" />
                             <Group gap="xs" justify="flex-end" wrap="nowrap">
                                 <StatusBadge user={a.rw_user} />
+                                {a.traffic_anchor_at && !a.included && (
+                                    <Tooltip label={t('sub.traffic_anchor_edit')}>
+                                        <ActionIcon
+                                            aria-label={t('sub.traffic_anchor_edit')}
+                                            onClick={() => openTrafficAnchorModal({ kind: 'addon', id: a.id, title: a.addon_name, anchor: a.traffic_anchor_at! })}
+                                            size="sm"
+                                            variant="subtle"
+                                        >
+                                            <IconPencil size={14} />
+                                        </ActionIcon>
+                                    </Tooltip>
+                                )}
                                 <AddonActions addon={a} subTitle={sub.title} />
                             </Group>
                         </div>

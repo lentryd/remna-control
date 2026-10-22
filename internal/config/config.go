@@ -48,6 +48,9 @@ type Config struct {
 	// TrafficSyncInterval is how often node traffic for metered expenses
 	// is pulled from the panel.
 	TrafficSyncInterval time.Duration
+	// PanelSyncInterval is how often tariff params are pushed to panel
+	// users and due traffic resets are done.
+	PanelSyncInterval time.Duration
 	// Location is the time zone dates (expiry, expense dates) are shown in.
 	Location *time.Location
 }
@@ -60,6 +63,13 @@ func Load() (*Config, error) {
 	trafficInterval, err := time.ParseDuration(envOrDefault("TRAFFIC_SYNC_INTERVAL", "1h"))
 	if err != nil {
 		return nil, fmt.Errorf("TRAFFIC_SYNC_INTERVAL: %w", err)
+	}
+	panelInterval, err := time.ParseDuration(envOrDefault("PANEL_SYNC_INTERVAL", "5m"))
+	if err != nil {
+		return nil, fmt.Errorf("PANEL_SYNC_INTERVAL: %w", err)
+	}
+	if panelInterval <= 0 {
+		return nil, fmt.Errorf("PANEL_SYNC_INTERVAL must be positive, got %s", panelInterval)
 	}
 	loc, err := time.LoadLocation(envOrDefault("TZ", "UTC"))
 	if err != nil {
@@ -86,6 +96,7 @@ func Load() (*Config, error) {
 
 		SyncInterval:        syncInterval,
 		TrafficSyncInterval: trafficInterval,
+		PanelSyncInterval:   panelInterval,
 		Location:            loc,
 	}
 

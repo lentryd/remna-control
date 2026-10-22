@@ -90,6 +90,16 @@ func AutoExtend(v bool) predicate.Subscription {
 	return predicate.Subscription(sql.FieldEQ(FieldAutoExtend, v))
 }
 
+// TrafficAnchorAt applies equality check predicate on the "traffic_anchor_at" field. It's identical to TrafficAnchorAtEQ.
+func TrafficAnchorAt(v time.Time) predicate.Subscription {
+	return predicate.Subscription(sql.FieldEQ(FieldTrafficAnchorAt, v))
+}
+
+// TrafficResetAt applies equality check predicate on the "traffic_reset_at" field. It's identical to TrafficResetAtEQ.
+func TrafficResetAt(v time.Time) predicate.Subscription {
+	return predicate.Subscription(sql.FieldEQ(FieldTrafficResetAt, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Subscription {
 	return predicate.Subscription(sql.FieldEQ(FieldCreatedAt, v))
@@ -383,6 +393,106 @@ func AutoExtendEQ(v bool) predicate.Subscription {
 // AutoExtendNEQ applies the NEQ predicate on the "auto_extend" field.
 func AutoExtendNEQ(v bool) predicate.Subscription {
 	return predicate.Subscription(sql.FieldNEQ(FieldAutoExtend, v))
+}
+
+// TrafficAnchorAtEQ applies the EQ predicate on the "traffic_anchor_at" field.
+func TrafficAnchorAtEQ(v time.Time) predicate.Subscription {
+	return predicate.Subscription(sql.FieldEQ(FieldTrafficAnchorAt, v))
+}
+
+// TrafficAnchorAtNEQ applies the NEQ predicate on the "traffic_anchor_at" field.
+func TrafficAnchorAtNEQ(v time.Time) predicate.Subscription {
+	return predicate.Subscription(sql.FieldNEQ(FieldTrafficAnchorAt, v))
+}
+
+// TrafficAnchorAtIn applies the In predicate on the "traffic_anchor_at" field.
+func TrafficAnchorAtIn(vs ...time.Time) predicate.Subscription {
+	return predicate.Subscription(sql.FieldIn(FieldTrafficAnchorAt, vs...))
+}
+
+// TrafficAnchorAtNotIn applies the NotIn predicate on the "traffic_anchor_at" field.
+func TrafficAnchorAtNotIn(vs ...time.Time) predicate.Subscription {
+	return predicate.Subscription(sql.FieldNotIn(FieldTrafficAnchorAt, vs...))
+}
+
+// TrafficAnchorAtGT applies the GT predicate on the "traffic_anchor_at" field.
+func TrafficAnchorAtGT(v time.Time) predicate.Subscription {
+	return predicate.Subscription(sql.FieldGT(FieldTrafficAnchorAt, v))
+}
+
+// TrafficAnchorAtGTE applies the GTE predicate on the "traffic_anchor_at" field.
+func TrafficAnchorAtGTE(v time.Time) predicate.Subscription {
+	return predicate.Subscription(sql.FieldGTE(FieldTrafficAnchorAt, v))
+}
+
+// TrafficAnchorAtLT applies the LT predicate on the "traffic_anchor_at" field.
+func TrafficAnchorAtLT(v time.Time) predicate.Subscription {
+	return predicate.Subscription(sql.FieldLT(FieldTrafficAnchorAt, v))
+}
+
+// TrafficAnchorAtLTE applies the LTE predicate on the "traffic_anchor_at" field.
+func TrafficAnchorAtLTE(v time.Time) predicate.Subscription {
+	return predicate.Subscription(sql.FieldLTE(FieldTrafficAnchorAt, v))
+}
+
+// TrafficAnchorAtIsNil applies the IsNil predicate on the "traffic_anchor_at" field.
+func TrafficAnchorAtIsNil() predicate.Subscription {
+	return predicate.Subscription(sql.FieldIsNull(FieldTrafficAnchorAt))
+}
+
+// TrafficAnchorAtNotNil applies the NotNil predicate on the "traffic_anchor_at" field.
+func TrafficAnchorAtNotNil() predicate.Subscription {
+	return predicate.Subscription(sql.FieldNotNull(FieldTrafficAnchorAt))
+}
+
+// TrafficResetAtEQ applies the EQ predicate on the "traffic_reset_at" field.
+func TrafficResetAtEQ(v time.Time) predicate.Subscription {
+	return predicate.Subscription(sql.FieldEQ(FieldTrafficResetAt, v))
+}
+
+// TrafficResetAtNEQ applies the NEQ predicate on the "traffic_reset_at" field.
+func TrafficResetAtNEQ(v time.Time) predicate.Subscription {
+	return predicate.Subscription(sql.FieldNEQ(FieldTrafficResetAt, v))
+}
+
+// TrafficResetAtIn applies the In predicate on the "traffic_reset_at" field.
+func TrafficResetAtIn(vs ...time.Time) predicate.Subscription {
+	return predicate.Subscription(sql.FieldIn(FieldTrafficResetAt, vs...))
+}
+
+// TrafficResetAtNotIn applies the NotIn predicate on the "traffic_reset_at" field.
+func TrafficResetAtNotIn(vs ...time.Time) predicate.Subscription {
+	return predicate.Subscription(sql.FieldNotIn(FieldTrafficResetAt, vs...))
+}
+
+// TrafficResetAtGT applies the GT predicate on the "traffic_reset_at" field.
+func TrafficResetAtGT(v time.Time) predicate.Subscription {
+	return predicate.Subscription(sql.FieldGT(FieldTrafficResetAt, v))
+}
+
+// TrafficResetAtGTE applies the GTE predicate on the "traffic_reset_at" field.
+func TrafficResetAtGTE(v time.Time) predicate.Subscription {
+	return predicate.Subscription(sql.FieldGTE(FieldTrafficResetAt, v))
+}
+
+// TrafficResetAtLT applies the LT predicate on the "traffic_reset_at" field.
+func TrafficResetAtLT(v time.Time) predicate.Subscription {
+	return predicate.Subscription(sql.FieldLT(FieldTrafficResetAt, v))
+}
+
+// TrafficResetAtLTE applies the LTE predicate on the "traffic_reset_at" field.
+func TrafficResetAtLTE(v time.Time) predicate.Subscription {
+	return predicate.Subscription(sql.FieldLTE(FieldTrafficResetAt, v))
+}
+
+// TrafficResetAtIsNil applies the IsNil predicate on the "traffic_reset_at" field.
+func TrafficResetAtIsNil() predicate.Subscription {
+	return predicate.Subscription(sql.FieldIsNull(FieldTrafficResetAt))
+}
+
+// TrafficResetAtNotNil applies the NotNil predicate on the "traffic_reset_at" field.
+func TrafficResetAtNotNil() predicate.Subscription {
+	return predicate.Subscription(sql.FieldNotNull(FieldTrafficResetAt))
 }
 
 // HasCustomer applies the HasEdge predicate on the "customer" edge.

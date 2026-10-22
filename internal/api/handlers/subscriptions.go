@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"strconv"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 	"remna-control/ent"
 	"remna-control/ent/extension"
 	"remna-control/ent/rwuser"
+	"remna-control/ent/subscriptionaddon"
 	"remna-control/internal/audit"
 	"remna-control/internal/billing"
 	"remna-control/internal/money"
@@ -96,7 +98,7 @@ func (h *Handlers) DeleteSubscription(c *fiber.Ctx) error {
 		return err
 	}
 	ctx := c.UserContext()
-	addons, err := h.DB.Subscription.QueryAddons(&ent.Subscription{ID: id}).IDs(ctx)
+	addons, err := h.DB.SubscriptionAddon.Query().Where(subscriptionaddon.SubscriptionID(id)).IDs(ctx)
 	if err != nil {
 		return err
 	}
@@ -443,4 +445,36 @@ func (h *Handlers) ListInfra(c *fiber.Ctx) error {
 		out["billing_nodes"] = nodes
 	}
 	return c.JSON(out)
+}
+
+type trafficAnchorInput struct {
+	Anchor time.Time `json:"anchor"`
+}
+
+func (h *Handlers) setTrafficAnchor(c *fiber.Ctx, kind string) error {
+	id, err := paramID(c, "id")
+	if err != nil {
+		return err
+	}
+	var in trafficAnchorInput
+	if err := bind(c, &in); err != nil {
+		return err
+	}
+	if in.Anchor.IsZero() {
+		return badRequest(errors.New("anchor is required"))
+	}
+	err = h.Billing.SetTrafficAnchor(c.UserContext(), kind, id, in.Anchor)
+	audit.Log(c.UserContext(), h.DB, "subscription.traffic_anchor", kind, id, in, err)
+	if err != nil {
+		return badRequest(err)
+	}
+	return c.SendStatus(fiber.StatusNoContent)
+}
+
+func (h *Handlers) SetSubscriptionTrafficAnchor(c *fiber.Ctx) error {
+	return h.setTrafficAnchor(c, billing.KindSubscription)
+}
+
+func (h *Handlers) SetAddonTrafficAnchor(c *fiber.Ctx) error {
+	return h.setTrafficAnchor(c, billing.KindAddon)
 }

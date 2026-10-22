@@ -153,6 +153,46 @@ func (_u *SubscriptionUpdate) SetNillableAutoExtend(v *bool) *SubscriptionUpdate
 	return _u
 }
 
+// SetTrafficAnchorAt sets the "traffic_anchor_at" field.
+func (_u *SubscriptionUpdate) SetTrafficAnchorAt(v time.Time) *SubscriptionUpdate {
+	_u.mutation.SetTrafficAnchorAt(v)
+	return _u
+}
+
+// SetNillableTrafficAnchorAt sets the "traffic_anchor_at" field if the given value is not nil.
+func (_u *SubscriptionUpdate) SetNillableTrafficAnchorAt(v *time.Time) *SubscriptionUpdate {
+	if v != nil {
+		_u.SetTrafficAnchorAt(*v)
+	}
+	return _u
+}
+
+// ClearTrafficAnchorAt clears the value of the "traffic_anchor_at" field.
+func (_u *SubscriptionUpdate) ClearTrafficAnchorAt() *SubscriptionUpdate {
+	_u.mutation.ClearTrafficAnchorAt()
+	return _u
+}
+
+// SetTrafficResetAt sets the "traffic_reset_at" field.
+func (_u *SubscriptionUpdate) SetTrafficResetAt(v time.Time) *SubscriptionUpdate {
+	_u.mutation.SetTrafficResetAt(v)
+	return _u
+}
+
+// SetNillableTrafficResetAt sets the "traffic_reset_at" field if the given value is not nil.
+func (_u *SubscriptionUpdate) SetNillableTrafficResetAt(v *time.Time) *SubscriptionUpdate {
+	if v != nil {
+		_u.SetTrafficResetAt(*v)
+	}
+	return _u
+}
+
+// ClearTrafficResetAt clears the value of the "traffic_reset_at" field.
+func (_u *SubscriptionUpdate) ClearTrafficResetAt() *SubscriptionUpdate {
+	_u.mutation.ClearTrafficResetAt()
+	return _u
+}
+
 // SetCustomer sets the "customer" edge to the Customer entity.
 func (_u *SubscriptionUpdate) SetCustomer(v *Customer) *SubscriptionUpdate {
 	return _u.SetCustomerID(v.ID)
@@ -303,6 +343,18 @@ func (_u *SubscriptionUpdate) sqlSave(ctx context.Context) (_node int, err error
 	}
 	if value, ok := _u.mutation.AutoExtend(); ok {
 		_spec.SetField(subscription.FieldAutoExtend, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.TrafficAnchorAt(); ok {
+		_spec.SetField(subscription.FieldTrafficAnchorAt, field.TypeTime, value)
+	}
+	if _u.mutation.TrafficAnchorAtCleared() {
+		_spec.ClearField(subscription.FieldTrafficAnchorAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.TrafficResetAt(); ok {
+		_spec.SetField(subscription.FieldTrafficResetAt, field.TypeTime, value)
+	}
+	if _u.mutation.TrafficResetAtCleared() {
+		_spec.ClearField(subscription.FieldTrafficResetAt, field.TypeTime)
 	}
 	if _u.mutation.CustomerCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -577,6 +629,46 @@ func (_u *SubscriptionUpdateOne) SetNillableAutoExtend(v *bool) *SubscriptionUpd
 	return _u
 }
 
+// SetTrafficAnchorAt sets the "traffic_anchor_at" field.
+func (_u *SubscriptionUpdateOne) SetTrafficAnchorAt(v time.Time) *SubscriptionUpdateOne {
+	_u.mutation.SetTrafficAnchorAt(v)
+	return _u
+}
+
+// SetNillableTrafficAnchorAt sets the "traffic_anchor_at" field if the given value is not nil.
+func (_u *SubscriptionUpdateOne) SetNillableTrafficAnchorAt(v *time.Time) *SubscriptionUpdateOne {
+	if v != nil {
+		_u.SetTrafficAnchorAt(*v)
+	}
+	return _u
+}
+
+// ClearTrafficAnchorAt clears the value of the "traffic_anchor_at" field.
+func (_u *SubscriptionUpdateOne) ClearTrafficAnchorAt() *SubscriptionUpdateOne {
+	_u.mutation.ClearTrafficAnchorAt()
+	return _u
+}
+
+// SetTrafficResetAt sets the "traffic_reset_at" field.
+func (_u *SubscriptionUpdateOne) SetTrafficResetAt(v time.Time) *SubscriptionUpdateOne {
+	_u.mutation.SetTrafficResetAt(v)
+	return _u
+}
+
+// SetNillableTrafficResetAt sets the "traffic_reset_at" field if the given value is not nil.
+func (_u *SubscriptionUpdateOne) SetNillableTrafficResetAt(v *time.Time) *SubscriptionUpdateOne {
+	if v != nil {
+		_u.SetTrafficResetAt(*v)
+	}
+	return _u
+}
+
+// ClearTrafficResetAt clears the value of the "traffic_reset_at" field.
+func (_u *SubscriptionUpdateOne) ClearTrafficResetAt() *SubscriptionUpdateOne {
+	_u.mutation.ClearTrafficResetAt()
+	return _u
+}
+
 // SetCustomer sets the "customer" edge to the Customer entity.
 func (_u *SubscriptionUpdateOne) SetCustomer(v *Customer) *SubscriptionUpdateOne {
 	return _u.SetCustomerID(v.ID)
@@ -757,6 +849,18 @@ func (_u *SubscriptionUpdateOne) sqlSave(ctx context.Context) (_node *Subscripti
 	}
 	if value, ok := _u.mutation.AutoExtend(); ok {
 		_spec.SetField(subscription.FieldAutoExtend, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.TrafficAnchorAt(); ok {
+		_spec.SetField(subscription.FieldTrafficAnchorAt, field.TypeTime, value)
+	}
+	if _u.mutation.TrafficAnchorAtCleared() {
+		_spec.ClearField(subscription.FieldTrafficAnchorAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.TrafficResetAt(); ok {
+		_spec.SetField(subscription.FieldTrafficResetAt, field.TypeTime, value)
+	}
+	if _u.mutation.TrafficResetAtCleared() {
+		_spec.ClearField(subscription.FieldTrafficResetAt, field.TypeTime)
 	}
 	if _u.mutation.CustomerCleared() {
 		edge := &sqlgraph.EdgeSpec{

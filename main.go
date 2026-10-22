@@ -84,10 +84,12 @@ func main() {
 	fxs := fx.New(db, st.Base)
 	syncSvc := rwsync.New(db, rw, cfg.AddonsConfig)
 	expSvc := expenses.New(db, rw, fxs, cfg.Location)
+	billingSvc := billing.New(db, rw, st)
 
 	if !*noSync {
 		go syncSvc.Run(ctx, cfg.SyncInterval)
 		go expSvc.RunTrafficSync(ctx, cfg.TrafficSyncInterval)
+		go billingSvc.RunPanelSync(ctx, cfg.PanelSyncInterval)
 	} else if err := syncSvc.SyncAddons(ctx); err != nil {
 		slog.Warn("addons sync failed", "error", err)
 	}
@@ -103,7 +105,7 @@ func main() {
 
 	app := api.New(&api.Deps{
 		Handlers: &handlers.Handlers{
-			DB: db, SQL: sqlDB, RW: rw, Billing: billing.New(db, rw, st), Expenses: expSvc,
+			DB: db, SQL: sqlDB, RW: rw, Billing: billingSvc, Expenses: expSvc,
 			FX: fxs, Sync: syncSvc, Settings: st, Snapshots: snapshots, Config: cfg, Version: Version,
 		},
 		NoWeb: *noWeb,

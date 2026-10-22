@@ -30,6 +30,10 @@ const (
 	FieldPriceOverride = "price_override"
 	// FieldAutoExtend holds the string denoting the auto_extend field in the database.
 	FieldAutoExtend = "auto_extend"
+	// FieldTrafficAnchorAt holds the string denoting the traffic_anchor_at field in the database.
+	FieldTrafficAnchorAt = "traffic_anchor_at"
+	// FieldTrafficResetAt holds the string denoting the traffic_reset_at field in the database.
+	FieldTrafficResetAt = "traffic_reset_at"
 	// EdgeCustomer holds the string denoting the customer edge name in mutations.
 	EdgeCustomer = "customer"
 	// EdgeTariff holds the string denoting the tariff edge name in mutations.
@@ -81,6 +85,8 @@ var Columns = []string{
 	FieldLabel,
 	FieldPriceOverride,
 	FieldAutoExtend,
+	FieldTrafficAnchorAt,
+	FieldTrafficResetAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -150,6 +156,16 @@ func ByPriceOverride(opts ...sql.OrderTermOption) OrderOption {
 // ByAutoExtend orders the results by the auto_extend field.
 func ByAutoExtend(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAutoExtend, opts...).ToFunc()
+}
+
+// ByTrafficAnchorAt orders the results by the traffic_anchor_at field.
+func ByTrafficAnchorAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTrafficAnchorAt, opts...).ToFunc()
+}
+
+// ByTrafficResetAt orders the results by the traffic_reset_at field.
+func ByTrafficResetAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTrafficResetAt, opts...).ToFunc()
 }
 
 // ByCustomerField orders the results by customer field.

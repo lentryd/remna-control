@@ -130,6 +130,34 @@ func (_c *SubscriptionCreate) SetNillableAutoExtend(v *bool) *SubscriptionCreate
 	return _c
 }
 
+// SetTrafficAnchorAt sets the "traffic_anchor_at" field.
+func (_c *SubscriptionCreate) SetTrafficAnchorAt(v time.Time) *SubscriptionCreate {
+	_c.mutation.SetTrafficAnchorAt(v)
+	return _c
+}
+
+// SetNillableTrafficAnchorAt sets the "traffic_anchor_at" field if the given value is not nil.
+func (_c *SubscriptionCreate) SetNillableTrafficAnchorAt(v *time.Time) *SubscriptionCreate {
+	if v != nil {
+		_c.SetTrafficAnchorAt(*v)
+	}
+	return _c
+}
+
+// SetTrafficResetAt sets the "traffic_reset_at" field.
+func (_c *SubscriptionCreate) SetTrafficResetAt(v time.Time) *SubscriptionCreate {
+	_c.mutation.SetTrafficResetAt(v)
+	return _c
+}
+
+// SetNillableTrafficResetAt sets the "traffic_reset_at" field if the given value is not nil.
+func (_c *SubscriptionCreate) SetNillableTrafficResetAt(v *time.Time) *SubscriptionCreate {
+	if v != nil {
+		_c.SetTrafficResetAt(*v)
+	}
+	return _c
+}
+
 // SetCustomer sets the "customer" edge to the Customer entity.
 func (_c *SubscriptionCreate) SetCustomer(v *Customer) *SubscriptionCreate {
 	return _c.SetCustomerID(v.ID)
@@ -272,6 +300,14 @@ func (_c *SubscriptionCreate) createSpec() (*Subscription, *sqlgraph.CreateSpec)
 	if value, ok := _c.mutation.AutoExtend(); ok {
 		_spec.SetField(subscription.FieldAutoExtend, field.TypeBool, value)
 		_node.AutoExtend = value
+	}
+	if value, ok := _c.mutation.TrafficAnchorAt(); ok {
+		_spec.SetField(subscription.FieldTrafficAnchorAt, field.TypeTime, value)
+		_node.TrafficAnchorAt = &value
+	}
+	if value, ok := _c.mutation.TrafficResetAt(); ok {
+		_spec.SetField(subscription.FieldTrafficResetAt, field.TypeTime, value)
+		_node.TrafficResetAt = &value
 	}
 	if nodes := _c.mutation.CustomerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -506,6 +542,42 @@ func (u *SubscriptionUpsert) UpdateAutoExtend() *SubscriptionUpsert {
 	return u
 }
 
+// SetTrafficAnchorAt sets the "traffic_anchor_at" field.
+func (u *SubscriptionUpsert) SetTrafficAnchorAt(v time.Time) *SubscriptionUpsert {
+	u.Set(subscription.FieldTrafficAnchorAt, v)
+	return u
+}
+
+// UpdateTrafficAnchorAt sets the "traffic_anchor_at" field to the value that was provided on create.
+func (u *SubscriptionUpsert) UpdateTrafficAnchorAt() *SubscriptionUpsert {
+	u.SetExcluded(subscription.FieldTrafficAnchorAt)
+	return u
+}
+
+// ClearTrafficAnchorAt clears the value of the "traffic_anchor_at" field.
+func (u *SubscriptionUpsert) ClearTrafficAnchorAt() *SubscriptionUpsert {
+	u.SetNull(subscription.FieldTrafficAnchorAt)
+	return u
+}
+
+// SetTrafficResetAt sets the "traffic_reset_at" field.
+func (u *SubscriptionUpsert) SetTrafficResetAt(v time.Time) *SubscriptionUpsert {
+	u.Set(subscription.FieldTrafficResetAt, v)
+	return u
+}
+
+// UpdateTrafficResetAt sets the "traffic_reset_at" field to the value that was provided on create.
+func (u *SubscriptionUpsert) UpdateTrafficResetAt() *SubscriptionUpsert {
+	u.SetExcluded(subscription.FieldTrafficResetAt)
+	return u
+}
+
+// ClearTrafficResetAt clears the value of the "traffic_reset_at" field.
+func (u *SubscriptionUpsert) ClearTrafficResetAt() *SubscriptionUpsert {
+	u.SetNull(subscription.FieldTrafficResetAt)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create.
 // Using this option is equivalent to using:
 //
@@ -681,6 +753,48 @@ func (u *SubscriptionUpsertOne) SetAutoExtend(v bool) *SubscriptionUpsertOne {
 func (u *SubscriptionUpsertOne) UpdateAutoExtend() *SubscriptionUpsertOne {
 	return u.Update(func(s *SubscriptionUpsert) {
 		s.UpdateAutoExtend()
+	})
+}
+
+// SetTrafficAnchorAt sets the "traffic_anchor_at" field.
+func (u *SubscriptionUpsertOne) SetTrafficAnchorAt(v time.Time) *SubscriptionUpsertOne {
+	return u.Update(func(s *SubscriptionUpsert) {
+		s.SetTrafficAnchorAt(v)
+	})
+}
+
+// UpdateTrafficAnchorAt sets the "traffic_anchor_at" field to the value that was provided on create.
+func (u *SubscriptionUpsertOne) UpdateTrafficAnchorAt() *SubscriptionUpsertOne {
+	return u.Update(func(s *SubscriptionUpsert) {
+		s.UpdateTrafficAnchorAt()
+	})
+}
+
+// ClearTrafficAnchorAt clears the value of the "traffic_anchor_at" field.
+func (u *SubscriptionUpsertOne) ClearTrafficAnchorAt() *SubscriptionUpsertOne {
+	return u.Update(func(s *SubscriptionUpsert) {
+		s.ClearTrafficAnchorAt()
+	})
+}
+
+// SetTrafficResetAt sets the "traffic_reset_at" field.
+func (u *SubscriptionUpsertOne) SetTrafficResetAt(v time.Time) *SubscriptionUpsertOne {
+	return u.Update(func(s *SubscriptionUpsert) {
+		s.SetTrafficResetAt(v)
+	})
+}
+
+// UpdateTrafficResetAt sets the "traffic_reset_at" field to the value that was provided on create.
+func (u *SubscriptionUpsertOne) UpdateTrafficResetAt() *SubscriptionUpsertOne {
+	return u.Update(func(s *SubscriptionUpsert) {
+		s.UpdateTrafficResetAt()
+	})
+}
+
+// ClearTrafficResetAt clears the value of the "traffic_reset_at" field.
+func (u *SubscriptionUpsertOne) ClearTrafficResetAt() *SubscriptionUpsertOne {
+	return u.Update(func(s *SubscriptionUpsert) {
+		s.ClearTrafficResetAt()
 	})
 }
 
@@ -1025,6 +1139,48 @@ func (u *SubscriptionUpsertBulk) SetAutoExtend(v bool) *SubscriptionUpsertBulk {
 func (u *SubscriptionUpsertBulk) UpdateAutoExtend() *SubscriptionUpsertBulk {
 	return u.Update(func(s *SubscriptionUpsert) {
 		s.UpdateAutoExtend()
+	})
+}
+
+// SetTrafficAnchorAt sets the "traffic_anchor_at" field.
+func (u *SubscriptionUpsertBulk) SetTrafficAnchorAt(v time.Time) *SubscriptionUpsertBulk {
+	return u.Update(func(s *SubscriptionUpsert) {
+		s.SetTrafficAnchorAt(v)
+	})
+}
+
+// UpdateTrafficAnchorAt sets the "traffic_anchor_at" field to the value that was provided on create.
+func (u *SubscriptionUpsertBulk) UpdateTrafficAnchorAt() *SubscriptionUpsertBulk {
+	return u.Update(func(s *SubscriptionUpsert) {
+		s.UpdateTrafficAnchorAt()
+	})
+}
+
+// ClearTrafficAnchorAt clears the value of the "traffic_anchor_at" field.
+func (u *SubscriptionUpsertBulk) ClearTrafficAnchorAt() *SubscriptionUpsertBulk {
+	return u.Update(func(s *SubscriptionUpsert) {
+		s.ClearTrafficAnchorAt()
+	})
+}
+
+// SetTrafficResetAt sets the "traffic_reset_at" field.
+func (u *SubscriptionUpsertBulk) SetTrafficResetAt(v time.Time) *SubscriptionUpsertBulk {
+	return u.Update(func(s *SubscriptionUpsert) {
+		s.SetTrafficResetAt(v)
+	})
+}
+
+// UpdateTrafficResetAt sets the "traffic_reset_at" field to the value that was provided on create.
+func (u *SubscriptionUpsertBulk) UpdateTrafficResetAt() *SubscriptionUpsertBulk {
+	return u.Update(func(s *SubscriptionUpsert) {
+		s.UpdateTrafficResetAt()
+	})
+}
+
+// ClearTrafficResetAt clears the value of the "traffic_reset_at" field.
+func (u *SubscriptionUpsertBulk) ClearTrafficResetAt() *SubscriptionUpsertBulk {
+	return u.Update(func(s *SubscriptionUpsert) {
+		s.ClearTrafficResetAt()
 	})
 }
 

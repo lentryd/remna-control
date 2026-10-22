@@ -531,6 +531,11 @@ function TariffForm({ draft, addons, onDone }: { draft: Draft; addons: Addon[]; 
                                     {...form.getInputProps('traffic_strategy')}
                                 />
                             </SimpleGrid>
+                            {form.values.traffic_strategy === 'SUBSCRIPTION' && (
+                                <Text c="dimmed" size="xs">
+                                    {t('tariffs.traffic_reset_subscription_hint')}
+                                </Text>
+                            )}
                             <NumberInput
                                 label={t('tariffs.hwid')}
                                 description={t('tariffs.hwid_hint')}

@@ -137,6 +137,7 @@ docker compose pull && docker compose up -d
 | `TZ` | `UTC` | Часовой пояс для отображения дат и границ периодов |
 | `SYNC_INTERVAL` | `10m` | Синхронизация пользователей панели |
 | `TRAFFIC_SYNC_INTERVAL` | `1h` | Синхронизация трафика нод для статей по трафику |
+| `PANEL_SYNC_INTERVAL` | `5m` | Передача параметров тарифа пользователям панели и сбросы трафика «по подписке» |
 | `ADDONS_FILE` / `ADDONS_CONFIG` | `./addons.yml` | Необязательный файл аддонов (путь на хосте / внутри приложения) |
 | `DB_PATH` | `./data/vpn-control.db` | База SQLite |
 
@@ -202,6 +203,8 @@ curl -H "Authorization: Bearer vpc_…" "https://control.example.com/api/v1/addo
 | `DELETE /api/v1/subscriptions/{id}` | `subscriptions:delete` | Отвязать подписку |
 | `POST /api/v1/subscriptions/{id}/addons` | `subscriptions:connect_addon` | Подключить аддон |
 | `PUT /api/v1/subscription-addons/{id}` | `subscriptions:update_addon` | Изменить подключённый аддон |
+| `PUT /api/v1/subscriptions/{id}/traffic-anchor` | `subscriptions:traffic_anchor` | Задать якорь сброса трафика подписки |
+| `PUT /api/v1/subscription-addons/{id}/traffic-anchor` | `subscriptions:addon_traffic_anchor` | Задать якорь сброса трафика аддона |
 | `DELETE /api/v1/subscription-addons/{id}` | `subscriptions:delete_addon` | Отвязать подключённый аддон |
 | `GET /api/v1/items/{kind}/{id}/quote` | `items:quote` | Расчёт продления (kind: subscription | addon) |
 | `POST /api/v1/items/{kind}/{id}/extend` | `items:extend` | Продлить с баланса |

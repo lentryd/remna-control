@@ -52,9 +52,11 @@ func RegisterRoutes(app *fiber.App, deps *Deps) {
 	a.Post("/subscriptions/provision", h.ProvisionSubscription)
 	a.Put("/subscriptions/:id", h.UpdateSubscription)
 	a.Delete("/subscriptions/:id", h.DeleteSubscription)
+	a.Put("/subscriptions/:id/traffic-anchor", h.SetSubscriptionTrafficAnchor)
 	a.Post("/subscriptions/:id/addons", h.ConnectAddon)
 	a.Put("/subscription-addons/:id", h.UpdateSubscriptionAddon)
 	a.Delete("/subscription-addons/:id", h.DeleteSubscriptionAddon)
+	a.Put("/subscription-addons/:id/traffic-anchor", h.SetAddonTrafficAnchor)
 
 	// kind: subscription | addon
 	a.Get("/items/:kind/:id/quote", h.QuoteExtend)
@@ -150,14 +152,16 @@ func registerPublic(v1 fiber.Router, h *handlers.Handlers) {
 		"payments:update": h.UpdatePayment,
 		"payments:delete": h.DeletePayment,
 
-		"subscriptions:list":          h.ListSubscriptions,
-		"subscriptions:create":        h.CreateSubscription,
-		"subscriptions:provision":     h.ProvisionSubscription,
-		"subscriptions:update":        h.UpdateSubscription,
-		"subscriptions:delete":        h.DeleteSubscription,
-		"subscriptions:connect_addon": h.ConnectAddon,
-		"subscriptions:update_addon":  h.UpdateSubscriptionAddon,
-		"subscriptions:delete_addon":  h.DeleteSubscriptionAddon,
+		"subscriptions:list":                 h.ListSubscriptions,
+		"subscriptions:create":               h.CreateSubscription,
+		"subscriptions:provision":            h.ProvisionSubscription,
+		"subscriptions:update":               h.UpdateSubscription,
+		"subscriptions:delete":               h.DeleteSubscription,
+		"subscriptions:connect_addon":        h.ConnectAddon,
+		"subscriptions:update_addon":         h.UpdateSubscriptionAddon,
+		"subscriptions:delete_addon":         h.DeleteSubscriptionAddon,
+		"subscriptions:traffic_anchor":       h.SetSubscriptionTrafficAnchor,
+		"subscriptions:addon_traffic_anchor": h.SetAddonTrafficAnchor,
 
 		"items:quote":        h.QuoteExtend,
 		"items:extend":       h.Extend,

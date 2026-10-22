@@ -170,7 +170,8 @@
             "DAY": "Daily",
             "WEEK": "Weekly",
             "MONTH": "Monthly",
-            "MONTH_ROLLING": "Month from creation"
+            "MONTH_ROLLING": "Month from creation",
+            "SUBSCRIPTION": "By subscription"
         },
         "date_short": "MMM D"
     },
@@ -353,6 +354,7 @@
         "traffic_limit_hint": "0 — unlimited",
         "traffic_reset": "Traffic reset",
         "traffic_reset_hint": "When the counter is reset",
+        "traffic_reset_subscription_hint": "Resets on the payment day every month; the panel does not reset it itself",
         "hwid": "Device limit (HWID)",
         "hwid_hint": "Empty — the panel's default",
         "squads_label": "Internal squads",
@@ -497,6 +499,9 @@
         "renewal": "Renewal",
         "auto_extend_hint": "Extend from the customer's payments",
         "auto_extend": "Auto-renewal",
+        "traffic_anchor": "Reset anchor",
+        "traffic_anchor_hint": "Traffic is reset monthly counting from this date",
+        "traffic_anchor_edit": "Edit reset anchor",
         "link": "Link",
         "new_title": "New subscription",
         "no_managed_tariffs": "No base tariffs with panel parameters. Turn on «Manage user parameters» and choose squads on a tariff.",
@@ -971,6 +976,8 @@
             "subscriptions_delete": "Unlink a subscription",
             "subscriptions_connect_addon": "Connect an add-on",
             "subscriptions_update_addon": "Update a connected add-on",
+            "subscriptions_traffic_anchor": "Subscription traffic reset anchor",
+            "subscriptions_addon_traffic_anchor": "Add-on traffic reset anchor",
             "subscriptions_delete_addon": "Unlink a connected add-on",
             "items_quote": "Quote an extension (kind: subscription | addon)",
             "items_extend": "Extend from the balance",

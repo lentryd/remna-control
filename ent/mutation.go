@@ -14680,6 +14680,8 @@ type SubscriptionMutation struct {
 	price_override    *int64
 	addprice_override *int64
 	auto_extend       *bool
+	traffic_anchor_at *time.Time
+	traffic_reset_at  *time.Time
 	clearedFields     map[string]struct{}
 	customer          *int
 	clearedcustomer   bool
@@ -15154,6 +15156,104 @@ func (m *SubscriptionMutation) ResetAutoExtend() {
 	m.auto_extend = nil
 }
 
+// SetTrafficAnchorAt sets the "traffic_anchor_at" field.
+func (m *SubscriptionMutation) SetTrafficAnchorAt(t time.Time) {
+	m.traffic_anchor_at = &t
+}
+
+// TrafficAnchorAt returns the value of the "traffic_anchor_at" field in the mutation.
+func (m *SubscriptionMutation) TrafficAnchorAt() (r time.Time, exists bool) {
+	v := m.traffic_anchor_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTrafficAnchorAt returns the old "traffic_anchor_at" field's value of the Subscription entity.
+// If the Subscription object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubscriptionMutation) OldTrafficAnchorAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTrafficAnchorAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTrafficAnchorAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTrafficAnchorAt: %w", err)
+	}
+	return oldValue.TrafficAnchorAt, nil
+}
+
+// ClearTrafficAnchorAt clears the value of the "traffic_anchor_at" field.
+func (m *SubscriptionMutation) ClearTrafficAnchorAt() {
+	m.traffic_anchor_at = nil
+	m.clearedFields[subscription.FieldTrafficAnchorAt] = struct{}{}
+}
+
+// TrafficAnchorAtCleared returns if the "traffic_anchor_at" field was cleared in this mutation.
+func (m *SubscriptionMutation) TrafficAnchorAtCleared() bool {
+	_, ok := m.clearedFields[subscription.FieldTrafficAnchorAt]
+	return ok
+}
+
+// ResetTrafficAnchorAt resets all changes to the "traffic_anchor_at" field.
+func (m *SubscriptionMutation) ResetTrafficAnchorAt() {
+	m.traffic_anchor_at = nil
+	delete(m.clearedFields, subscription.FieldTrafficAnchorAt)
+}
+
+// SetTrafficResetAt sets the "traffic_reset_at" field.
+func (m *SubscriptionMutation) SetTrafficResetAt(t time.Time) {
+	m.traffic_reset_at = &t
+}
+
+// TrafficResetAt returns the value of the "traffic_reset_at" field in the mutation.
+func (m *SubscriptionMutation) TrafficResetAt() (r time.Time, exists bool) {
+	v := m.traffic_reset_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTrafficResetAt returns the old "traffic_reset_at" field's value of the Subscription entity.
+// If the Subscription object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubscriptionMutation) OldTrafficResetAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTrafficResetAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTrafficResetAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTrafficResetAt: %w", err)
+	}
+	return oldValue.TrafficResetAt, nil
+}
+
+// ClearTrafficResetAt clears the value of the "traffic_reset_at" field.
+func (m *SubscriptionMutation) ClearTrafficResetAt() {
+	m.traffic_reset_at = nil
+	m.clearedFields[subscription.FieldTrafficResetAt] = struct{}{}
+}
+
+// TrafficResetAtCleared returns if the "traffic_reset_at" field was cleared in this mutation.
+func (m *SubscriptionMutation) TrafficResetAtCleared() bool {
+	_, ok := m.clearedFields[subscription.FieldTrafficResetAt]
+	return ok
+}
+
+// ResetTrafficResetAt resets all changes to the "traffic_reset_at" field.
+func (m *SubscriptionMutation) ResetTrafficResetAt() {
+	m.traffic_reset_at = nil
+	delete(m.clearedFields, subscription.FieldTrafficResetAt)
+}
+
 // ClearCustomer clears the "customer" edge to the Customer entity.
 func (m *SubscriptionMutation) ClearCustomer() {
 	m.clearedcustomer = true
@@ -15323,7 +15423,7 @@ func (m *SubscriptionMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SubscriptionMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 10)
 	if m.created_at != nil {
 		fields = append(fields, subscription.FieldCreatedAt)
 	}
@@ -15347,6 +15447,12 @@ func (m *SubscriptionMutation) Fields() []string {
 	}
 	if m.auto_extend != nil {
 		fields = append(fields, subscription.FieldAutoExtend)
+	}
+	if m.traffic_anchor_at != nil {
+		fields = append(fields, subscription.FieldTrafficAnchorAt)
+	}
+	if m.traffic_reset_at != nil {
+		fields = append(fields, subscription.FieldTrafficResetAt)
 	}
 	return fields
 }
@@ -15372,6 +15478,10 @@ func (m *SubscriptionMutation) Field(name string) (ent.Value, bool) {
 		return m.PriceOverride()
 	case subscription.FieldAutoExtend:
 		return m.AutoExtend()
+	case subscription.FieldTrafficAnchorAt:
+		return m.TrafficAnchorAt()
+	case subscription.FieldTrafficResetAt:
+		return m.TrafficResetAt()
 	}
 	return nil, false
 }
@@ -15397,6 +15507,10 @@ func (m *SubscriptionMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldPriceOverride(ctx)
 	case subscription.FieldAutoExtend:
 		return m.OldAutoExtend(ctx)
+	case subscription.FieldTrafficAnchorAt:
+		return m.OldTrafficAnchorAt(ctx)
+	case subscription.FieldTrafficResetAt:
+		return m.OldTrafficResetAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown Subscription field %s", name)
 }
@@ -15462,6 +15576,20 @@ func (m *SubscriptionMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetAutoExtend(v)
 		return nil
+	case subscription.FieldTrafficAnchorAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTrafficAnchorAt(v)
+		return nil
+	case subscription.FieldTrafficResetAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTrafficResetAt(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Subscription field %s", name)
 }
@@ -15519,6 +15647,12 @@ func (m *SubscriptionMutation) ClearedFields() []string {
 	if m.FieldCleared(subscription.FieldPriceOverride) {
 		fields = append(fields, subscription.FieldPriceOverride)
 	}
+	if m.FieldCleared(subscription.FieldTrafficAnchorAt) {
+		fields = append(fields, subscription.FieldTrafficAnchorAt)
+	}
+	if m.FieldCleared(subscription.FieldTrafficResetAt) {
+		fields = append(fields, subscription.FieldTrafficResetAt)
+	}
 	return fields
 }
 
@@ -15544,6 +15678,12 @@ func (m *SubscriptionMutation) ClearField(name string) error {
 		return nil
 	case subscription.FieldPriceOverride:
 		m.ClearPriceOverride()
+		return nil
+	case subscription.FieldTrafficAnchorAt:
+		m.ClearTrafficAnchorAt()
+		return nil
+	case subscription.FieldTrafficResetAt:
+		m.ClearTrafficResetAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Subscription nullable field %s", name)
@@ -15576,6 +15716,12 @@ func (m *SubscriptionMutation) ResetField(name string) error {
 		return nil
 	case subscription.FieldAutoExtend:
 		m.ResetAutoExtend()
+		return nil
+	case subscription.FieldTrafficAnchorAt:
+		m.ResetTrafficAnchorAt()
+		return nil
+	case subscription.FieldTrafficResetAt:
+		m.ResetTrafficResetAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Subscription field %s", name)
@@ -15731,6 +15877,8 @@ type SubscriptionAddonMutation struct {
 	addprice_override   *int64
 	auto_extend         *bool
 	included            *bool
+	traffic_anchor_at   *time.Time
+	traffic_reset_at    *time.Time
 	clearedFields       map[string]struct{}
 	subscription        *int
 	clearedsubscription bool
@@ -16227,6 +16375,104 @@ func (m *SubscriptionAddonMutation) ResetIncluded() {
 	m.included = nil
 }
 
+// SetTrafficAnchorAt sets the "traffic_anchor_at" field.
+func (m *SubscriptionAddonMutation) SetTrafficAnchorAt(t time.Time) {
+	m.traffic_anchor_at = &t
+}
+
+// TrafficAnchorAt returns the value of the "traffic_anchor_at" field in the mutation.
+func (m *SubscriptionAddonMutation) TrafficAnchorAt() (r time.Time, exists bool) {
+	v := m.traffic_anchor_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTrafficAnchorAt returns the old "traffic_anchor_at" field's value of the SubscriptionAddon entity.
+// If the SubscriptionAddon object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubscriptionAddonMutation) OldTrafficAnchorAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTrafficAnchorAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTrafficAnchorAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTrafficAnchorAt: %w", err)
+	}
+	return oldValue.TrafficAnchorAt, nil
+}
+
+// ClearTrafficAnchorAt clears the value of the "traffic_anchor_at" field.
+func (m *SubscriptionAddonMutation) ClearTrafficAnchorAt() {
+	m.traffic_anchor_at = nil
+	m.clearedFields[subscriptionaddon.FieldTrafficAnchorAt] = struct{}{}
+}
+
+// TrafficAnchorAtCleared returns if the "traffic_anchor_at" field was cleared in this mutation.
+func (m *SubscriptionAddonMutation) TrafficAnchorAtCleared() bool {
+	_, ok := m.clearedFields[subscriptionaddon.FieldTrafficAnchorAt]
+	return ok
+}
+
+// ResetTrafficAnchorAt resets all changes to the "traffic_anchor_at" field.
+func (m *SubscriptionAddonMutation) ResetTrafficAnchorAt() {
+	m.traffic_anchor_at = nil
+	delete(m.clearedFields, subscriptionaddon.FieldTrafficAnchorAt)
+}
+
+// SetTrafficResetAt sets the "traffic_reset_at" field.
+func (m *SubscriptionAddonMutation) SetTrafficResetAt(t time.Time) {
+	m.traffic_reset_at = &t
+}
+
+// TrafficResetAt returns the value of the "traffic_reset_at" field in the mutation.
+func (m *SubscriptionAddonMutation) TrafficResetAt() (r time.Time, exists bool) {
+	v := m.traffic_reset_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTrafficResetAt returns the old "traffic_reset_at" field's value of the SubscriptionAddon entity.
+// If the SubscriptionAddon object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubscriptionAddonMutation) OldTrafficResetAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTrafficResetAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTrafficResetAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTrafficResetAt: %w", err)
+	}
+	return oldValue.TrafficResetAt, nil
+}
+
+// ClearTrafficResetAt clears the value of the "traffic_reset_at" field.
+func (m *SubscriptionAddonMutation) ClearTrafficResetAt() {
+	m.traffic_reset_at = nil
+	m.clearedFields[subscriptionaddon.FieldTrafficResetAt] = struct{}{}
+}
+
+// TrafficResetAtCleared returns if the "traffic_reset_at" field was cleared in this mutation.
+func (m *SubscriptionAddonMutation) TrafficResetAtCleared() bool {
+	_, ok := m.clearedFields[subscriptionaddon.FieldTrafficResetAt]
+	return ok
+}
+
+// ResetTrafficResetAt resets all changes to the "traffic_reset_at" field.
+func (m *SubscriptionAddonMutation) ResetTrafficResetAt() {
+	m.traffic_reset_at = nil
+	delete(m.clearedFields, subscriptionaddon.FieldTrafficResetAt)
+}
+
 // ClearSubscription clears the "subscription" edge to the Subscription entity.
 func (m *SubscriptionAddonMutation) ClearSubscription() {
 	m.clearedsubscription = true
@@ -16369,7 +16615,7 @@ func (m *SubscriptionAddonMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SubscriptionAddonMutation) Fields() []string {
-	fields := make([]string, 0, 9)
+	fields := make([]string, 0, 11)
 	if m.created_at != nil {
 		fields = append(fields, subscriptionaddon.FieldCreatedAt)
 	}
@@ -16397,6 +16643,12 @@ func (m *SubscriptionAddonMutation) Fields() []string {
 	if m.included != nil {
 		fields = append(fields, subscriptionaddon.FieldIncluded)
 	}
+	if m.traffic_anchor_at != nil {
+		fields = append(fields, subscriptionaddon.FieldTrafficAnchorAt)
+	}
+	if m.traffic_reset_at != nil {
+		fields = append(fields, subscriptionaddon.FieldTrafficResetAt)
+	}
 	return fields
 }
 
@@ -16423,6 +16675,10 @@ func (m *SubscriptionAddonMutation) Field(name string) (ent.Value, bool) {
 		return m.AutoExtend()
 	case subscriptionaddon.FieldIncluded:
 		return m.Included()
+	case subscriptionaddon.FieldTrafficAnchorAt:
+		return m.TrafficAnchorAt()
+	case subscriptionaddon.FieldTrafficResetAt:
+		return m.TrafficResetAt()
 	}
 	return nil, false
 }
@@ -16450,6 +16706,10 @@ func (m *SubscriptionAddonMutation) OldField(ctx context.Context, name string) (
 		return m.OldAutoExtend(ctx)
 	case subscriptionaddon.FieldIncluded:
 		return m.OldIncluded(ctx)
+	case subscriptionaddon.FieldTrafficAnchorAt:
+		return m.OldTrafficAnchorAt(ctx)
+	case subscriptionaddon.FieldTrafficResetAt:
+		return m.OldTrafficResetAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown SubscriptionAddon field %s", name)
 }
@@ -16522,6 +16782,20 @@ func (m *SubscriptionAddonMutation) SetField(name string, value ent.Value) error
 		}
 		m.SetIncluded(v)
 		return nil
+	case subscriptionaddon.FieldTrafficAnchorAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTrafficAnchorAt(v)
+		return nil
+	case subscriptionaddon.FieldTrafficResetAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTrafficResetAt(v)
+		return nil
 	}
 	return fmt.Errorf("unknown SubscriptionAddon field %s", name)
 }
@@ -16576,6 +16850,12 @@ func (m *SubscriptionAddonMutation) ClearedFields() []string {
 	if m.FieldCleared(subscriptionaddon.FieldPriceOverride) {
 		fields = append(fields, subscriptionaddon.FieldPriceOverride)
 	}
+	if m.FieldCleared(subscriptionaddon.FieldTrafficAnchorAt) {
+		fields = append(fields, subscriptionaddon.FieldTrafficAnchorAt)
+	}
+	if m.FieldCleared(subscriptionaddon.FieldTrafficResetAt) {
+		fields = append(fields, subscriptionaddon.FieldTrafficResetAt)
+	}
 	return fields
 }
 
@@ -16598,6 +16878,12 @@ func (m *SubscriptionAddonMutation) ClearField(name string) error {
 		return nil
 	case subscriptionaddon.FieldPriceOverride:
 		m.ClearPriceOverride()
+		return nil
+	case subscriptionaddon.FieldTrafficAnchorAt:
+		m.ClearTrafficAnchorAt()
+		return nil
+	case subscriptionaddon.FieldTrafficResetAt:
+		m.ClearTrafficResetAt()
 		return nil
 	}
 	return fmt.Errorf("unknown SubscriptionAddon nullable field %s", name)
@@ -16633,6 +16919,12 @@ func (m *SubscriptionAddonMutation) ResetField(name string) error {
 		return nil
 	case subscriptionaddon.FieldIncluded:
 		m.ResetIncluded()
+		return nil
+	case subscriptionaddon.FieldTrafficAnchorAt:
+		m.ResetTrafficAnchorAt()
+		return nil
+	case subscriptionaddon.FieldTrafficResetAt:
+		m.ResetTrafficResetAt()
 		return nil
 	}
 	return fmt.Errorf("unknown SubscriptionAddon field %s", name)

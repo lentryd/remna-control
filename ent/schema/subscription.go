@@ -23,6 +23,10 @@ func (Subscription) Fields() []ent.Field {
 		// PriceOverride (kopecks) wins over the tariff's monthly price.
 		field.Int64("price_override").Optional().Nillable(),
 		field.Bool("auto_extend").Default(true),
+		// TrafficAnchorAt is when the continuous paid coverage started;
+		// TrafficResetAt is the latest reset point already handled.
+		field.Time("traffic_anchor_at").Optional().Nillable(),
+		field.Time("traffic_reset_at").Optional().Nillable(),
 	}
 }
 
@@ -54,6 +58,10 @@ func (SubscriptionAddon) Fields() []ent.Field {
 		// Included add-ons come with the subscription's tariff: free, and
 		// extended, enabled and disabled together with the subscription.
 		field.Bool("included").Default(false),
+		// TrafficAnchorAt is when the continuous paid coverage started;
+		// TrafficResetAt is the latest reset point already handled.
+		field.Time("traffic_anchor_at").Optional().Nillable(),
+		field.Time("traffic_reset_at").Optional().Nillable(),
 	}
 }
 

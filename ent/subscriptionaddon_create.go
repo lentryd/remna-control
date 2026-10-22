@@ -136,6 +136,34 @@ func (_c *SubscriptionAddonCreate) SetNillableIncluded(v *bool) *SubscriptionAdd
 	return _c
 }
 
+// SetTrafficAnchorAt sets the "traffic_anchor_at" field.
+func (_c *SubscriptionAddonCreate) SetTrafficAnchorAt(v time.Time) *SubscriptionAddonCreate {
+	_c.mutation.SetTrafficAnchorAt(v)
+	return _c
+}
+
+// SetNillableTrafficAnchorAt sets the "traffic_anchor_at" field if the given value is not nil.
+func (_c *SubscriptionAddonCreate) SetNillableTrafficAnchorAt(v *time.Time) *SubscriptionAddonCreate {
+	if v != nil {
+		_c.SetTrafficAnchorAt(*v)
+	}
+	return _c
+}
+
+// SetTrafficResetAt sets the "traffic_reset_at" field.
+func (_c *SubscriptionAddonCreate) SetTrafficResetAt(v time.Time) *SubscriptionAddonCreate {
+	_c.mutation.SetTrafficResetAt(v)
+	return _c
+}
+
+// SetNillableTrafficResetAt sets the "traffic_reset_at" field if the given value is not nil.
+func (_c *SubscriptionAddonCreate) SetNillableTrafficResetAt(v *time.Time) *SubscriptionAddonCreate {
+	if v != nil {
+		_c.SetTrafficResetAt(*v)
+	}
+	return _c
+}
+
 // SetSubscription sets the "subscription" edge to the Subscription entity.
 func (_c *SubscriptionAddonCreate) SetSubscription(v *Subscription) *SubscriptionAddonCreate {
 	return _c.SetSubscriptionID(v.ID)
@@ -281,6 +309,14 @@ func (_c *SubscriptionAddonCreate) createSpec() (*SubscriptionAddon, *sqlgraph.C
 	if value, ok := _c.mutation.Included(); ok {
 		_spec.SetField(subscriptionaddon.FieldIncluded, field.TypeBool, value)
 		_node.Included = value
+	}
+	if value, ok := _c.mutation.TrafficAnchorAt(); ok {
+		_spec.SetField(subscriptionaddon.FieldTrafficAnchorAt, field.TypeTime, value)
+		_node.TrafficAnchorAt = &value
+	}
+	if value, ok := _c.mutation.TrafficResetAt(); ok {
+		_spec.SetField(subscriptionaddon.FieldTrafficResetAt, field.TypeTime, value)
+		_node.TrafficResetAt = &value
 	}
 	if nodes := _c.mutation.SubscriptionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -522,6 +558,42 @@ func (u *SubscriptionAddonUpsert) UpdateIncluded() *SubscriptionAddonUpsert {
 	return u
 }
 
+// SetTrafficAnchorAt sets the "traffic_anchor_at" field.
+func (u *SubscriptionAddonUpsert) SetTrafficAnchorAt(v time.Time) *SubscriptionAddonUpsert {
+	u.Set(subscriptionaddon.FieldTrafficAnchorAt, v)
+	return u
+}
+
+// UpdateTrafficAnchorAt sets the "traffic_anchor_at" field to the value that was provided on create.
+func (u *SubscriptionAddonUpsert) UpdateTrafficAnchorAt() *SubscriptionAddonUpsert {
+	u.SetExcluded(subscriptionaddon.FieldTrafficAnchorAt)
+	return u
+}
+
+// ClearTrafficAnchorAt clears the value of the "traffic_anchor_at" field.
+func (u *SubscriptionAddonUpsert) ClearTrafficAnchorAt() *SubscriptionAddonUpsert {
+	u.SetNull(subscriptionaddon.FieldTrafficAnchorAt)
+	return u
+}
+
+// SetTrafficResetAt sets the "traffic_reset_at" field.
+func (u *SubscriptionAddonUpsert) SetTrafficResetAt(v time.Time) *SubscriptionAddonUpsert {
+	u.Set(subscriptionaddon.FieldTrafficResetAt, v)
+	return u
+}
+
+// UpdateTrafficResetAt sets the "traffic_reset_at" field to the value that was provided on create.
+func (u *SubscriptionAddonUpsert) UpdateTrafficResetAt() *SubscriptionAddonUpsert {
+	u.SetExcluded(subscriptionaddon.FieldTrafficResetAt)
+	return u
+}
+
+// ClearTrafficResetAt clears the value of the "traffic_reset_at" field.
+func (u *SubscriptionAddonUpsert) ClearTrafficResetAt() *SubscriptionAddonUpsert {
+	u.SetNull(subscriptionaddon.FieldTrafficResetAt)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create.
 // Using this option is equivalent to using:
 //
@@ -704,6 +776,48 @@ func (u *SubscriptionAddonUpsertOne) SetIncluded(v bool) *SubscriptionAddonUpser
 func (u *SubscriptionAddonUpsertOne) UpdateIncluded() *SubscriptionAddonUpsertOne {
 	return u.Update(func(s *SubscriptionAddonUpsert) {
 		s.UpdateIncluded()
+	})
+}
+
+// SetTrafficAnchorAt sets the "traffic_anchor_at" field.
+func (u *SubscriptionAddonUpsertOne) SetTrafficAnchorAt(v time.Time) *SubscriptionAddonUpsertOne {
+	return u.Update(func(s *SubscriptionAddonUpsert) {
+		s.SetTrafficAnchorAt(v)
+	})
+}
+
+// UpdateTrafficAnchorAt sets the "traffic_anchor_at" field to the value that was provided on create.
+func (u *SubscriptionAddonUpsertOne) UpdateTrafficAnchorAt() *SubscriptionAddonUpsertOne {
+	return u.Update(func(s *SubscriptionAddonUpsert) {
+		s.UpdateTrafficAnchorAt()
+	})
+}
+
+// ClearTrafficAnchorAt clears the value of the "traffic_anchor_at" field.
+func (u *SubscriptionAddonUpsertOne) ClearTrafficAnchorAt() *SubscriptionAddonUpsertOne {
+	return u.Update(func(s *SubscriptionAddonUpsert) {
+		s.ClearTrafficAnchorAt()
+	})
+}
+
+// SetTrafficResetAt sets the "traffic_reset_at" field.
+func (u *SubscriptionAddonUpsertOne) SetTrafficResetAt(v time.Time) *SubscriptionAddonUpsertOne {
+	return u.Update(func(s *SubscriptionAddonUpsert) {
+		s.SetTrafficResetAt(v)
+	})
+}
+
+// UpdateTrafficResetAt sets the "traffic_reset_at" field to the value that was provided on create.
+func (u *SubscriptionAddonUpsertOne) UpdateTrafficResetAt() *SubscriptionAddonUpsertOne {
+	return u.Update(func(s *SubscriptionAddonUpsert) {
+		s.UpdateTrafficResetAt()
+	})
+}
+
+// ClearTrafficResetAt clears the value of the "traffic_reset_at" field.
+func (u *SubscriptionAddonUpsertOne) ClearTrafficResetAt() *SubscriptionAddonUpsertOne {
+	return u.Update(func(s *SubscriptionAddonUpsert) {
+		s.ClearTrafficResetAt()
 	})
 }
 
@@ -1055,6 +1169,48 @@ func (u *SubscriptionAddonUpsertBulk) SetIncluded(v bool) *SubscriptionAddonUpse
 func (u *SubscriptionAddonUpsertBulk) UpdateIncluded() *SubscriptionAddonUpsertBulk {
 	return u.Update(func(s *SubscriptionAddonUpsert) {
 		s.UpdateIncluded()
+	})
+}
+
+// SetTrafficAnchorAt sets the "traffic_anchor_at" field.
+func (u *SubscriptionAddonUpsertBulk) SetTrafficAnchorAt(v time.Time) *SubscriptionAddonUpsertBulk {
+	return u.Update(func(s *SubscriptionAddonUpsert) {
+		s.SetTrafficAnchorAt(v)
+	})
+}
+
+// UpdateTrafficAnchorAt sets the "traffic_anchor_at" field to the value that was provided on create.
+func (u *SubscriptionAddonUpsertBulk) UpdateTrafficAnchorAt() *SubscriptionAddonUpsertBulk {
+	return u.Update(func(s *SubscriptionAddonUpsert) {
+		s.UpdateTrafficAnchorAt()
+	})
+}
+
+// ClearTrafficAnchorAt clears the value of the "traffic_anchor_at" field.
+func (u *SubscriptionAddonUpsertBulk) ClearTrafficAnchorAt() *SubscriptionAddonUpsertBulk {
+	return u.Update(func(s *SubscriptionAddonUpsert) {
+		s.ClearTrafficAnchorAt()
+	})
+}
+
+// SetTrafficResetAt sets the "traffic_reset_at" field.
+func (u *SubscriptionAddonUpsertBulk) SetTrafficResetAt(v time.Time) *SubscriptionAddonUpsertBulk {
+	return u.Update(func(s *SubscriptionAddonUpsert) {
+		s.SetTrafficResetAt(v)
+	})
+}
+
+// UpdateTrafficResetAt sets the "traffic_reset_at" field to the value that was provided on create.
+func (u *SubscriptionAddonUpsertBulk) UpdateTrafficResetAt() *SubscriptionAddonUpsertBulk {
+	return u.Update(func(s *SubscriptionAddonUpsert) {
+		s.UpdateTrafficResetAt()
+	})
+}
+
+// ClearTrafficResetAt clears the value of the "traffic_reset_at" field.
+func (u *SubscriptionAddonUpsertBulk) ClearTrafficResetAt() *SubscriptionAddonUpsertBulk {
+	return u.Update(func(s *SubscriptionAddonUpsert) {
+		s.ClearTrafficResetAt()
 	})
 }
 

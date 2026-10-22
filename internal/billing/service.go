@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"regexp"
+	"sync"
 	"time"
 
 	"remna-control/ent"
@@ -39,10 +41,17 @@ type Service struct {
 	rw       *remnawave.Client
 	settings *settings.Store
 	now      func() time.Time
+
+	// mu serializes the panel sync job's per-entity work with admin actions
+	// that move a traffic anchor or marker, so neither acts on stale ones.
+	mu sync.Mutex
+	// panelOutcome is the last audited PATCH outcome per panel user (guarded
+	// by mu): a PATCH failing the same way each pass is audited once.
+	panelOutcome map[int]string
 }
 
 func New(db *ent.Client, rw *remnawave.Client, st *settings.Store) *Service {
-	return &Service{db: db, rw: rw, settings: st, now: time.Now}
+	return &Service{db: db, rw: rw, settings: st, now: time.Now, panelOutcome: map[int]string{}}
 }
 
 // Balance is the sum of a customer's ledger entries (kopecks).
@@ -160,6 +169,12 @@ type target struct {
 	expireAt   *time.Time
 	// included add-ons come with the subscription's tariff
 	included bool
+	// strategy is the effective traffic strategy, manageRw the own tariff's
+	// flag; anchor and resetAt the traffic reset anchor and handled point
+	strategy string
+	manageRw bool
+	anchor   *time.Time
+	resetAt  *time.Time
 }
 
 func (s *Service) loadTarget(ctx context.Context, kind string, id int) (*target, error) {
@@ -177,7 +192,7 @@ func (s *Service) loadTarget(ctx context.Context, kind string, id int) (*target,
 		sa, err := s.db.SubscriptionAddon.Query().Where(subscriptionaddon.ID(id)).
 			WithTariff(func(q *ent.TariffQuery) { q.WithPeriods() }).
 			WithRwUser().WithAddon().
-			WithSubscription(func(q *ent.SubscriptionQuery) { q.WithCustomer().WithRwUser() }).
+			WithSubscription(func(q *ent.SubscriptionQuery) { q.WithCustomer().WithRwUser().WithTariff() }).
 			Only(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("add-on %d: %w", id, err)
@@ -196,6 +211,10 @@ func subTarget(sub *ent.Subscription) *target {
 		monthly:    EffectivePrice(sub.PriceOverride, sub.Edges.Tariff),
 		periods:    periodsOf(sub.Edges.Tariff),
 		title:      SubscriptionTitle(sub),
+		strategy:   EffectiveStrategy(sub.Edges.Tariff, nil, false),
+		manageRw:   sub.Edges.Tariff != nil && sub.Edges.Tariff.ManageRw,
+		anchor:     sub.TrafficAnchorAt,
+		resetAt:    sub.TrafficResetAt,
 	}
 	if sub.PriceOverride != nil {
 		t.periods = nil // a custom price has no period discounts
@@ -217,6 +236,10 @@ func addonTarget(sa *ent.SubscriptionAddon) *target {
 		periods:    periodsOf(sa.Edges.Tariff),
 		title:      sa.Edges.Addon.Name + " · " + SubscriptionTitle(sub),
 		included:   sa.Included,
+		strategy:   EffectiveStrategy(sa.Edges.Tariff, sub.Edges.Tariff, sa.Included),
+		manageRw:   sa.Edges.Tariff != nil && sa.Edges.Tariff.ManageRw,
+		anchor:     sa.TrafficAnchorAt,
+		resetAt:    sa.TrafficResetAt,
 	}
 	if sa.PriceOverride != nil || sa.Included {
 		t.periods = nil
@@ -566,7 +589,8 @@ func (s *Service) extend(ctx context.Context, in ExtendInput) ExtensionResult {
 	if err != nil {
 		return fail(err)
 	}
-	from := ExtendFrom(s.now(), &user.ExpireAt)
+	now := s.now()
+	from := ExtendFrom(now, &user.ExpireAt)
 	to := from.AddDate(0, in.Months, in.Days)
 	res.From, res.To = &from, &to
 
@@ -592,12 +616,56 @@ func (s *Service) extend(ctx context.Context, in ExtendInput) ExtensionResult {
 	if rwErr == nil && t.kind == KindSubscription {
 		s.followSubscription(ctx, t.id, to)
 	}
+	if rwErr == nil && from.Equal(now) {
+		s.restartTrafficMonth(ctx, t, now)
+	}
 	audit.Log(ctx, s.db, "extend", t.kind, t.id, map[string]any{"months": in.Months, "days": in.Days, "amount": in.Amount, "to": to}, rwErr)
 	if rwErr != nil {
 		return fail(rwErr)
 	}
 	res.OK = true
 	return res
+}
+
+// restartTrafficMonth starts a new traffic month after a late renewal:
+// anchor = now, and a reset of the user (and a subscription's included
+// add-ons) where resets are active. Best-effort: the job catches up.
+func (s *Service) restartTrafficMonth(ctx context.Context, t *target, now time.Time) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if err := s.setTraffic(ctx, t.kind, t.id, &now, nil, false); err != nil {
+		slog.Error("traffic anchor", "kind", t.kind, "id", t.id, "error", err)
+		return
+	}
+	reset := func(kind string, id, rwUserID int) {
+		if err := s.resetTraffic(ctx, kind, id, rwUserID, now); err != nil {
+			slog.Error("traffic reset", "kind", kind, "id", id, "error", err)
+		}
+	}
+	if resetsActive(t.strategy, t.manageRw, t.expireAt) {
+		reset(t.kind, t.id, *t.rwUserID)
+	}
+	if t.kind != KindSubscription || t.strategy != StrategySubscription {
+		return
+	}
+	sas, err := s.db.SubscriptionAddon.Query().
+		Where(subscriptionaddon.SubscriptionID(t.id), subscriptionaddon.Included(true), subscriptionaddon.RwUserIDNotNil()).
+		WithTariff().WithRwUser().
+		All(ctx)
+	if err != nil {
+		slog.Error("included add-ons", "subscription", t.id, "error", err)
+		return
+	}
+	for _, sa := range sas {
+		var expireAt *time.Time
+		if sa.Edges.RwUser != nil {
+			expireAt = sa.Edges.RwUser.ExpireAt
+		}
+		// Included add-ons take the parent's strategy (t.strategy).
+		if sa.Edges.Tariff != nil && resetsActive(t.strategy, sa.Edges.Tariff.ManageRw, expireAt) {
+			reset(KindAddon, sa.ID, *sa.RwUserID)
+		}
+	}
 }
 
 func (s *Service) charge(ctx context.Context, customerID int, amount int64, paymentID *int, note string) (*int, error) {

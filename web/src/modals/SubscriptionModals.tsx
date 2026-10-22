@@ -1,10 +1,12 @@
 import { Alert, Badge, Group, Indicator, NumberInput, Paper, SegmentedControl, Select, type SelectProps, SimpleGrid, Stack, Switch, Text, TextInput } from '@mantine/core'
+import { DateTimePicker } from '@mantine/dates'
 import { TbUser } from 'react-icons/tb'
 import {
     PiArrowsClockwise,
     PiArrowsClockwiseDuotone,
     PiArrowsLeftRight,
     PiArrowsLeftRightDuotone,
+    PiCalendarDuotone,
     PiLinkDuotone,
     PiPlusCircle,
     PiPlusCircleDuotone,
@@ -690,6 +692,39 @@ function ChangeTariffForm({
                 }
                 submitIcon={<PiArrowsLeftRight size={16} />}
                 submitLabel={t('sub.change')}
+            />
+        </>
+    )
+}
+
+export function openTrafficAnchorModal(p: { kind: 'subscription' | 'addon'; id: number; title: string; anchor: string }) {
+    openModal({ icon: PiCalendarDuotone, color: 'indigo', title: i18n.t('sub.traffic_anchor_edit'), subtitle: p.title }, (close) => <TrafficAnchorForm {...p} onDone={close} />)
+}
+
+function TrafficAnchorForm({ kind, id, anchor, onDone }: { kind: 'subscription' | 'addon'; id: number; anchor: string; onDone: () => void }) {
+    const { t } = useTranslation()
+    const [value, setValue] = useState<string | null>(dayjs(anchor).format('YYYY-MM-DD HH:mm:ss'))
+    const m = useApiMutation(() =>
+        api.put(kind === 'subscription' ? `subscriptions/${id}/traffic-anchor` : `subscription-addons/${id}/traffic-anchor`, { anchor: dayjs(value).toISOString() })
+    )
+    return (
+        <>
+            <DateTimePicker label={t('sub.traffic_anchor')} description={t('sub.traffic_anchor_hint')} leftSection={<PiCalendarDuotone size={16} />} value={value} onChange={setValue} />
+            <FormFooter
+                disabled={!value}
+                loading={m.isPending}
+                onCancel={onDone}
+                onSubmit={() =>
+                    m.mutate(undefined, {
+                        onSuccess: () => {
+                            notifyOk(t('common.saved'))
+                            onDone()
+                        },
+                        onError: (e) => notifyError(e)
+                    })
+                }
+                submitIcon={<PiCalendarDuotone size={16} />}
+                submitLabel={t('common.save')}
             />
         </>
     )

@@ -161,6 +161,46 @@ func (_u *SubscriptionAddonUpdate) SetNillableIncluded(v *bool) *SubscriptionAdd
 	return _u
 }
 
+// SetTrafficAnchorAt sets the "traffic_anchor_at" field.
+func (_u *SubscriptionAddonUpdate) SetTrafficAnchorAt(v time.Time) *SubscriptionAddonUpdate {
+	_u.mutation.SetTrafficAnchorAt(v)
+	return _u
+}
+
+// SetNillableTrafficAnchorAt sets the "traffic_anchor_at" field if the given value is not nil.
+func (_u *SubscriptionAddonUpdate) SetNillableTrafficAnchorAt(v *time.Time) *SubscriptionAddonUpdate {
+	if v != nil {
+		_u.SetTrafficAnchorAt(*v)
+	}
+	return _u
+}
+
+// ClearTrafficAnchorAt clears the value of the "traffic_anchor_at" field.
+func (_u *SubscriptionAddonUpdate) ClearTrafficAnchorAt() *SubscriptionAddonUpdate {
+	_u.mutation.ClearTrafficAnchorAt()
+	return _u
+}
+
+// SetTrafficResetAt sets the "traffic_reset_at" field.
+func (_u *SubscriptionAddonUpdate) SetTrafficResetAt(v time.Time) *SubscriptionAddonUpdate {
+	_u.mutation.SetTrafficResetAt(v)
+	return _u
+}
+
+// SetNillableTrafficResetAt sets the "traffic_reset_at" field if the given value is not nil.
+func (_u *SubscriptionAddonUpdate) SetNillableTrafficResetAt(v *time.Time) *SubscriptionAddonUpdate {
+	if v != nil {
+		_u.SetTrafficResetAt(*v)
+	}
+	return _u
+}
+
+// ClearTrafficResetAt clears the value of the "traffic_reset_at" field.
+func (_u *SubscriptionAddonUpdate) ClearTrafficResetAt() *SubscriptionAddonUpdate {
+	_u.mutation.ClearTrafficResetAt()
+	return _u
+}
+
 // SetSubscription sets the "subscription" edge to the Subscription entity.
 func (_u *SubscriptionAddonUpdate) SetSubscription(v *Subscription) *SubscriptionAddonUpdate {
 	return _u.SetSubscriptionID(v.ID)
@@ -286,6 +326,18 @@ func (_u *SubscriptionAddonUpdate) sqlSave(ctx context.Context) (_node int, err 
 	}
 	if value, ok := _u.mutation.Included(); ok {
 		_spec.SetField(subscriptionaddon.FieldIncluded, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.TrafficAnchorAt(); ok {
+		_spec.SetField(subscriptionaddon.FieldTrafficAnchorAt, field.TypeTime, value)
+	}
+	if _u.mutation.TrafficAnchorAtCleared() {
+		_spec.ClearField(subscriptionaddon.FieldTrafficAnchorAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.TrafficResetAt(); ok {
+		_spec.SetField(subscriptionaddon.FieldTrafficResetAt, field.TypeTime, value)
+	}
+	if _u.mutation.TrafficResetAtCleared() {
+		_spec.ClearField(subscriptionaddon.FieldTrafficResetAt, field.TypeTime)
 	}
 	if _u.mutation.SubscriptionCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -552,6 +604,46 @@ func (_u *SubscriptionAddonUpdateOne) SetNillableIncluded(v *bool) *Subscription
 	return _u
 }
 
+// SetTrafficAnchorAt sets the "traffic_anchor_at" field.
+func (_u *SubscriptionAddonUpdateOne) SetTrafficAnchorAt(v time.Time) *SubscriptionAddonUpdateOne {
+	_u.mutation.SetTrafficAnchorAt(v)
+	return _u
+}
+
+// SetNillableTrafficAnchorAt sets the "traffic_anchor_at" field if the given value is not nil.
+func (_u *SubscriptionAddonUpdateOne) SetNillableTrafficAnchorAt(v *time.Time) *SubscriptionAddonUpdateOne {
+	if v != nil {
+		_u.SetTrafficAnchorAt(*v)
+	}
+	return _u
+}
+
+// ClearTrafficAnchorAt clears the value of the "traffic_anchor_at" field.
+func (_u *SubscriptionAddonUpdateOne) ClearTrafficAnchorAt() *SubscriptionAddonUpdateOne {
+	_u.mutation.ClearTrafficAnchorAt()
+	return _u
+}
+
+// SetTrafficResetAt sets the "traffic_reset_at" field.
+func (_u *SubscriptionAddonUpdateOne) SetTrafficResetAt(v time.Time) *SubscriptionAddonUpdateOne {
+	_u.mutation.SetTrafficResetAt(v)
+	return _u
+}
+
+// SetNillableTrafficResetAt sets the "traffic_reset_at" field if the given value is not nil.
+func (_u *SubscriptionAddonUpdateOne) SetNillableTrafficResetAt(v *time.Time) *SubscriptionAddonUpdateOne {
+	if v != nil {
+		_u.SetTrafficResetAt(*v)
+	}
+	return _u
+}
+
+// ClearTrafficResetAt clears the value of the "traffic_reset_at" field.
+func (_u *SubscriptionAddonUpdateOne) ClearTrafficResetAt() *SubscriptionAddonUpdateOne {
+	_u.mutation.ClearTrafficResetAt()
+	return _u
+}
+
 // SetSubscription sets the "subscription" edge to the Subscription entity.
 func (_u *SubscriptionAddonUpdateOne) SetSubscription(v *Subscription) *SubscriptionAddonUpdateOne {
 	return _u.SetSubscriptionID(v.ID)
@@ -707,6 +799,18 @@ func (_u *SubscriptionAddonUpdateOne) sqlSave(ctx context.Context) (_node *Subsc
 	}
 	if value, ok := _u.mutation.Included(); ok {
 		_spec.SetField(subscriptionaddon.FieldIncluded, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.TrafficAnchorAt(); ok {
+		_spec.SetField(subscriptionaddon.FieldTrafficAnchorAt, field.TypeTime, value)
+	}
+	if _u.mutation.TrafficAnchorAtCleared() {
+		_spec.ClearField(subscriptionaddon.FieldTrafficAnchorAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.TrafficResetAt(); ok {
+		_spec.SetField(subscriptionaddon.FieldTrafficResetAt, field.TypeTime, value)
+	}
+	if _u.mutation.TrafficResetAtCleared() {
+		_spec.ClearField(subscriptionaddon.FieldTrafficResetAt, field.TypeTime)
 	}
 	if _u.mutation.SubscriptionCleared() {
 		edge := &sqlgraph.EdgeSpec{

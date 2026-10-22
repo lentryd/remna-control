@@ -61,6 +61,8 @@ var ScopeCatalog = []ScopeResource{
 		{Key: "subscriptions:delete", Method: "DELETE", Path: "/api/v1/subscriptions/{id}", Description: "Unlink a subscription", Kind: "write"},
 		{Key: "subscriptions:connect_addon", Method: "POST", Path: "/api/v1/subscriptions/{id}/addons", Description: "Connect an add-on", Kind: "write"},
 		{Key: "subscriptions:update_addon", Method: "PUT", Path: "/api/v1/subscription-addons/{id}", Description: "Update a connected add-on", Kind: "write"},
+		{Key: "subscriptions:traffic_anchor", Method: "PUT", Path: "/api/v1/subscriptions/{id}/traffic-anchor", Description: "Set the traffic reset anchor of a subscription", Kind: "write"},
+		{Key: "subscriptions:addon_traffic_anchor", Method: "PUT", Path: "/api/v1/subscription-addons/{id}/traffic-anchor", Description: "Set the traffic reset anchor of an add-on", Kind: "write"},
 		{Key: "subscriptions:delete_addon", Method: "DELETE", Path: "/api/v1/subscription-addons/{id}", Description: "Unlink a connected add-on", Kind: "write"},
 	}},
 	{Resource: "items", Endpoints: []ScopeEndpoint{
