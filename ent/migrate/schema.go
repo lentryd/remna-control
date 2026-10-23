@@ -3,6 +3,7 @@
 package migrate
 
 import (
+	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/dialect/sql/schema"
 	"entgo.io/ent/schema/field"
 )
@@ -198,6 +199,50 @@ var (
 				Columns: []*schema.Column{FxRatesColumns[1], FxRatesColumns[2], FxRatesColumns[3]},
 			},
 		},
+	}
+	// JobRunsColumns holds the columns for the "job_runs" table.
+	JobRunsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "job", Type: field.TypeString},
+		{Name: "started_at", Type: field.TypeTime},
+		{Name: "finished_at", Type: field.TypeTime},
+		{Name: "duration_ms", Type: field.TypeInt64, Default: 0},
+		{Name: "ok", Type: field.TypeBool},
+		{Name: "text", Type: field.TypeString, Nullable: true},
+		{Name: "repeat", Type: field.TypeInt, Default: 1},
+	}
+	// JobRunsTable holds the schema information for the "job_runs" table.
+	JobRunsTable = &schema.Table{
+		Name:       "job_runs",
+		Columns:    JobRunsColumns,
+		PrimaryKey: []*schema.Column{JobRunsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "jobrun_job_ok_started_at",
+				Unique:  false,
+				Columns: []*schema.Column{JobRunsColumns[1], JobRunsColumns[5], JobRunsColumns[2]},
+			},
+		},
+	}
+	// JobStatusColumns holds the columns for the "job_status" table.
+	JobStatusColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "job", Type: field.TypeString, Unique: true},
+		{Name: "last_run_at", Type: field.TypeTime, Nullable: true},
+		{Name: "last_success_at", Type: field.TypeTime, Nullable: true},
+		{Name: "last_failure_at", Type: field.TypeTime, Nullable: true},
+		{Name: "last_ok", Type: field.TypeBool, Default: false},
+		{Name: "last_duration_ms", Type: field.TypeInt64, Default: 0},
+		{Name: "last_summary", Type: field.TypeString, Nullable: true},
+		{Name: "last_error", Type: field.TypeString, Nullable: true},
+		{Name: "runs", Type: field.TypeInt, Default: 0},
+		{Name: "failures", Type: field.TypeInt, Default: 0},
+	}
+	// JobStatusTable holds the schema information for the "job_status" table.
+	JobStatusTable = &schema.Table{
+		Name:       "job_status",
+		Columns:    JobStatusColumns,
+		PrimaryKey: []*schema.Column{JobStatusColumns[0]},
 	}
 	// LedgerEntriesColumns holds the columns for the "ledger_entries" table.
 	LedgerEntriesColumns = []*schema.Column{
@@ -516,6 +561,8 @@ var (
 		ExpenseItemsTable,
 		ExtensionsTable,
 		FxRatesTable,
+		JobRunsTable,
+		JobStatusTable,
 		LedgerEntriesTable,
 		PaymentsTable,
 		ReferralAccrualsTable,
@@ -532,6 +579,12 @@ var (
 
 func init() {
 	CustomersTable.ForeignKeys[0].RefTable = CustomersTable
+	JobRunsTable.Annotation = &entsql.Annotation{
+		Table: "job_runs",
+	}
+	JobStatusTable.Annotation = &entsql.Annotation{
+		Table: "job_status",
+	}
 	LedgerEntriesTable.ForeignKeys[0].RefTable = CustomersTable
 	PaymentsTable.ForeignKeys[0].RefTable = CustomersTable
 	ReferralAccrualsTable.ForeignKeys[0].RefTable = PaymentsTable

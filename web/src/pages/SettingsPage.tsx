@@ -1,6 +1,6 @@
 import type { MRT_ColumnDef } from '@kastov/mantine-react-table-open'
 import { Badge, Button, Group, NumberInput, Select, Stack, Text, Transition } from '@mantine/core'
-import { IconArchive, IconHistory, IconKey, IconAdjustmentsHorizontal } from '@tabler/icons-react'
+import { IconActivityHeartbeat, IconArchive, IconHistory, IconKey, IconAdjustmentsHorizontal } from '@tabler/icons-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
@@ -11,6 +11,7 @@ import type { AuditRow } from '@/api/types'
 import { ApiTokensCard } from '@/components/api-tokens/api-tokens-card'
 import { BackupPanel } from '@/components/BackupPanel'
 import { fmtDateTime } from '@/components/format'
+import { JobsPanel } from '@/components/JobsPanel'
 import { notifyError, notifyOk } from '@/components/notify'
 import { PageHeader } from '@/components/ui'
 import { BASE_CURRENCIES, CurrencyIcon } from '@shared/currencies'
@@ -25,7 +26,7 @@ import classes from './settings.module.css'
 // other sections (backups) or are read-only flags.
 const EDITABLE = ['base_currency', 'referral_percent', 'expiring_window_days', 'default_fee_percent'] as const
 
-const SECTIONS = ['params', 'backups', 'tokens', 'audit'] as const
+const SECTIONS = ['params', 'backups', 'jobs', 'tokens', 'audit'] as const
 
 const saveBarTransition = {
     in: { opacity: 1, transform: 'translateY(0)' },
@@ -46,6 +47,7 @@ export function SettingsPage() {
                 items={[
                     { value: 'params', label: t('settings.params'), hint: t('settings.nav.params_hint'), icon: IconAdjustmentsHorizontal },
                     { value: 'backups', label: t('settings.backups'), hint: t('settings.nav.backups_hint'), icon: IconArchive },
+                    { value: 'jobs', label: t('settings.jobs'), hint: t('settings.nav.jobs_hint'), icon: IconActivityHeartbeat },
                     { value: 'tokens', label: t('settings.tokens'), hint: t('settings.nav.tokens_hint'), icon: IconKey },
                     { value: 'audit', label: t('backup.cat.audit.title'), hint: t('settings.nav.audit_hint'), icon: IconHistory }
                 ]}
@@ -54,6 +56,7 @@ export function SettingsPage() {
             >
                 {section === 'params' && <ParamsSection />}
                 {section === 'backups' && <BackupPanel />}
+                {section === 'jobs' && <JobsPanel />}
                 {section === 'tokens' && <ApiTokensCard />}
                 {section === 'audit' && <AuditSection />}
             </SectionNav>

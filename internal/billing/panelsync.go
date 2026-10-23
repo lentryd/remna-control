@@ -6,32 +6,17 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"strings"
 	"time"
 
 	"remna-control/ent"
 	"remna-control/ent/subscription"
 	"remna-control/ent/subscriptionaddon"
 	"remna-control/internal/audit"
+	"remna-control/internal/jobs"
 	"remna-control/internal/remnawave"
 	"remna-control/internal/rwsync"
 )
-
-// RunPanelSync runs SyncPanel now and then every interval until ctx is done.
-func (s *Service) RunPanelSync(ctx context.Context, every time.Duration) {
-	ctx = audit.WithActor(ctx, "system")
-	t := time.NewTicker(every)
-	defer t.Stop()
-	for {
-		if err := s.SyncPanel(ctx); err != nil && ctx.Err() == nil {
-			slog.Error("panel sync failed", "error", err)
-		}
-		select {
-		case <-ctx.Done():
-			return
-		case <-t.C:
-		}
-	}
-}
 
 // panelItem is a subscription or add-on the job brings in line with its
 // tariff.
@@ -49,17 +34,52 @@ type panelItem struct {
 	included bool
 }
 
+// panelCounts is what a panel sync pass got done.
+type panelCounts struct {
+	pushes, resets, backfills int
+}
+
+// summary is like "2 resets, 1 params push"; "" when nothing was done.
+func (n panelCounts) summary() string {
+	var parts []string
+	add := func(k int, one, many string) {
+		switch {
+		case k == 1:
+			parts = append(parts, "1 "+one)
+		case k > 1:
+			parts = append(parts, fmt.Sprintf("%d %s", k, many))
+		}
+	}
+	add(n.resets, "reset", "resets")
+	add(n.pushes, "params push", "params pushes")
+	add(n.backfills, "anchor backfill", "anchor backfills")
+	return strings.Join(parts, ", ")
+}
+
+// PanelSyncJob is SyncPanel as a background job; on a partial failure it
+// returns the joined error along with what did get done.
+func (s *Service) PanelSyncJob(ctx context.Context) (jobs.Result, error) {
+	n, err := s.syncPanel(ctx)
+	return jobs.Result{Summary: n.summary(), Changed: n != panelCounts{}}, err
+}
+
 // SyncPanel pushes tariff params that drifted to the panel and resets
 // traffic where a SUBSCRIPTION reset point is due. One entity's failure
 // doesn't stop the pass; the errors are joined.
 func (s *Service) SyncPanel(ctx context.Context) error {
+	_, err := s.syncPanel(ctx)
+	return err
+}
+
+func (s *Service) syncPanel(ctx context.Context) (panelCounts, error) {
+	var n panelCounts
 	subs, err := s.db.Subscription.Query().WithAddons().All(ctx)
 	if err != nil {
-		return err
+		return n, err
 	}
 	var errs []error
 	sync := func(kind string, id int) {
-		if err := s.syncItem(ctx, kind, id); err != nil {
+		if err := s.syncItem(ctx, kind, id, &n); err != nil {
 			slog.Error("panel sync", "kind", kind, "id", id, "error", err)
 			errs = append(errs, fmt.Errorf("%s %d: %w", kind, id, err))
 		}
@@ -70,7 +90,7 @@ func (s *Service) SyncPanel(ctx context.Context) error {
 			sync(KindAddon, sa.ID)
 		}
 	}
-	return errors.Join(errs...)
+	return n, errors.Join(errs...)
 }
 
 // loadPanelItem loads an item fresh; nil when it's gone.
@@ -114,8 +134,8 @@ func (s *Service) loadPanelItem(ctx context.Context, kind string, id int) (*pane
 
 // syncItem reloads the item under s.mu, so an admin action that moved its
 // anchor or marker since the pass started is seen, then pushes drifted
-// params and handles the item's traffic resets.
-func (s *Service) syncItem(ctx context.Context, kind string, id int) error {
+// params and handles the item's traffic resets, counting what it did in n.
+func (s *Service) syncItem(ctx context.Context, kind string, id int, n *panelCounts) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	it, err := s.loadPanelItem(ctx, kind, id)
@@ -132,16 +152,16 @@ func (s *Service) syncItem(ctx context.Context, kind string, id int) error {
 	var errs []error
 	manageRw := it.tariff != nil && it.tariff.ManageRw
 	if manageRw {
-		errs = append(errs, s.pushParams(ctx, it))
+		errs = append(errs, s.pushParams(ctx, it, n))
 	}
-	errs = append(errs, s.syncResets(ctx, it, manageRw, s.now()))
+	errs = append(errs, s.syncResets(ctx, it, manageRw, s.now(), n))
 	return errors.Join(errs...)
 }
 
 // pushParams PATCHes the panel user when it deviates from its tariff. The
 // PATCH is retried every pass, but audited only when its request or
 // outcome changed for the user.
-func (s *Service) pushParams(ctx context.Context, it *panelItem) error {
+func (s *Service) pushParams(ctx context.Context, it *panelItem, n *panelCounts) error {
 	want := DesiredParams(it.tariff, it.strategy, it.user.ExpireAt)
 	if !want.Differs(it.user) {
 		return nil
@@ -161,13 +181,16 @@ func (s *Service) pushParams(ctx context.Context, it *panelItem) error {
 		audit.Log(ctx, s.db, "rw.sync_params", it.kind, it.id, upd, err)
 		s.panelOutcome[it.user.ID] = outcome
 	}
+	if err == nil {
+		n.pushes++
+	}
 	return err
 }
 
 // syncResets resets the user when a reset point after the handled one is
 // due. Inactive resets drop the marker; an active entity without one has
 // its due point marked handled, so (re-)enabling resets nobody at once.
-func (s *Service) syncResets(ctx context.Context, it *panelItem, manageRw bool, now time.Time) error {
+func (s *Service) syncResets(ctx context.Context, it *panelItem, manageRw bool, now time.Time, n *panelCounts) error {
 	exp := it.user.ExpireAt
 	if !resetsActive(it.strategy, manageRw, exp) {
 		if it.resetAt != nil {
@@ -185,7 +208,11 @@ func (s *Service) syncResets(ctx context.Context, it *panelItem, manageRw bool, 
 			return nil // the parent has no anchor to follow
 		}
 		a := BackfillAnchor(*exp, now, time.Local)
-		return s.backfillAnchor(ctx, it.kind, it.id, &a, *exp, now)
+		err := s.backfillAnchor(ctx, it.kind, it.id, &a, *exp, now)
+		if err == nil {
+			n.backfills++
+		}
+		return err
 	}
 	p, due := ResetDue(*it.anchor, now, time.Local)
 	if it.resetAt == nil {
@@ -197,7 +224,11 @@ func (s *Service) syncResets(ctx context.Context, it *panelItem, manageRw bool, 
 		return s.markHandled(ctx, it.kind, it.id, p)
 	}
 	if due && p.After(*it.resetAt) {
-		return s.resetTraffic(ctx, it.kind, it.id, it.user.ID, p)
+		err := s.resetTraffic(ctx, it.kind, it.id, it.user.ID, p)
+		if err == nil {
+			n.resets++
+		}
+		return err
 	}
 	return nil
 }

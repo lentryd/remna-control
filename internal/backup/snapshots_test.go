@@ -5,7 +5,9 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
+	"time"
 )
 
 func TestSnapshots(t *testing.T) {
@@ -65,5 +67,57 @@ func TestSnapshots(t *testing.T) {
 	}
 	if kinds[KindAuto] != 1 || kinds[KindManual] != 1 {
 		t.Errorf("after prune: %v", kinds)
+	}
+}
+
+func TestSnapshotJobs(t *testing.T) {
+	client, db := open(t)
+	seed(t, client)
+	ctx := context.Background()
+	s := NewSnapshots(filepath.Join(t.TempDir(), "db.sqlite"), db, "test")
+	hour := func() time.Duration { return time.Hour }
+	off := func() time.Duration { return 0 }
+	keep := func() int { return 1 }
+	autos := func() int {
+		list, err := s.List()
+		if err != nil {
+			t.Fatal(err)
+		}
+		n := 0
+		for _, sn := range list {
+			if sn.Kind == KindAuto {
+				n++
+			}
+		}
+		return n
+	}
+
+	if res, err := s.TickJob(off, keep)(ctx); err != nil || !res.Skipped {
+		t.Errorf("schedule off: %+v, %v; want skipped", res, err)
+	}
+	res, err := s.TickJob(hour, keep)(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.Skipped || !res.Changed || !strings.HasPrefix(res.Summary, "snapshot auto-") {
+		t.Errorf("due tick = %+v, want a snapshot", res)
+	}
+	if n := autos(); n != 1 {
+		t.Fatalf("%d auto snapshots, want 1", n)
+	}
+	if res, err := s.TickJob(hour, keep)(ctx); err != nil || !res.Skipped {
+		t.Errorf("not due: %+v, %v; want skipped", res, err)
+	}
+
+	// Run now snapshots regardless of the schedule, and prunes.
+	res, err = s.ManualJob(keep)(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !res.Changed || !strings.HasPrefix(res.Summary, "snapshot auto-") {
+		t.Errorf("manual = %+v, want a snapshot", res)
+	}
+	if n := autos(); n != 1 {
+		t.Errorf("%d auto snapshots after a manual run with keep 1, want 1", n)
 	}
 }

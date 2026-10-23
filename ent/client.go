@@ -19,6 +19,8 @@ import (
 	"remna-control/ent/expenseitem"
 	"remna-control/ent/extension"
 	"remna-control/ent/fxrate"
+	"remna-control/ent/jobrun"
+	"remna-control/ent/jobstatus"
 	"remna-control/ent/ledgerentry"
 	"remna-control/ent/payment"
 	"remna-control/ent/referralaccrual"
@@ -57,6 +59,10 @@ type Client struct {
 	Extension *ExtensionClient
 	// FxRate is the client for interacting with the FxRate builders.
 	FxRate *FxRateClient
+	// JobRun is the client for interacting with the JobRun builders.
+	JobRun *JobRunClient
+	// JobStatus is the client for interacting with the JobStatus builders.
+	JobStatus *JobStatusClient
 	// LedgerEntry is the client for interacting with the LedgerEntry builders.
 	LedgerEntry *LedgerEntryClient
 	// Payment is the client for interacting with the Payment builders.
@@ -96,6 +102,8 @@ func (c *Client) init() {
 	c.ExpenseItem = NewExpenseItemClient(c.config)
 	c.Extension = NewExtensionClient(c.config)
 	c.FxRate = NewFxRateClient(c.config)
+	c.JobRun = NewJobRunClient(c.config)
+	c.JobStatus = NewJobStatusClient(c.config)
 	c.LedgerEntry = NewLedgerEntryClient(c.config)
 	c.Payment = NewPaymentClient(c.config)
 	c.ReferralAccrual = NewReferralAccrualClient(c.config)
@@ -206,6 +214,8 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ExpenseItem:       NewExpenseItemClient(cfg),
 		Extension:         NewExtensionClient(cfg),
 		FxRate:            NewFxRateClient(cfg),
+		JobRun:            NewJobRunClient(cfg),
+		JobStatus:         NewJobStatusClient(cfg),
 		LedgerEntry:       NewLedgerEntryClient(cfg),
 		Payment:           NewPaymentClient(cfg),
 		ReferralAccrual:   NewReferralAccrualClient(cfg),
@@ -243,6 +253,8 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ExpenseItem:       NewExpenseItemClient(cfg),
 		Extension:         NewExtensionClient(cfg),
 		FxRate:            NewFxRateClient(cfg),
+		JobRun:            NewJobRunClient(cfg),
+		JobStatus:         NewJobStatusClient(cfg),
 		LedgerEntry:       NewLedgerEntryClient(cfg),
 		Payment:           NewPaymentClient(cfg),
 		ReferralAccrual:   NewReferralAccrualClient(cfg),
@@ -283,9 +295,9 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.APIToken, c.Addon, c.AuditLog, c.Customer, c.Expense, c.ExpenseItem,
-		c.Extension, c.FxRate, c.LedgerEntry, c.Payment, c.ReferralAccrual, c.RwUser,
-		c.Setting, c.Subscription, c.SubscriptionAddon, c.Tariff, c.TariffPeriod,
-		c.TrafficSnapshot,
+		c.Extension, c.FxRate, c.JobRun, c.JobStatus, c.LedgerEntry, c.Payment,
+		c.ReferralAccrual, c.RwUser, c.Setting, c.Subscription, c.SubscriptionAddon,
+		c.Tariff, c.TariffPeriod, c.TrafficSnapshot,
 	} {
 		n.Use(hooks...)
 	}
@@ -296,9 +308,9 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.APIToken, c.Addon, c.AuditLog, c.Customer, c.Expense, c.ExpenseItem,
-		c.Extension, c.FxRate, c.LedgerEntry, c.Payment, c.ReferralAccrual, c.RwUser,
-		c.Setting, c.Subscription, c.SubscriptionAddon, c.Tariff, c.TariffPeriod,
-		c.TrafficSnapshot,
+		c.Extension, c.FxRate, c.JobRun, c.JobStatus, c.LedgerEntry, c.Payment,
+		c.ReferralAccrual, c.RwUser, c.Setting, c.Subscription, c.SubscriptionAddon,
+		c.Tariff, c.TariffPeriod, c.TrafficSnapshot,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -323,6 +335,10 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Extension.mutate(ctx, m)
 	case *FxRateMutation:
 		return c.FxRate.mutate(ctx, m)
+	case *JobRunMutation:
+		return c.JobRun.mutate(ctx, m)
+	case *JobStatusMutation:
+		return c.JobStatus.mutate(ctx, m)
 	case *LedgerEntryMutation:
 		return c.LedgerEntry.mutate(ctx, m)
 	case *PaymentMutation:
@@ -1521,6 +1537,272 @@ func (c *FxRateClient) mutate(ctx context.Context, m *FxRateMutation) (Value, er
 		return (&FxRateDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown FxRate mutation op: %q", m.Op())
+	}
+}
+
+// JobRunClient is a client for the JobRun schema.
+type JobRunClient struct {
+	config
+}
+
+// NewJobRunClient returns a client for the JobRun from the given config.
+func NewJobRunClient(c config) *JobRunClient {
+	return &JobRunClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `jobrun.Hooks(f(g(h())))`.
+func (c *JobRunClient) Use(hooks ...Hook) {
+	c.hooks.JobRun = append(c.hooks.JobRun, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `jobrun.Intercept(f(g(h())))`.
+func (c *JobRunClient) Intercept(interceptors ...Interceptor) {
+	c.inters.JobRun = append(c.inters.JobRun, interceptors...)
+}
+
+// Create returns a builder for creating a JobRun entity.
+func (c *JobRunClient) Create() *JobRunCreate {
+	mutation := newJobRunMutation(c.config, OpCreate)
+	return &JobRunCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of JobRun entities.
+func (c *JobRunClient) CreateBulk(builders ...*JobRunCreate) *JobRunCreateBulk {
+	return &JobRunCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *JobRunClient) MapCreateBulk(slice any, setFunc func(*JobRunCreate, int)) *JobRunCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &JobRunCreateBulk{err: fmt.Errorf("calling to JobRunClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*JobRunCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &JobRunCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for JobRun.
+func (c *JobRunClient) Update() *JobRunUpdate {
+	mutation := newJobRunMutation(c.config, OpUpdate)
+	return &JobRunUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *JobRunClient) UpdateOne(_m *JobRun) *JobRunUpdateOne {
+	mutation := newJobRunMutation(c.config, OpUpdateOne, withJobRun(_m))
+	return &JobRunUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *JobRunClient) UpdateOneID(id int) *JobRunUpdateOne {
+	mutation := newJobRunMutation(c.config, OpUpdateOne, withJobRunID(id))
+	return &JobRunUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for JobRun.
+func (c *JobRunClient) Delete() *JobRunDelete {
+	mutation := newJobRunMutation(c.config, OpDelete)
+	return &JobRunDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *JobRunClient) DeleteOne(_m *JobRun) *JobRunDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *JobRunClient) DeleteOneID(id int) *JobRunDeleteOne {
+	builder := c.Delete().Where(jobrun.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &JobRunDeleteOne{builder}
+}
+
+// Query returns a query builder for JobRun.
+func (c *JobRunClient) Query() *JobRunQuery {
+	return &JobRunQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeJobRun},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a JobRun entity by its id.
+func (c *JobRunClient) Get(ctx context.Context, id int) (*JobRun, error) {
+	return c.Query().Where(jobrun.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *JobRunClient) GetX(ctx context.Context, id int) *JobRun {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *JobRunClient) Hooks() []Hook {
+	return c.hooks.JobRun
+}
+
+// Interceptors returns the client interceptors.
+func (c *JobRunClient) Interceptors() []Interceptor {
+	return c.inters.JobRun
+}
+
+func (c *JobRunClient) mutate(ctx context.Context, m *JobRunMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&JobRunCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&JobRunUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&JobRunUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&JobRunDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown JobRun mutation op: %q", m.Op())
+	}
+}
+
+// JobStatusClient is a client for the JobStatus schema.
+type JobStatusClient struct {
+	config
+}
+
+// NewJobStatusClient returns a client for the JobStatus from the given config.
+func NewJobStatusClient(c config) *JobStatusClient {
+	return &JobStatusClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `jobstatus.Hooks(f(g(h())))`.
+func (c *JobStatusClient) Use(hooks ...Hook) {
+	c.hooks.JobStatus = append(c.hooks.JobStatus, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `jobstatus.Intercept(f(g(h())))`.
+func (c *JobStatusClient) Intercept(interceptors ...Interceptor) {
+	c.inters.JobStatus = append(c.inters.JobStatus, interceptors...)
+}
+
+// Create returns a builder for creating a JobStatus entity.
+func (c *JobStatusClient) Create() *JobStatusCreate {
+	mutation := newJobStatusMutation(c.config, OpCreate)
+	return &JobStatusCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of JobStatus entities.
+func (c *JobStatusClient) CreateBulk(builders ...*JobStatusCreate) *JobStatusCreateBulk {
+	return &JobStatusCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *JobStatusClient) MapCreateBulk(slice any, setFunc func(*JobStatusCreate, int)) *JobStatusCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &JobStatusCreateBulk{err: fmt.Errorf("calling to JobStatusClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*JobStatusCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &JobStatusCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for JobStatus.
+func (c *JobStatusClient) Update() *JobStatusUpdate {
+	mutation := newJobStatusMutation(c.config, OpUpdate)
+	return &JobStatusUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *JobStatusClient) UpdateOne(_m *JobStatus) *JobStatusUpdateOne {
+	mutation := newJobStatusMutation(c.config, OpUpdateOne, withJobStatus(_m))
+	return &JobStatusUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *JobStatusClient) UpdateOneID(id int) *JobStatusUpdateOne {
+	mutation := newJobStatusMutation(c.config, OpUpdateOne, withJobStatusID(id))
+	return &JobStatusUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for JobStatus.
+func (c *JobStatusClient) Delete() *JobStatusDelete {
+	mutation := newJobStatusMutation(c.config, OpDelete)
+	return &JobStatusDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *JobStatusClient) DeleteOne(_m *JobStatus) *JobStatusDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *JobStatusClient) DeleteOneID(id int) *JobStatusDeleteOne {
+	builder := c.Delete().Where(jobstatus.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &JobStatusDeleteOne{builder}
+}
+
+// Query returns a query builder for JobStatus.
+func (c *JobStatusClient) Query() *JobStatusQuery {
+	return &JobStatusQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeJobStatus},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a JobStatus entity by its id.
+func (c *JobStatusClient) Get(ctx context.Context, id int) (*JobStatus, error) {
+	return c.Query().Where(jobstatus.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *JobStatusClient) GetX(ctx context.Context, id int) *JobStatus {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *JobStatusClient) Hooks() []Hook {
+	return c.hooks.JobStatus
+}
+
+// Interceptors returns the client interceptors.
+func (c *JobStatusClient) Interceptors() []Interceptor {
+	return c.inters.JobStatus
+}
+
+func (c *JobStatusClient) mutate(ctx context.Context, m *JobStatusMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&JobStatusCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&JobStatusUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&JobStatusUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&JobStatusDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown JobStatus mutation op: %q", m.Op())
 	}
 }
 
@@ -3194,12 +3476,14 @@ func (c *TrafficSnapshotClient) mutate(ctx context.Context, m *TrafficSnapshotMu
 type (
 	hooks struct {
 		APIToken, Addon, AuditLog, Customer, Expense, ExpenseItem, Extension, FxRate,
-		LedgerEntry, Payment, ReferralAccrual, RwUser, Setting, Subscription,
-		SubscriptionAddon, Tariff, TariffPeriod, TrafficSnapshot []ent.Hook
+		JobRun, JobStatus, LedgerEntry, Payment, ReferralAccrual, RwUser, Setting,
+		Subscription, SubscriptionAddon, Tariff, TariffPeriod,
+		TrafficSnapshot []ent.Hook
 	}
 	inters struct {
 		APIToken, Addon, AuditLog, Customer, Expense, ExpenseItem, Extension, FxRate,
-		LedgerEntry, Payment, ReferralAccrual, RwUser, Setting, Subscription,
-		SubscriptionAddon, Tariff, TariffPeriod, TrafficSnapshot []ent.Interceptor
+		JobRun, JobStatus, LedgerEntry, Payment, ReferralAccrual, RwUser, Setting,
+		Subscription, SubscriptionAddon, Tariff, TariffPeriod,
+		TrafficSnapshot []ent.Interceptor
 	}
 )

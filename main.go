@@ -15,11 +15,13 @@ import (
 
 	"remna-control/internal/api"
 	"remna-control/internal/api/handlers"
+	"remna-control/internal/audit"
 	"remna-control/internal/backup"
 	"remna-control/internal/billing"
 	"remna-control/internal/config"
 	"remna-control/internal/expenses"
 	"remna-control/internal/fx"
+	"remna-control/internal/jobs"
 	"remna-control/internal/remnawave"
 	"remna-control/internal/rwsync"
 	"remna-control/internal/settings"
@@ -86,27 +88,42 @@ func main() {
 	expSvc := expenses.New(db, rw, fxs, cfg.Location)
 	billingSvc := billing.New(db, rw, st)
 
-	if !*noSync {
-		go syncSvc.Run(ctx, cfg.SyncInterval)
-		go expSvc.RunTrafficSync(ctx, cfg.TrafficSyncInterval)
-		go billingSvc.RunPanelSync(ctx, cfg.PanelSyncInterval)
-	} else if err := syncSvc.SyncAddons(ctx); err != nil {
-		slog.Warn("addons sync failed", "error", err)
-	}
-
 	snapshots := backup.NewSnapshots(cfg.DBPath, sqlDB, Version)
-	if !*noSync {
-		go snapshots.Run(ctx,
-			func() time.Duration {
-				return time.Duration(st.Float(ctx, settings.SnapshotIntervalHours) * float64(time.Hour))
-			},
-			func() int { return st.Int(ctx, settings.SnapshotKeep) })
+	snapshotEvery := func() time.Duration {
+		return time.Duration(st.Float(ctx, settings.SnapshotIntervalHours) * float64(time.Hour))
+	}
+	snapshotKeep := func() int { return st.Int(ctx, settings.SnapshotKeep) }
+
+	// With -no-sync no job runs, backups included.
+	mgr := jobs.New(db, !*noSync)
+	mgr.Register(jobs.Job{Key: "panel_users", Every: cfg.SyncInterval, Tick: syncSvc.SyncJob, Throttle: true})
+	mgr.Register(jobs.Job{Key: "traffic", Every: cfg.TrafficSyncInterval, Tick: expSvc.TrafficJob, Throttle: true})
+	mgr.Register(jobs.Job{
+		Key:   "panel_sync",
+		Every: cfg.PanelSyncInterval,
+		Tick: func(ctx context.Context) (jobs.Result, error) {
+			return billingSvc.PanelSyncJob(audit.WithActor(ctx, "system"))
+		},
+		Manual: billingSvc.PanelSyncJob, // audited as whoever ran it
+	})
+	mgr.Register(jobs.Job{
+		Key:      "backups",
+		Every:    10 * time.Minute,
+		Schedule: snapshotEvery,
+		Tick:     snapshots.TickJob(snapshotEvery, snapshotKeep),
+		Manual:   snapshots.ManualJob(snapshotKeep),
+	})
+	mgr.Start(ctx)
+	if *noSync {
+		if err := syncSvc.SyncAddons(ctx); err != nil {
+			slog.Warn("addons sync failed", "error", err)
+		}
 	}
 
 	app := api.New(&api.Deps{
 		Handlers: &handlers.Handlers{
 			DB: db, SQL: sqlDB, RW: rw, Billing: billingSvc, Expenses: expSvc,
-			FX: fxs, Sync: syncSvc, Settings: st, Snapshots: snapshots, Config: cfg, Version: Version,
+			FX: fxs, Sync: syncSvc, Settings: st, Snapshots: snapshots, Jobs: mgr, Config: cfg, Version: Version,
 		},
 		NoWeb: *noWeb,
 	})

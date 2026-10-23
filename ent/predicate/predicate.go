@@ -30,6 +30,12 @@ type Extension func(*sql.Selector)
 // FxRate is the predicate function for fxrate builders.
 type FxRate func(*sql.Selector)
 
+// JobRun is the predicate function for jobrun builders.
+type JobRun func(*sql.Selector)
+
+// JobStatus is the predicate function for jobstatus builders.
+type JobStatus func(*sql.Selector)
+
 // LedgerEntry is the predicate function for ledgerentry builders.
 type LedgerEntry func(*sql.Selector)
 

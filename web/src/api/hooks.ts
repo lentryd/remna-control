@@ -10,6 +10,8 @@ import type {
     Dashboard,
     Expense,
     ExpenseItem,
+    Job,
+    JobRun,
     MeteredSummary,
     Payment,
     ProviderTotals,
@@ -41,7 +43,9 @@ export const qk = {
     referralTree: ['referrals', 'tree'],
     accruals: ['referrals', 'accruals'],
     settings: ['settings'],
-    audit: ['audit']
+    audit: ['audit'],
+    jobs: ['jobs'],
+    jobRuns: (key: string) => ['jobs', key, 'runs']
 }
 
 export const useMe = () =>
@@ -83,6 +87,17 @@ export const useAccruals = () => useQuery({ queryKey: qk.accruals, queryFn: () =
 export const useSettings = (enabled = true) =>
     useQuery({ queryKey: qk.settings, queryFn: () => api.get<Record<string, string>>('settings'), enabled })
 export const useAudit = () => useQuery({ queryKey: qk.audit, queryFn: () => api.get<AuditRow[]>('audit') })
+// useJobs polls the background jobs list every refetchMs while it is used.
+export const useJobs = (refetchMs: number) =>
+    useQuery({ queryKey: qk.jobs, queryFn: () => api.get<Job[]>('jobs'), refetchInterval: refetchMs })
+// useJobRuns loads one job's history; enabled keeps it off until the row is open.
+export const useJobRuns = (key: string, enabled: boolean) =>
+    useQuery({
+        queryKey: qk.jobRuns(key),
+        queryFn: () => api.get<JobRun[]>(`jobs/${key}/runs`),
+        enabled,
+        refetchInterval: 10_000
+    })
 
 // useInvalidateAll refreshes every query after a mutation: data here is
 // small and heavily cross-linked (a payment changes balances, expiries,

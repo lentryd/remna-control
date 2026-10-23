@@ -486,6 +486,36 @@ export interface ExtensionResult {
     error: string
 }
 
+// Job is a background job with its persisted status. Times are RFC3339;
+// last_ok null means it never ran, interval_seconds null means the schedule is off.
+export interface Job {
+    key: string
+    interval_seconds: number | null
+    enabled: boolean
+    running: boolean
+    last_run_at: string | null
+    last_success_at: string | null
+    last_failure_at: string | null
+    last_ok: boolean | null
+    last_duration_ms: number
+    last_summary: string
+    last_error: string
+    runs: number
+    failures: number
+}
+
+// JobRun is one history row of a job; for repeat > 1 started_at is the
+// first occurrence of the same failure and finished_at the last.
+export interface JobRun {
+    id: number
+    started_at: string
+    finished_at: string
+    duration_ms: number
+    ok: boolean
+    text: string
+    repeat: number
+}
+
 export interface AuditRow {
     id: number
     at: string

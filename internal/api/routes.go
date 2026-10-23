@@ -88,6 +88,10 @@ func RegisterRoutes(app *fiber.App, deps *Deps) {
 	a.Get("/rw/sync", h.SyncStatus)
 	a.Post("/rw/sync", h.SyncNow)
 
+	a.Get("/jobs", h.ListJobs)
+	a.Get("/jobs/:key/runs", h.JobRuns)
+	a.Post("/jobs/:key/run", h.RunJobNow)
+
 	a.Get("/expenses", h.ListExpenses)
 	a.Post("/expenses", h.CreateExpense)
 	a.Put("/expenses/:id", h.UpdateExpense)

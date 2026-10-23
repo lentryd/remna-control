@@ -15,6 +15,8 @@ import (
 	"remna-control/ent/expenseitem"
 	"remna-control/ent/extension"
 	"remna-control/ent/fxrate"
+	"remna-control/ent/jobrun"
+	"remna-control/ent/jobstatus"
 	"remna-control/ent/ledgerentry"
 	"remna-control/ent/payment"
 	"remna-control/ent/referralaccrual"
@@ -98,6 +100,8 @@ func checkColumn(t, c string) error {
 			expenseitem.Table:       expenseitem.ValidColumn,
 			extension.Table:         extension.ValidColumn,
 			fxrate.Table:            fxrate.ValidColumn,
+			jobrun.Table:            jobrun.ValidColumn,
+			jobstatus.Table:         jobstatus.ValidColumn,
 			ledgerentry.Table:       ledgerentry.ValidColumn,
 			payment.Table:           payment.ValidColumn,
 			referralaccrual.Table:   referralaccrual.ValidColumn,

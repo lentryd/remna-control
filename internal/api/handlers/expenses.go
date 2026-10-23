@@ -471,12 +471,7 @@ func (h *Handlers) ClosePeriod(c *fiber.Ctx) error {
 }
 
 func (h *Handlers) SyncTraffic(c *fiber.Ctx) error {
-	now := time.Now().In(h.Config.Location)
-	start := expenses.SyncFrom(now)
-	if err := h.Expenses.SyncTraffic(c.UserContext(), start, now); err != nil {
-		return badRequest(err)
-	}
-	return c.SendStatus(fiber.StatusNoContent)
+	return h.runJob(c, "traffic")
 }
 
 // FxRate: GET /fx/rate?currency=EUR&date=2026-10-01.

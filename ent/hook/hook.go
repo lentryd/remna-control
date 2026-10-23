@@ -104,6 +104,30 @@ func (f FxRateFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, erro
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.FxRateMutation", m)
 }
 
+// The JobRunFunc type is an adapter to allow the use of ordinary
+// function as JobRun mutator.
+type JobRunFunc func(context.Context, *ent.JobRunMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f JobRunFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.JobRunMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.JobRunMutation", m)
+}
+
+// The JobStatusFunc type is an adapter to allow the use of ordinary
+// function as JobStatus mutator.
+type JobStatusFunc func(context.Context, *ent.JobStatusMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f JobStatusFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.JobStatusMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.JobStatusMutation", m)
+}
+
 // The LedgerEntryFunc type is an adapter to allow the use of ordinary
 // function as LedgerEntry mutator.
 type LedgerEntryFunc func(context.Context, *ent.LedgerEntryMutation) (ent.Value, error)

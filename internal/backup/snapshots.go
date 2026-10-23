@@ -15,6 +15,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"remna-control/internal/jobs"
 )
 
 // Snapshot kinds: made on a schedule, by hand (UI or API), or right before
@@ -174,28 +176,40 @@ func (s *Snapshots) Prune(keep int) error {
 	return nil
 }
 
-// Run takes an automatic snapshot whenever the newest one is older than
-// interval() (0 disables), keeping keep() of them. Settings are re-read on
-// every check, so changes apply without a restart.
-func (s *Snapshots) Run(ctx context.Context, interval func() time.Duration, keep func() int) {
-	t := time.NewTicker(10 * time.Minute)
-	defer t.Stop()
-	for {
-		if iv := interval(); iv > 0 {
-			if last := s.lastAuto(); last.IsZero() || time.Since(last) >= iv {
-				if _, err := s.Create(ctx, KindAuto, nil); err != nil && ctx.Err() == nil {
-					slog.Error("automatic snapshot failed", "error", err)
-				} else if err := s.Prune(max(1, keep())); err != nil {
-					slog.Error("pruning snapshots failed", "error", err)
-				}
-			}
+// TickJob takes an automatic snapshot when the newest one is older than
+// interval() (0 disables), keeping keep() of them; a tick that isn't due is
+// skipped. Settings are re-read on every check, so changes apply without a
+// restart.
+func (s *Snapshots) TickJob(interval func() time.Duration, keep func() int) jobs.Func {
+	return func(ctx context.Context) (jobs.Result, error) {
+		iv := interval()
+		if iv <= 0 {
+			return jobs.Result{Skipped: true}, nil
 		}
-		select {
-		case <-ctx.Done():
-			return
-		case <-t.C:
+		if last := s.lastAuto(); !last.IsZero() && time.Since(last) < iv {
+			return jobs.Result{Skipped: true}, nil
 		}
+		return s.auto(ctx, keep())
 	}
+}
+
+// ManualJob takes an automatic snapshot now, whatever the schedule.
+func (s *Snapshots) ManualJob(keep func() int) jobs.Func {
+	return func(ctx context.Context) (jobs.Result, error) {
+		return s.auto(ctx, keep())
+	}
+}
+
+func (s *Snapshots) auto(ctx context.Context, keep int) (jobs.Result, error) {
+	sn, err := s.Create(ctx, KindAuto, nil)
+	if err != nil {
+		return jobs.Result{}, err
+	}
+	res := jobs.Result{Summary: "snapshot " + sn.Name, Changed: true}
+	if err := s.Prune(max(1, keep)); err != nil {
+		return res, fmt.Errorf("prune snapshots: %w", err)
+	}
+	return res, nil
 }
 
 func (s *Snapshots) lastAuto() time.Time {

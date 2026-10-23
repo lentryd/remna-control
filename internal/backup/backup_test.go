@@ -31,8 +31,18 @@ func TestCategoriesCoverSchema(t *testing.T) {
 			}
 		}
 	}
+	excluded := map[string]bool{}
+	for _, tb := range Excluded {
+		excluded[tb] = true
+		if _, ok := seen[tb]; ok {
+			t.Errorf("excluded table %s is also in category %s", tb, seen[tb])
+		}
+		if !knownTables()[tb] {
+			t.Errorf("excluded table %s doesn't exist in the schema", tb)
+		}
+	}
 	for _, tb := range migrate.Tables {
-		if _, ok := seen[tb.Name]; !ok {
+		if _, ok := seen[tb.Name]; !ok && !excluded[tb.Name] {
 			t.Errorf("table %s is not in any backup category", tb.Name)
 		}
 	}

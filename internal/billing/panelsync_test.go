@@ -463,3 +463,65 @@ func TestPanelSync_ImportedSwitchToSubscription(t *testing.T) {
 		t.Errorf("%d resets, want 1 (user1)", n)
 	}
 }
+
+func TestPanelSyncJob_Counts(t *testing.T) {
+	f := setup(t)
+	f.db.Tariff.UpdateOneID(f.plain).SetManageRw(true).ExecX(f.ctx)
+	sub := f.provision(t, f.plain)
+	f.sync(t)
+
+	res, err := f.svc.PanelSyncJob(f.ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.Summary != "" || res.Changed {
+		t.Errorf("idle pass = %+v, want empty", res)
+	}
+
+	f.limit(t, *sub.RwUserID, 200<<30)
+	res, err = f.svc.PanelSyncJob(f.ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.Summary != "1 params push" || !res.Changed {
+		t.Errorf("drift pass = %+v, want 1 params push, changed", res)
+	}
+}
+
+// A partial failure returns the error and what did get done.
+func TestPanelSyncJob_PartialFailure(t *testing.T) {
+	f := setup(t)
+	f.subscriptionReset(t)
+	a := f.provisionAs(t, f.plain, "alice")
+	b := f.provisionAs(t, f.plain, "bob")
+	for _, s := range []*ent.Subscription{a, b} {
+		f.until(t, *s.RwUserID, novFirst.AddDate(0, 1, 0))
+	}
+	f.setNow(novFirst)
+	f.panel.failResetFor = *a.RwUserID
+
+	res, err := f.svc.PanelSyncJob(f.ctx)
+	if err == nil {
+		t.Fatal("want an error for the failed reset")
+	}
+	if res.Summary != "1 reset" || !res.Changed {
+		t.Errorf("result = %+v, want 1 reset, changed", res)
+	}
+}
+
+func TestPanelSummary(t *testing.T) {
+	cases := []struct {
+		n    panelCounts
+		want string
+	}{
+		{panelCounts{}, ""},
+		{panelCounts{resets: 2, pushes: 1}, "2 resets, 1 params push"},
+		{panelCounts{pushes: 3, backfills: 1}, "3 params pushes, 1 anchor backfill"},
+		{panelCounts{resets: 1, backfills: 2}, "1 reset, 2 anchor backfills"},
+	}
+	for _, c := range cases {
+		if got := c.n.summary(); got != c.want {
+			t.Errorf("%+v.summary() = %q, want %q", c.n, got, c.want)
+		}
+	}
+}

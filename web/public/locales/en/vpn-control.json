@@ -149,6 +149,10 @@
             "tariff_rw_failed": "The tariff changed, but the panel wasn't updated: {{error}}",
             "included_partial_change": "The tariff changed, but not all of its add-ons were updated: {{error}}"
         },
+        "jobs": {
+            "running": "The job is already running",
+            "unknown": "Unknown job"
+        },
         "offline": "No connection to the server, changes are unavailable"
     },
     "format": {
@@ -884,6 +888,7 @@
         "params": "Parameters",
         "backups": "Backups",
         "tokens": "API tokens",
+        "jobs": "Background jobs",
         "params_hint": "Defaults for referrals, the dashboard and expenses",
         "base_currency": "Base currency",
         "base_locked": "Payments, balances and expense totals are kept in it. There's money in the books already — it can't change",
@@ -894,7 +899,8 @@
             "params_hint": "Currency, referrals, dashboard",
             "backups_hint": "Snapshots, export, import",
             "tokens_hint": "Access for other services",
-            "audit_hint": "Who changed what"
+            "audit_hint": "Who changed what",
+            "jobs_hint": "Sync, traffic, backups: last runs and errors"
         },
         "group_money": "Money",
         "group_money_hint": "How amounts are kept and converted",
@@ -1141,6 +1147,53 @@
         "open_menu": "Open menu",
         "go_to": "Go to",
         "synced_ago": "Synced at {{time}}"
+    },
+    "jobs": {
+        "hint": "Background tasks: when they last ran, whether they succeeded and what went wrong",
+        "col_name": "Job",
+        "col_interval": "Schedule",
+        "col_last_run": "Last run",
+        "col_last_success": "Last success",
+        "col_status": "Status",
+        "name": {
+            "panel_users": "Panel user sync",
+            "traffic": "Node traffic sync",
+            "panel_sync": "Panel params and resets sync",
+            "backups": "Automatic backups"
+        },
+        "status": {
+            "ok": "OK",
+            "error": "Error",
+            "never": "Never ran",
+            "disabled": "Disabled",
+            "running": "Running"
+        },
+        "disabled": "disabled",
+        "every": "every {{value}}",
+        "unit": {
+            "ms": "ms",
+            "s": "s",
+            "min": "min",
+            "h": "h",
+            "d": "d"
+        },
+        "run_now": "Run now",
+        "run_ok": "{{name}}: done",
+        "run_failed": "{{name}}: failed",
+        "no_summary": "Nothing to report",
+        "failures": "Errors",
+        "successes": "Successful runs",
+        "no_history": "No runs recorded yet",
+        "repeated_one": "Repeated {{count}} time",
+        "repeated_other": "Repeated {{count}} times",
+        "first_last": "first {{first}}, last {{last}}",
+        "copy": "Copy",
+        "copied": "Copied",
+        "duration": "Duration",
+        "total_runs": "Runs",
+        "total_failures": "Failures",
+        "last_result": "Last run result",
+        "last_error": "Last error"
     },
     "offline": {
         "title": "You're offline",

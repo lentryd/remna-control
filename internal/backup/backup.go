@@ -54,6 +54,10 @@ var Categories = []Category{
 	{Key: "audit", Title: "Audit log", Description: "History of admin actions", Tables: []string{"audit_logs"}},
 }
 
+// Excluded lists tables intentionally in no category: instance-local run
+// state, never exported/imported.
+var Excluded = []string{"job_status", "job_runs"}
+
 func categoryByKey(key string) (Category, bool) {
 	for _, c := range Categories {
 		if c.Key == key {

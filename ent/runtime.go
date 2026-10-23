@@ -11,6 +11,8 @@ import (
 	"remna-control/ent/expenseitem"
 	"remna-control/ent/extension"
 	"remna-control/ent/fxrate"
+	"remna-control/ent/jobrun"
+	"remna-control/ent/jobstatus"
 	"remna-control/ent/ledgerentry"
 	"remna-control/ent/payment"
 	"remna-control/ent/referralaccrual"
@@ -215,6 +217,42 @@ func init() {
 	fxrateDescBase := fxrateFields[2].Descriptor()
 	// fxrate.DefaultBase holds the default value on creation for the base field.
 	fxrate.DefaultBase = fxrateDescBase.Default.(string)
+	jobrunFields := schema.JobRun{}.Fields()
+	_ = jobrunFields
+	// jobrunDescStartedAt is the schema descriptor for started_at field.
+	jobrunDescStartedAt := jobrunFields[1].Descriptor()
+	// jobrun.DefaultStartedAt holds the default value on creation for the started_at field.
+	jobrun.DefaultStartedAt = jobrunDescStartedAt.Default.(func() time.Time)
+	// jobrunDescFinishedAt is the schema descriptor for finished_at field.
+	jobrunDescFinishedAt := jobrunFields[2].Descriptor()
+	// jobrun.DefaultFinishedAt holds the default value on creation for the finished_at field.
+	jobrun.DefaultFinishedAt = jobrunDescFinishedAt.Default.(func() time.Time)
+	// jobrunDescDurationMs is the schema descriptor for duration_ms field.
+	jobrunDescDurationMs := jobrunFields[3].Descriptor()
+	// jobrun.DefaultDurationMs holds the default value on creation for the duration_ms field.
+	jobrun.DefaultDurationMs = jobrunDescDurationMs.Default.(int64)
+	// jobrunDescRepeat is the schema descriptor for repeat field.
+	jobrunDescRepeat := jobrunFields[6].Descriptor()
+	// jobrun.DefaultRepeat holds the default value on creation for the repeat field.
+	jobrun.DefaultRepeat = jobrunDescRepeat.Default.(int)
+	jobstatusFields := schema.JobStatus{}.Fields()
+	_ = jobstatusFields
+	// jobstatusDescLastOk is the schema descriptor for last_ok field.
+	jobstatusDescLastOk := jobstatusFields[4].Descriptor()
+	// jobstatus.DefaultLastOk holds the default value on creation for the last_ok field.
+	jobstatus.DefaultLastOk = jobstatusDescLastOk.Default.(bool)
+	// jobstatusDescLastDurationMs is the schema descriptor for last_duration_ms field.
+	jobstatusDescLastDurationMs := jobstatusFields[5].Descriptor()
+	// jobstatus.DefaultLastDurationMs holds the default value on creation for the last_duration_ms field.
+	jobstatus.DefaultLastDurationMs = jobstatusDescLastDurationMs.Default.(int64)
+	// jobstatusDescRuns is the schema descriptor for runs field.
+	jobstatusDescRuns := jobstatusFields[8].Descriptor()
+	// jobstatus.DefaultRuns holds the default value on creation for the runs field.
+	jobstatus.DefaultRuns = jobstatusDescRuns.Default.(int)
+	// jobstatusDescFailures is the schema descriptor for failures field.
+	jobstatusDescFailures := jobstatusFields[9].Descriptor()
+	// jobstatus.DefaultFailures holds the default value on creation for the failures field.
+	jobstatus.DefaultFailures = jobstatusDescFailures.Default.(int)
 	ledgerentryMixin := schema.LedgerEntry{}.Mixin()
 	ledgerentryMixinFields0 := ledgerentryMixin[0].Fields()
 	_ = ledgerentryMixinFields0

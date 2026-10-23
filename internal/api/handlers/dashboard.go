@@ -297,13 +297,13 @@ func (h *Handlers) Dashboard(c *fiber.Ctx) error {
 		}
 	}
 
-	lastSync, syncErr := h.Sync.Status()
-	syncInfo := fiber.Map{"last_sync": nil, "error": nil}
-	if !lastSync.IsZero() {
-		syncInfo["last_sync"] = lastSync
+	lastSync, syncErr, err := h.panelSync(c.UserContext())
+	if err != nil {
+		return err
 	}
-	if syncErr != nil {
-		syncInfo["error"] = syncErr.Error()
+	syncInfo := fiber.Map{"last_sync": nil, "error": syncErr}
+	if lastSync != nil {
+		syncInfo["last_sync"] = lastSync
 	}
 
 	if expiring == nil {

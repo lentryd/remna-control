@@ -3,7 +3,6 @@ package expenses
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"slices"
 	"sort"
@@ -19,6 +18,7 @@ import (
 	"remna-control/internal/apperr"
 	"remna-control/internal/audit"
 	"remna-control/internal/fx"
+	"remna-control/internal/jobs"
 	"remna-control/internal/metered"
 	"remna-control/internal/remnawave"
 )
@@ -329,23 +329,14 @@ func SyncFrom(now time.Time) time.Time {
 	return start
 }
 
-// RunTrafficSync refreshes the current and previous periods' node traffic
-// every interval.
-func (s *Service) RunTrafficSync(ctx context.Context, interval time.Duration) {
-	t := time.NewTicker(interval)
-	defer t.Stop()
-	for {
-		now := time.Now().In(s.loc)
-		start := SyncFrom(now)
-		if err := s.SyncTraffic(ctx, start, now); err != nil && ctx.Err() == nil {
-			slog.Error("traffic sync failed", "error", err)
-		}
-		select {
-		case <-ctx.Done():
-			return
-		case <-t.C:
-		}
+// TrafficJob refreshes the current and previous periods' node traffic. It
+// rewrites the same rows every time, so it never reports a change.
+func (s *Service) TrafficJob(ctx context.Context) (jobs.Result, error) {
+	now := time.Now().In(s.loc)
+	if err := s.SyncTraffic(ctx, SyncFrom(now), now); err != nil {
+		return jobs.Result{}, err
 	}
+	return jobs.Result{Summary: "traffic synced"}, nil
 }
 
 // DayTraffic is one day of a node's traffic.

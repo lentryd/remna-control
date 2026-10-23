@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
-	"sync"
 	"time"
 
 	"remna-control/ent"
@@ -22,6 +21,7 @@ import (
 	"remna-control/ent/subscriptionaddon"
 	"remna-control/ent/tariff"
 	"remna-control/internal/addons"
+	"remna-control/internal/jobs"
 	"remna-control/internal/remnawave"
 )
 
@@ -29,76 +29,72 @@ type Service struct {
 	db         *ent.Client
 	rw         *remnawave.Client
 	addonsPath string
-
-	mu       sync.Mutex
-	lastSync time.Time
-	lastErr  error
 }
 
 func New(db *ent.Client, rw *remnawave.Client, addonsPath string) *Service {
 	return &Service{db: db, rw: rw, addonsPath: addonsPath}
 }
 
-// Status returns when the last full sync finished and its error.
-func (s *Service) Status() (time.Time, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.lastSync, s.lastErr
+// stats is what a full sync did: users seen in the panel, and how many of
+// them are new to the cache (or came back) or were marked deleted.
+type stats struct {
+	Users, Added, Removed int
 }
 
-// Run syncs immediately, then every interval until ctx is done.
-func (s *Service) Run(ctx context.Context, interval time.Duration) {
-	t := time.NewTicker(interval)
-	defer t.Stop()
-	for {
-		if err := s.SyncAll(ctx); err != nil && ctx.Err() == nil {
-			slog.Error("remnawave sync failed", "error", err)
-		}
-		select {
-		case <-ctx.Done():
-			return
-		case <-t.C:
-		}
+// SyncJob refreshes the add-on catalog and every user; it reports a change
+// when users were added or removed.
+func (s *Service) SyncJob(ctx context.Context) (jobs.Result, error) {
+	st, err := s.syncAll(ctx)
+	if err != nil {
+		return jobs.Result{}, err
 	}
+	return jobs.Result{
+		Summary: fmt.Sprintf("synced %d users", st.Users),
+		Changed: st.Added > 0 || st.Removed > 0,
+	}, nil
 }
 
-// SyncAll refreshes the add-on catalog and every user.
-func (s *Service) SyncAll(ctx context.Context) error {
-	err := s.syncAll(ctx)
-	s.mu.Lock()
-	s.lastSync, s.lastErr = time.Now(), err
-	s.mu.Unlock()
-	return err
-}
-
-func (s *Service) syncAll(ctx context.Context) error {
+func (s *Service) syncAll(ctx context.Context) (stats, error) {
+	var st stats
 	if err := s.SyncAddons(ctx); err != nil {
-		return fmt.Errorf("sync addons: %w", err)
+		return st, fmt.Errorf("sync addons: %w", err)
 	}
 	users, err := s.rw.AllUsers(ctx)
 	if err != nil {
-		return err
+		return st, err
+	}
+	alive, err := s.db.RwUser.Query().Where(rwuser.Deleted(false)).IDs(ctx)
+	if err != nil {
+		return st, err
+	}
+	known := make(map[int]bool, len(alive))
+	for _, id := range alive {
+		known[id] = true
 	}
 	seen := make([]int, 0, len(users))
 	for i := range users {
 		if err := Upsert(ctx, s.db, &users[i]); err != nil {
-			return err
+			return st, err
+		}
+		if !known[users[i].ID] {
+			st.Added++
 		}
 		seen = append(seen, users[i].ID)
 	}
-	if _, err := s.db.RwUser.Update().
+	st.Users = len(users)
+	if st.Removed, err = s.db.RwUser.Update().
 		Where(rwuser.IDNotIn(seen...), rwuser.Deleted(false)).
 		SetDeleted(true).Save(ctx); err != nil {
-		return fmt.Errorf("mark deleted users: %w", err)
+		return st, fmt.Errorf("mark deleted users: %w", err)
 	}
 	if err := s.linkAddonUsers(ctx); err != nil {
-		return fmt.Errorf("link addon users: %w", err)
+		return st, fmt.Errorf("link addon users: %w", err)
 	}
 	if err := s.pullCustomerTelegram(ctx); err != nil {
-		return fmt.Errorf("pull customer telegram: %w", err)
+		return st, fmt.Errorf("pull customer telegram: %w", err)
 	}
-	slog.Debug("remnawave sync done", "users", len(users))
-	return nil
+	slog.Debug("remnawave sync done", "users", st.Users, "added", st.Added, "removed", st.Removed)
+	return st, nil
 }
 
 // SyncAddons mirrors the add-ons file into the Addon table (matched by

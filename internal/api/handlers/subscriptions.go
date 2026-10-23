@@ -393,22 +393,32 @@ func (h *Handlers) ListRwUsers(c *fiber.Ctx) error {
 }
 
 func (h *Handlers) SyncNow(c *fiber.Ctx) error {
-	if err := h.Sync.SyncAll(c.UserContext()); err != nil {
-		return badRequest(err)
-	}
-	return c.SendStatus(fiber.StatusNoContent)
+	return h.runJob(c, "panel_users")
 }
 
 func (h *Handlers) SyncStatus(c *fiber.Ctx) error {
-	at, err := h.Sync.Status()
-	m := fiber.Map{"last_sync": nil, "error": nil}
-	if !at.IsZero() {
-		m["last_sync"] = at.Format(time.RFC3339)
-	}
+	last, syncErr, err := h.panelSync(c.UserContext())
 	if err != nil {
-		m["error"] = err.Error()
+		return err
+	}
+	m := fiber.Map{"last_sync": nil, "error": syncErr}
+	if last != nil {
+		m["last_sync"] = last.Format(time.RFC3339)
 	}
 	return c.JSON(m)
+}
+
+// panelSync is the panel user sync's last success (nil before the first)
+// and, only while its latest run failed, that run's error (else nil).
+func (h *Handlers) panelSync(ctx fiberCtx) (*time.Time, any, error) {
+	v, err := h.Jobs.Status(ctx, "panel_users")
+	if err != nil {
+		return nil, nil, err
+	}
+	if v.LastOK != nil && !*v.LastOK {
+		return v.LastSuccessAt, v.LastError, nil
+	}
+	return v.LastSuccessAt, nil, nil
 }
 
 func (h *Handlers) ListSquads(c *fiber.Ctx) error {

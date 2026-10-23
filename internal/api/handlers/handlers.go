@@ -20,6 +20,7 @@ import (
 	"remna-control/internal/config"
 	"remna-control/internal/expenses"
 	"remna-control/internal/fx"
+	"remna-control/internal/jobs"
 	"remna-control/internal/remnawave"
 	"remna-control/internal/rwsync"
 	"remna-control/internal/settings"
@@ -35,6 +36,7 @@ type Handlers struct {
 	Sync      *rwsync.Service
 	Settings  *settings.Store
 	Snapshots *backup.Snapshots
+	Jobs      *jobs.Manager
 	Config    *config.Config
 	Version   string
 }
@@ -54,8 +56,12 @@ func bind(c *fiber.Ctx, v any) error {
 	return nil
 }
 
+// errJobRunning answers a manual run of a job that is already running.
+var errJobRunning = apperr.Status(fiber.StatusConflict, "jobs.running", "job is already running")
+
 // badRequest turns service validation errors into 400s; Ent not-found into
-// 404s; everything else stays a 500.
+// 404s, a job that is already running into a 409; everything else stays a
+// 500.
 func badRequest(err error) error {
 	if err == nil {
 		return nil
@@ -78,6 +84,9 @@ func badRequest(err error) error {
 	if ent.IsNotFound(err) {
 		return apperr.Status(fiber.StatusNotFound, "not_found", "not found")
 	}
+	if errors.Is(err, jobs.ErrRunning) {
+		return errJobRunning
+	}
 	if ent.IsConstraintError(err) {
 		return apperr.Wrap(err, "conflict", "data conflict: {{error}}").WithStatus(fiber.StatusConflict)
 	}
@@ -85,6 +94,15 @@ func badRequest(err error) error {
 		return apperr.Wrap(err, "panel.error", "Remnawave: {{error}}").WithStatus(fiber.StatusBadGateway)
 	}
 	return fiber.NewError(fiber.StatusBadRequest, err.Error())
+}
+
+// runJob runs a background job now for a manual endpoint: 204, 409 while
+// the job is already running, or the run's error.
+func (h *Handlers) runJob(c *fiber.Ctx, key string) error {
+	if _, err := h.Jobs.Run(c.UserContext(), key); err != nil {
+		return badRequest(err)
+	}
+	return c.SendStatus(fiber.StatusNoContent)
 }
 
 // Date is a JSON date accepting "2006-01-02" or RFC 3339.
