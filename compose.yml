@@ -4,7 +4,7 @@
 # fill in .env and run `docker compose up -d`.
 services:
     vpn-control:
-        image: ghcr.io/lentryd/vpn-control:latest
+        image: ghcr.io/lentryd/remna-control:latest
         container_name: vpn-control
         hostname: vpn-control
         restart: unless-stopped
