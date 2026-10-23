@@ -3,10 +3,10 @@
 # Copy this file and .env.example (as .env) into a folder on the server,
 # fill in .env and run `docker compose up -d`.
 services:
-    vpn-control:
+    remna-control:
         image: ghcr.io/lentryd/remna-control:latest
-        container_name: vpn-control
-        hostname: vpn-control
+        container_name: remna-control
+        hostname: remna-control
         restart: unless-stopped
         ports:
             - '${HOST_PORT:-8080}:8080'
@@ -15,13 +15,13 @@ services:
         # Container-side values; they override the local ones from .env.
         environment:
             PORT: 8080
-            DB_PATH: /data/vpn-control.db
-            ADDONS_CONFIG: /etc/vpn-control/addons.yml
+            DB_PATH: /data/remna-control.db
+            ADDONS_CONFIG: /etc/remna-control/addons.yml
         volumes:
-            - vpn-control-data:/data
+            - remna-control-data:/data
             # Optional add-ons file (e.g. subpage's); add-ons can also be
             # managed in the UI. A missing file means none.
-            - ${ADDONS_FILE:-./addons.yml}:/etc/vpn-control/addons.yml:ro
+            - ${ADDONS_FILE:-./addons.yml}:/etc/remna-control/addons.yml:ro
         healthcheck:
             test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:8080/api/healthz']
             interval: 30s
@@ -31,14 +31,14 @@ services:
             - remnawave-network
         labels:
             - 'traefik.enable=true'
-            - 'traefik.http.routers.vpn-control.rule=Host(`${APP_DOMAIN}`)'
-            - 'traefik.http.routers.vpn-control.tls=true'
-            - 'traefik.http.routers.vpn-control.entrypoints=${TRAEFIK_ENTRYPOINTS:-web,websecure}'
-            - 'traefik.http.routers.vpn-control.tls.certresolver=${TRAEFIK_CERTRESOLVER:-letsencrypt}'
-            - 'traefik.http.services.vpn-control.loadbalancer.server.port=8080'
+            - 'traefik.http.routers.remna-control.rule=Host(`${APP_DOMAIN}`)'
+            - 'traefik.http.routers.remna-control.tls=true'
+            - 'traefik.http.routers.remna-control.entrypoints=${TRAEFIK_ENTRYPOINTS:-web,websecure}'
+            - 'traefik.http.routers.remna-control.tls.certresolver=${TRAEFIK_CERTRESOLVER:-letsencrypt}'
+            - 'traefik.http.services.remna-control.loadbalancer.server.port=8080'
 
 volumes:
-    vpn-control-data:
+    remna-control-data:
 
 networks:
     remnawave-network:
