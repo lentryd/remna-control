@@ -97,7 +97,7 @@ export function TariffsPage() {
                 items={[
                     { label: t('tariffs.stat_tariffs'), value: all.length, hint: t('tariffs.stat_active', { count: all.filter((x) => x.active).length }) },
                     { label: t('tariffs.stat_subscribers'), value: all.reduce((n, x) => n + x.subscribers, 0) },
-                    { label: 'MRR', value: fmtMoney(all.reduce((n, x) => n + x.mrr, 0)) },
+                    { label: t('tariffs.stat_mrr'), value: fmtMoney(all.reduce((n, x) => n + x.mrr, 0)) },
                     { label: t('tariffs.stat_addons'), value: addons.data?.length ?? 0 }
                 ]}
                 mb="xl"
@@ -244,7 +244,7 @@ function TariffCard({ tariff: tf, onEdit }: { tariff: Tariff; onEdit: () => void
                             </Text>
                         )}
                     </FooterFigure>
-                    <FooterFigure align="right" label="MRR">
+                    <FooterFigure align="right" label={t('tariffs.stat_mrr')}>
                         {fmtMoney(tf.mrr)}
                     </FooterFigure>
                 </>

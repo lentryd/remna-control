@@ -84,7 +84,7 @@ export function DashboardPage() {
     const today = dayjs().format('dddd, D MMMM')
     const cards = [
         {
-            title: 'MRR',
+            title: t('dashboard.mrr'),
             value: fmtMoney(data.mrr),
             hint: t('dashboard.mrr_hint', { customers: data.active_customers, subs: data.active_subs, addons: data.active_addons }),
             icon: IconCoins,
