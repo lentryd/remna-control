@@ -530,3 +530,35 @@ func TestChangeTariff_DefaultModeUnchanged(t *testing.T) {
 		t.Errorf("extension amount = %d", ext.Amount)
 	}
 }
+
+func TestChangeTariff_ExchangePanelFailureChangesNothing(t *testing.T) {
+	f, sub, double := exchangeFixture(t)
+	expire := f.panel.users[*sub.RwUserID].ExpireAt
+	ledger := f.db.LedgerEntry.Query().CountX(f.ctx)
+	in := ChangeTariffInput{Kind: KindSubscription, ID: sub.ID, TariffID: double.ID, Mode: ModeExchange, ExpectedDays: 30}
+
+	f.panel.failPatch = true
+	if err := f.svc.ChangeTariff(f.ctx, in); !hasCode(err, "billing.tariff_rw_failed") {
+		t.Fatalf("err = %v", err)
+	}
+	if got := subTariff(f, sub.ID); got != f.plain {
+		t.Errorf("tariff changed to %d", got)
+	}
+	if got := f.db.RwUser.GetX(f.ctx, *sub.RwUserID).ExpireAt; got == nil || !got.Equal(expire) {
+		t.Errorf("local expire_at = %v", got)
+	}
+	if n := f.db.LedgerEntry.Query().CountX(f.ctx); n != ledger {
+		t.Errorf("%d ledger entries added", n-ledger)
+	}
+
+	f.panel.failPatch = false
+	if err := f.svc.ChangeTariff(f.ctx, in); err != nil {
+		t.Fatalf("retry: %v", err)
+	}
+	if got := subTariff(f, sub.ID); got != double.ID {
+		t.Errorf("tariff = %d after retry", got)
+	}
+	if got := f.panel.users[*sub.RwUserID].ExpireAt; !got.Equal(f.now.AddDate(0, 0, 30)) {
+		t.Errorf("panel expire_at = %s", got)
+	}
+}

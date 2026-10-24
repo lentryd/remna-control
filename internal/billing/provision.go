@@ -439,10 +439,41 @@ func (s *Service) ChangeTariff(ctx context.Context, in ChangeTariffInput) error 
 		if d < in.ExpectedDays-1 {
 			return apperr.New("billing.exchange_stale", "the exchange terms changed, request the quote again")
 		}
+		if t.Kind != tariff.KindBase {
+			return apperr.New("billing.base_tariff_required", "a subscription needs a base tariff")
+		}
 		to := now.AddDate(0, 0, d)
 		exchangeTo = &to
 		in.Surcharge = 0
 		cur.expireAt = exchangeTo
+	}
+	// pushRw sends the tariff's parameters (and, for an exchange, the new
+	// expiry) to the panel in one update.
+	pushRw := func() error {
+		if (!t.ManageRw && exchangeTo == nil) || cur.rwUserID == nil {
+			return nil
+		}
+		upd := remnawave.UpdateUserRequest{ID: *cur.rwUserID}
+		if t.ManageRw {
+			DesiredParams(t, t.TrafficStrategy, cur.expireAt).Apply(&upd)
+		}
+		if exchangeTo != nil {
+			upd.ExpireAt = exchangeTo
+		}
+		u, err := s.rw.UpdateUser(ctx, upd)
+		if err == nil {
+			_ = rwsync.Upsert(ctx, s.db, u)
+		}
+		return err
+	}
+	// An exchange goes to the panel first: if it refuses, nothing has
+	// changed locally and the order can be retried.
+	if exchangeTo != nil {
+		if rwErr := pushRw(); rwErr != nil {
+			s.recordExtension(ctx, "tariff_change", cur, nil, 0, 0, 0, nil, exchangeTo, nil, rwErr)
+			audit.Log(ctx, s.db, "tariff.change", in.Kind, in.ID, in, rwErr)
+			return apperr.Wrap(rwErr, "billing.tariff_rw_failed", "the panel wasn't updated, nothing changed: {{error}}")
+		}
 	}
 	switch in.Kind {
 	case KindSubscription:
@@ -482,17 +513,8 @@ func (s *Service) ChangeTariff(ctx context.Context, in ChangeTariffInput) error 
 	}
 
 	var rwErr error
-	if (t.ManageRw || exchangeTo != nil) && cur.rwUserID != nil {
-		upd := remnawave.UpdateUserRequest{ID: *cur.rwUserID}
-		if t.ManageRw {
-			DesiredParams(t, t.TrafficStrategy, cur.expireAt).Apply(&upd)
-		}
-		upd.ExpireAt = exchangeTo
-		var u *remnawave.User
-		u, rwErr = s.rw.UpdateUser(ctx, upd)
-		if rwErr == nil {
-			_ = rwsync.Upsert(ctx, s.db, u)
-		}
+	if exchangeTo == nil {
+		rwErr = pushRw()
 	}
 
 	var ledgerID *int
