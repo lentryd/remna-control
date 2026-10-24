@@ -114,8 +114,11 @@ func (s *Service) loadSubForIncluded(ctx context.Context, id int) (*ent.Subscrip
 // includes: connects missing ones and turns paid ones into included, all
 // until the subscription's expiry. removed says, per subscription add-on,
 // what to do with those no longer included; removed[0] is the default for
-// the rest (RemoveDisable when unset).
-func (s *Service) applyIncluded(ctx context.Context, subID int, removed map[int]string) error {
+// the rest (RemoveDisable when unset). exchange is set after a term
+// exchange moved the subscription's expiry: add-ons that stay included follow
+// it (they live and end with the subscription), and a paid add-on turning
+// included keeps its own expiry when that is later, so no paid time is lost.
+func (s *Service) applyIncluded(ctx context.Context, subID int, removed map[int]string, exchange bool) error {
 	sub, err := s.loadSubForIncluded(ctx, subID)
 	if err != nil {
 		return err
@@ -137,18 +140,24 @@ func (s *Service) applyIncluded(ctx context.Context, subID int, removed map[int]
 	}
 	to := *sub.Edges.RwUser.ExpireAt
 	var errs []error
+	// handled are the add-ons this switch already set up.
+	handled := map[int]bool{}
 	for _, ch := range changes {
 		var err error
+		if ch.SubscriptionAddonID != nil {
+			handled[*ch.SubscriptionAddonID] = true
+		}
 		switch ch.Action {
 		case "connect":
 			var sa *ent.SubscriptionAddon
 			now := s.now()
 			sa, _, err = s.connectAddonUser(ctx, sub, tariffFor[ch.AddonID], to, nil, true)
 			if err == nil {
+				handled[sa.ID] = true
 				s.recordExtension(ctx, "connect", &target{kind: KindAddon, id: sa.ID, customerID: sub.CustomerID}, nil, 0, 0, 0, &now, &to, nil, nil)
 			}
 		case "include":
-			err = s.includePaid(ctx, *ch.SubscriptionAddonID, tariffFor[ch.AddonID], sub.Edges.Tariff, to)
+			err = s.includePaid(ctx, *ch.SubscriptionAddonID, tariffFor[ch.AddonID], sub.Edges.Tariff, to, exchange)
 		case "remove":
 			how, ok := removed[*ch.SubscriptionAddonID]
 			if !ok {
@@ -159,6 +168,9 @@ func (s *Service) applyIncluded(ctx context.Context, subID int, removed map[int]
 		if err != nil {
 			errs = append(errs, fmt.Errorf("add-on %s: %w", ch.AddonName, err))
 		}
+	}
+	if exchange {
+		s.followSubscriptionExcept(ctx, subID, to, handled)
 	}
 	return errors.Join(errs...)
 }
@@ -174,7 +186,7 @@ func (s *Service) SyncIncluded(ctx context.Context, tariffID int, removedHow str
 	}
 	var errs []error
 	for _, id := range ids {
-		if err := s.applyIncluded(ctx, id, map[int]string{0: removedHow}); err != nil {
+		if err := s.applyIncluded(ctx, id, map[int]string{0: removedHow}, false); err != nil {
 			errs = append(errs, fmt.Errorf("subscription %d: %w", id, err))
 		}
 	}
@@ -185,11 +197,15 @@ func (s *Service) SyncIncluded(ctx context.Context, tariffID int, removedHow str
 // includePaid turns a connected add-on into an included one: the included
 // tariff's parameters, the subscription's expiry. Its own reset marker is
 // dropped, so it starts following the subscription's resets without an
-// extra one at once.
-func (s *Service) includePaid(ctx context.Context, saID int, t, parent *ent.Tariff, to time.Time) error {
-	sa, err := s.db.SubscriptionAddon.Get(ctx, saID)
+// extra one at once. keepLonger (a term exchange, which credits nothing for
+// the add-on's paid time) keeps the add-on's own expiry when it is later.
+func (s *Service) includePaid(ctx context.Context, saID int, t, parent *ent.Tariff, to time.Time, keepLonger bool) error {
+	sa, err := s.db.SubscriptionAddon.Query().Where(subscriptionaddon.ID(saID)).WithRwUser().Only(ctx)
 	if err != nil {
 		return err
+	}
+	if u := sa.Edges.RwUser; keepLonger && u != nil && u.ExpireAt != nil && u.ExpireAt.After(to) {
+		to = *u.ExpireAt
 	}
 	if sa.RwUserID != nil {
 		upd := remnawave.UpdateUserRequest{ID: *sa.RwUserID, ExpireAt: &to, Status: remnawave.StatusActive}
@@ -233,6 +249,12 @@ func (s *Service) dropIncluded(ctx context.Context, saID int, how string) error 
 // followSubscription moves the included add-ons of a subscription to its
 // new expiry (re-activating them) after the subscription was extended.
 func (s *Service) followSubscription(ctx context.Context, subID int, to time.Time) {
+	s.followSubscriptionExcept(ctx, subID, to, nil)
+}
+
+// followSubscriptionExcept is followSubscription leaving out the add-ons in
+// skip.
+func (s *Service) followSubscriptionExcept(ctx context.Context, subID int, to time.Time, skip map[int]bool) {
 	sas, err := s.db.SubscriptionAddon.Query().
 		Where(subscriptionaddon.SubscriptionID(subID), subscriptionaddon.Included(true), subscriptionaddon.RwUserIDNotNil()).
 		WithAddon().WithRwUser().WithSubscription().
@@ -242,6 +264,9 @@ func (s *Service) followSubscription(ctx context.Context, subID int, to time.Tim
 		return
 	}
 	for _, sa := range sas {
+		if skip[sa.ID] {
+			continue
+		}
 		upd := remnawave.UpdateUserRequest{ID: *sa.RwUserID, ExpireAt: &to}
 		if u := sa.Edges.RwUser; u != nil && (u.Status == remnawave.StatusExpired || u.Status == remnawave.StatusDisabled) {
 			upd.Status = remnawave.StatusActive

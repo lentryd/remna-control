@@ -562,3 +562,85 @@ func TestChangeTariff_ExchangePanelFailureChangesNothing(t *testing.T) {
 		t.Errorf("panel expire_at = %s", got)
 	}
 }
+
+// Included add-ons live and end with the subscription: after a term
+// exchange they follow its new expiry, whether the term grows or shrinks.
+func TestChangeTariff_ExchangeMovesIncludedAddons(t *testing.T) {
+	for _, c := range []struct {
+		name  string
+		price int64
+		days  int
+	}{
+		{"downgrade", 12500, 120}, // 250.00 -> 125.00: 60 days become 120
+		{"upgrade", 50000, 30},    // 250.00 -> 500.00: 60 days become 30
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			f := setup(t)
+			sub := f.provision(t, f.premium)
+			sa := f.addons(t, sub.ID)[0]
+			expire := f.now.AddDate(0, 0, 60)
+			f.until(t, *sub.RwUserID, expire)
+			f.until(t, *sa.RwUserID, expire)
+			next := f.db.Tariff.Create().SetKind(tariff.KindBase).SetName("Next").
+				SetMonthlyPrice(c.price).SetSquadUuids([]string{"sq-main"}).AddIncludedAddonIDs(f.white).SaveX(f.ctx)
+
+			if err := f.svc.ChangeTariff(f.ctx, ChangeTariffInput{
+				Kind: KindSubscription, ID: sub.ID, TariffID: next.ID, Mode: ModeExchange, ExpectedDays: c.days,
+			}); err != nil {
+				t.Fatal(err)
+			}
+			want := f.now.AddDate(0, 0, c.days)
+			if got := f.panel.users[*sub.RwUserID].ExpireAt; !got.Equal(want) {
+				t.Errorf("subscription until %s, want %s", got, want)
+			}
+			if got := f.panel.users[*sa.RwUserID].ExpireAt; !got.Equal(want) {
+				t.Errorf("included add-on until %s, want %s", got, want)
+			}
+			if got := f.db.RwUser.GetX(f.ctx, *sa.RwUserID).ExpireAt; got == nil || !got.Equal(want) {
+				t.Errorf("cached add-on expiry = %v", got)
+			}
+			if sa = f.addons(t, sub.ID)[0]; !sa.Included {
+				t.Error("add-on is no longer included")
+			}
+		})
+	}
+}
+
+// A paid add-on that the new tariff includes keeps the later of its own
+// expiry and the exchanged subscription expiry: the exchange credits nothing
+// for its paid time.
+func TestChangeTariff_ExchangeIncludesPaidAddonKeepsLonger(t *testing.T) {
+	for _, c := range []struct {
+		name     string
+		own      int // days the paid add-on has
+		wantDays int
+	}{
+		{"own is longer", 90, 90},
+		{"own is shorter", 15, 48}, // 200.00 -> 250.00: 60 days become 48
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			f, sub, _ := exchangeFixture(t)
+			until := f.now.AddDate(0, 0, 15)
+			sa, err := f.svc.ConnectAddon(f.ctx, ConnectAddonInput{SubscriptionID: sub.ID, TariffID: f.white, Until: &until, Days: 15, AllowDebt: true})
+			if err != nil {
+				t.Fatal(err)
+			}
+			f.until(t, *sa.RwUserID, f.now.AddDate(0, 0, c.own))
+
+			if err := f.svc.ChangeTariff(f.ctx, ChangeTariffInput{
+				Kind: KindSubscription, ID: sub.ID, TariffID: f.premium, Mode: ModeExchange, ExpectedDays: 48,
+			}); err != nil {
+				t.Fatal(err)
+			}
+			if got := f.panel.users[*sub.RwUserID].ExpireAt; !got.Equal(f.now.AddDate(0, 0, 48)) {
+				t.Errorf("subscription until %s", got)
+			}
+			if got := f.panel.users[*sa.RwUserID].ExpireAt; !got.Equal(f.now.AddDate(0, 0, c.wantDays)) {
+				t.Errorf("add-on until %s, want %d days", got, c.wantDays)
+			}
+			if got := f.addons(t, sub.ID)[0]; !got.Included {
+				t.Error("add-on not included")
+			}
+		})
+	}
+}

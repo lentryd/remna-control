@@ -137,7 +137,7 @@ func (s *Service) ProvisionSubscription(ctx context.Context, in ProvisionInput) 
 		return nil, err
 	}
 	s.recordExtension(ctx, "connect", &target{kind: KindSubscription, id: sub.ID, customerID: c.ID}, nil, in.Months, in.Days, in.Amount, &now, &to, ledgerID, nil)
-	if err := s.applyIncluded(ctx, sub.ID, nil); err != nil {
+	if err := s.applyIncluded(ctx, sub.ID, nil, false); err != nil {
 		return sub, apperr.Wrap(err, "billing.included_partial", "the subscription was created, but not all of the tariff's add-ons connected: {{error}}")
 	}
 	return sub, nil
@@ -530,7 +530,7 @@ func (s *Service) ChangeTariff(ctx context.Context, in ChangeTariffInput) error 
 		return apperr.Wrap(rwErr, "billing.tariff_rw_failed", "the tariff changed, but the panel wasn't updated: {{error}}")
 	}
 	if in.Kind == KindSubscription {
-		if err := s.applyIncluded(ctx, in.ID, in.RemovedAddons); err != nil {
+		if err := s.applyIncluded(ctx, in.ID, in.RemovedAddons, exchangeTo != nil); err != nil {
 			return apperr.Wrap(err, "billing.included_partial_change", "the tariff changed, but not all of its add-ons were updated: {{error}}")
 		}
 	}
