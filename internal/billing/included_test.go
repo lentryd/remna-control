@@ -3,6 +3,7 @@ package billing
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
@@ -13,8 +14,10 @@ import (
 	"time"
 
 	"remna-control/ent"
+	"remna-control/ent/extension"
 	"remna-control/ent/subscriptionaddon"
 	"remna-control/ent/tariff"
+	"remna-control/internal/apperr"
 	"remna-control/internal/remnawave"
 	"remna-control/internal/settings"
 	"remna-control/internal/store"
@@ -405,5 +408,125 @@ func TestQuoteTariffChange_Exchange(t *testing.T) {
 		t.Fatal(err)
 	} else if q.ExchangeDays != 0 || q.ExchangeExpireAt != nil {
 		t.Errorf("unlimited: %d until %v", q.ExchangeDays, q.ExchangeExpireAt)
+	}
+}
+
+func subTariff(f *fixture, subID int) int {
+	if id := f.db.Subscription.GetX(f.ctx, subID).TariffID; id != nil {
+		return *id
+	}
+	return 0
+}
+
+func hasCode(err error, code string) bool {
+	var ae *apperr.Error
+	return errors.As(err, &ae) && ae.Code == code
+}
+
+// exchangeFixture is a Plain subscription (200.00/month) with 60 days left
+// and a tariff twice as expensive, so the exchange gives 30 days.
+func exchangeFixture(t *testing.T) (*fixture, *ent.Subscription, *ent.Tariff) {
+	t.Helper()
+	f := setup(t)
+	sub := f.provision(t, f.plain)
+	double := f.db.Tariff.Create().SetKind(tariff.KindBase).SetName("Double").
+		SetMonthlyPrice(40000).SetSquadUuids([]string{"sq-main"}).SaveX(f.ctx)
+	expire := f.now.AddDate(0, 0, 60)
+	f.panel.users[*sub.RwUserID].ExpireAt = expire
+	f.db.RwUser.UpdateOneID(*sub.RwUserID).SetExpireAt(expire).ExecX(f.ctx)
+	return f, sub, double
+}
+
+func TestChangeTariff_Exchange(t *testing.T) {
+	f, sub, double := exchangeFixture(t)
+	ledger := f.db.LedgerEntry.Query().CountX(f.ctx)
+
+	// A surcharge sent along is ignored: the exchange charges nothing.
+	err := f.svc.ChangeTariff(f.ctx, ChangeTariffInput{
+		Kind: KindSubscription, ID: sub.ID, TariffID: double.ID, Mode: ModeExchange, ExpectedDays: 30, Surcharge: 5000,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := f.panel.users[*sub.RwUserID].ExpireAt; !got.Equal(f.now.AddDate(0, 0, 30)) {
+		t.Errorf("panel expire_at = %s", got)
+	}
+	if got := subTariff(f, sub.ID); got != double.ID {
+		t.Errorf("tariff = %d", got)
+	}
+	if n := f.db.LedgerEntry.Query().CountX(f.ctx); n != ledger {
+		t.Errorf("%d ledger entries added", n-ledger)
+	}
+	ext := f.db.Extension.Query().Where(extension.KindEQ("tariff_change")).OnlyX(f.ctx)
+	if ext.Amount != 0 || ext.Status != "ok" {
+		t.Errorf("extension = %+v", ext)
+	}
+}
+
+func TestChangeTariff_ExchangeStale(t *testing.T) {
+	f, sub, double := exchangeFixture(t)
+	// 56 days left now gives 28 days, against 30 quoted.
+	expire := f.now.AddDate(0, 0, 56)
+	f.panel.users[*sub.RwUserID].ExpireAt = expire
+	f.db.RwUser.UpdateOneID(*sub.RwUserID).SetExpireAt(expire).ExecX(f.ctx)
+
+	err := f.svc.ChangeTariff(f.ctx, ChangeTariffInput{
+		Kind: KindSubscription, ID: sub.ID, TariffID: double.ID, Mode: ModeExchange, ExpectedDays: 30,
+	})
+	if !hasCode(err, "billing.exchange_stale") {
+		t.Fatalf("err = %v", err)
+	}
+	if got := subTariff(f, sub.ID); got != f.plain {
+		t.Errorf("tariff changed to %d", got)
+	}
+	if got := f.panel.users[*sub.RwUserID].ExpireAt; !got.Equal(expire) {
+		t.Errorf("panel expire_at = %s", got)
+	}
+	if n := f.db.Extension.Query().Where(extension.KindEQ("tariff_change")).CountX(f.ctx); n != 0 {
+		t.Errorf("%d extensions", n)
+	}
+
+	// One day short is tolerated: 29 days against 30 quoted.
+	expire = f.now.AddDate(0, 0, 58)
+	f.panel.users[*sub.RwUserID].ExpireAt = expire
+	f.db.RwUser.UpdateOneID(*sub.RwUserID).SetExpireAt(expire).ExecX(f.ctx)
+	if err := f.svc.ChangeTariff(f.ctx, ChangeTariffInput{
+		Kind: KindSubscription, ID: sub.ID, TariffID: double.ID, Mode: ModeExchange, ExpectedDays: 30,
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if got := f.panel.users[*sub.RwUserID].ExpireAt; !got.Equal(f.now.AddDate(0, 0, 29)) {
+		t.Errorf("panel expire_at = %s", got)
+	}
+}
+
+func TestChangeTariff_ExchangeUnavailable(t *testing.T) {
+	f, sub, double := exchangeFixture(t)
+	forever := time.Date(2099, 1, 1, 0, 0, 0, 0, time.UTC)
+	f.db.RwUser.UpdateOneID(*sub.RwUserID).SetExpireAt(forever).ExecX(f.ctx)
+
+	err := f.svc.ChangeTariff(f.ctx, ChangeTariffInput{
+		Kind: KindSubscription, ID: sub.ID, TariffID: double.ID, Mode: ModeExchange, ExpectedDays: 30,
+	})
+	if !hasCode(err, "billing.exchange_unavailable") {
+		t.Fatalf("err = %v", err)
+	}
+	if got := subTariff(f, sub.ID); got != f.plain {
+		t.Errorf("tariff changed to %d", got)
+	}
+}
+
+func TestChangeTariff_DefaultModeUnchanged(t *testing.T) {
+	f, sub, double := exchangeFixture(t)
+	expire := f.panel.users[*sub.RwUserID].ExpireAt
+	if err := f.svc.ChangeTariff(f.ctx, ChangeTariffInput{Kind: KindSubscription, ID: sub.ID, TariffID: double.ID, Surcharge: 5000}); err != nil {
+		t.Fatal(err)
+	}
+	if got := f.panel.users[*sub.RwUserID].ExpireAt; !got.Equal(expire) {
+		t.Errorf("expire_at moved to %s", got)
+	}
+	ext := f.db.Extension.Query().Where(extension.KindEQ("tariff_change")).OnlyX(f.ctx)
+	if ext.Amount != 5000 {
+		t.Errorf("extension amount = %d", ext.Amount)
 	}
 }

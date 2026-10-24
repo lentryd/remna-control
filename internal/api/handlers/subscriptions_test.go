@@ -17,9 +17,11 @@ import (
 	"remna-control/ent"
 	"remna-control/ent/tariff"
 	"remna-control/internal/apperr"
+	"remna-control/internal/billing"
 	"remna-control/internal/jobs"
 	"remna-control/internal/remnawave"
 	"remna-control/internal/rwsync"
+	"remna-control/internal/settings"
 	"remna-control/internal/store"
 )
 
@@ -177,5 +179,28 @@ func TestSyncNow_PanelError(t *testing.T) {
 	}
 	if v, _ := m.Status(context.Background(), "panel_users"); v.LastOK == nil || *v.LastOK {
 		t.Errorf("the failure isn't recorded: %+v", v)
+	}
+}
+
+func TestQuoteTariff_ExchangeKeysNullWhenNotOffered(t *testing.T) {
+	ctx := context.Background()
+	db := openDB(t)
+	c := db.Customer.Create().SetName("Alice").SaveX(ctx)
+	old := db.Tariff.Create().SetKind(tariff.KindBase).SetName("Old").SetMonthlyPrice(20000).SaveX(ctx)
+	next := db.Tariff.Create().SetKind(tariff.KindBase).SetName("Next").SetMonthlyPrice(40000).SaveX(ctx)
+	sub := db.Subscription.Create().SetCustomerID(c.ID).SetTariffID(old.ID).SaveX(ctx)
+
+	h := &Handlers{DB: db, Billing: billing.New(db, remnawave.NewClient("http://127.0.0.1:1", "tok", ""), settings.New(db))}
+	app := testApp()
+	app.Get("/items/:kind/:id/tariff-quote", h.QuoteTariff)
+	status, body := call(t, app, "GET", "/items/subscription/"+strconv.Itoa(sub.ID)+"/tariff-quote?tariff_id="+strconv.Itoa(next.ID))
+	if status != fiber.StatusOK {
+		t.Fatalf("status %d: %v", status, body)
+	}
+	for _, k := range []string{"exchange_days", "exchange_expire_at"} {
+		v, ok := body[k]
+		if !ok || v != nil {
+			t.Errorf("%s = %v (present %v), want null", k, v, ok)
+		}
 	}
 }

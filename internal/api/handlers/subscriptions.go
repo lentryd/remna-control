@@ -320,6 +320,9 @@ type changeTariffRequest struct {
 	ClearOverride bool    `json:"clear_override"`
 	// RemovedAddons: subscription add-on id → "disable" | "keep_paid".
 	RemovedAddons map[int]string `json:"removed_addons"`
+	// Mode: "" | "surcharge" | "exchange"; ExpectedDays is the quoted exchange term.
+	Mode         string `json:"mode"`
+	ExpectedDays int    `json:"expected_days"`
 }
 
 func (h *Handlers) ChangeTariff(c *fiber.Ctx) error {
@@ -333,7 +336,7 @@ func (h *Handlers) ChangeTariff(c *fiber.Ctx) error {
 	}
 	if err := h.Billing.ChangeTariff(c.UserContext(), billing.ChangeTariffInput{
 		Kind: kind, ID: id, TariffID: req.TariffID, Surcharge: money.FromMajor(req.Surcharge), ClearOverride: req.ClearOverride,
-		RemovedAddons: req.RemovedAddons,
+		RemovedAddons: req.RemovedAddons, Mode: req.Mode, ExpectedDays: req.ExpectedDays,
 	}); err != nil {
 		return badRequest(err)
 	}

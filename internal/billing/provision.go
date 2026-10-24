@@ -398,7 +398,19 @@ type ChangeTariffInput struct {
 	// RemovedAddons says, per subscription add-on the new tariff no longer
 	// includes, RemoveDisable (default) or RemoveKeepPaid.
 	RemovedAddons map[int]string
+	// Mode is "" or ModeSurcharge (pay the difference) or ModeExchange
+	// (convert the remaining term into the new tariff, no charge).
+	Mode string
+	// ExpectedDays is the quoted exchange term; the exchange is rejected
+	// when the recomputed one is more than a day shorter.
+	ExpectedDays int
 }
+
+// Tariff change modes.
+const (
+	ModeSurcharge = "surcharge"
+	ModeExchange  = "exchange"
+)
 
 // ChangeTariff relinks the tariff, pushes its parameters to the panel when
 // the tariff manages them, and books the surcharge.
@@ -413,6 +425,24 @@ func (s *Service) ChangeTariff(ctx context.Context, in ChangeTariffInput) error 
 	}
 	if cur.included {
 		return ErrIncluded
+	}
+	var exchangeTo *time.Time
+	if in.Mode == ModeExchange {
+		now := s.now()
+		d := 0
+		if in.Kind == KindSubscription && t.ID != cur.tariffID {
+			d = ExchangeDays(cur.monthly, t.MonthlyPrice, now, cur.expireAt)
+		}
+		if d == 0 {
+			return apperr.New("billing.exchange_unavailable", "the remaining term can't be exchanged for this tariff")
+		}
+		if d < in.ExpectedDays-1 {
+			return apperr.New("billing.exchange_stale", "the exchange terms changed, request the quote again")
+		}
+		to := now.AddDate(0, 0, d)
+		exchangeTo = &to
+		in.Surcharge = 0
+		cur.expireAt = exchangeTo
 	}
 	switch in.Kind {
 	case KindSubscription:
@@ -452,9 +482,12 @@ func (s *Service) ChangeTariff(ctx context.Context, in ChangeTariffInput) error 
 	}
 
 	var rwErr error
-	if t.ManageRw && cur.rwUserID != nil {
+	if (t.ManageRw || exchangeTo != nil) && cur.rwUserID != nil {
 		upd := remnawave.UpdateUserRequest{ID: *cur.rwUserID}
-		DesiredParams(t, t.TrafficStrategy, cur.expireAt).Apply(&upd)
+		if t.ManageRw {
+			DesiredParams(t, t.TrafficStrategy, cur.expireAt).Apply(&upd)
+		}
+		upd.ExpireAt = exchangeTo
 		var u *remnawave.User
 		u, rwErr = s.rw.UpdateUser(ctx, upd)
 		if rwErr == nil {
@@ -469,7 +502,7 @@ func (s *Service) ChangeTariff(ctx context.Context, in ChangeTariffInput) error 
 			return err
 		}
 	}
-	s.recordExtension(ctx, "tariff_change", cur, nil, 0, 0, in.Surcharge, nil, nil, ledgerID, rwErr)
+	s.recordExtension(ctx, "tariff_change", cur, nil, 0, 0, in.Surcharge, nil, exchangeTo, ledgerID, rwErr)
 	audit.Log(ctx, s.db, "tariff.change", in.Kind, in.ID, in, rwErr)
 	if rwErr != nil {
 		return apperr.Wrap(rwErr, "billing.tariff_rw_failed", "the tariff changed, but the panel wasn't updated: {{error}}")
