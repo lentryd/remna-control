@@ -27,15 +27,22 @@
 }
 
 .body {
+    display: flex;
     flex: 1;
+    flex-direction: column;
     padding: 18px;
+}
+
+/* pushes the params block to the bottom of the card; padding keeps a minimum gap above it */
+.paramsWrap {
+    margin-top: auto;
+    padding-top: 16px;
 }
 
 .params {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    margin-top: 16px;
     padding-top: 14px;
     border-top: 1px dashed var(--app-border);
 }

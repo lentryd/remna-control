@@ -85,7 +85,11 @@ export function EntityCard({
                     )}
                 </Group>
                 {children}
-                {params && <div className={classes.params}>{params}</div>}
+                {params && (
+                    <div className={classes.paramsWrap}>
+                        <div className={classes.params}>{params}</div>
+                    </div>
+                )}
             </div>
             {footer && <div className={classes.footer}>{footer}</div>}
         </Card>
