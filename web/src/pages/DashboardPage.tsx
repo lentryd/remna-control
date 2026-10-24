@@ -101,7 +101,11 @@ export function DashboardPage() {
         {
             title: t('dashboard.cash'),
             value: fmtMoney(data.cash_balance),
-            hint: t('dashboard.cash_hint', { income: fmtMoney(data.income_month), expenses: fmtMoney(data.expenses_month) }),
+            hint: t(data.refunds_month > 0 ? 'dashboard.cash_hint_refunds' : 'dashboard.cash_hint', {
+                income: fmtMoney(data.income_month),
+                expenses: fmtMoney(data.expenses_month),
+                refunds: fmtMoney(data.refunds_month)
+            }),
             icon: IconWallet,
             color: 'blue'
         }
@@ -189,9 +193,12 @@ function MonthsChart({ months }: { months: Dashboard['months'] }) {
     const { t } = useTranslation()
     const income = months.reduce((s, m) => s + m.income, 0)
     const spent = months.reduce((s, m) => s + m.expenses, 0)
+    const refunds = months.reduce((s, m) => s + m.refunds, 0)
+    const net = income - spent + refunds
     const legend = [
         { label: t('dashboard.period_income'), value: income, color: 'var(--chart-income)' },
-        { label: t('dashboard.period_spent'), value: spent, color: 'var(--chart-expense)' }
+        { label: t('dashboard.period_spent'), value: spent, color: 'var(--chart-expense)' },
+        ...(refunds > 0 ? [{ label: t('dashboard.period_refunds'), value: refunds, color: 'var(--chart-refund)' }] : [])
     ]
     return (
         <Block description={t('dashboard.last_months', { count: months.length })} icon={<IconChartBar />} style={{ height: '100%' }} title={t('dashboard.by_month')}>
@@ -213,9 +220,9 @@ function MonthsChart({ months }: { months: Dashboard['months'] }) {
                     <Text c="dimmed" fw={500} size="xs">
                         {t('dashboard.period_net')}
                     </Text>
-                    <Text c={income - spent >= 0 ? 'teal' : 'red'} className="num" fw={600} fz={20} mt={2} style={{ letterSpacing: '-0.02em' }}>
-                        {income - spent > 0 ? '+' : ''}
-                        {fmtMoney(income - spent)}
+                    <Text c={net >= 0 ? 'teal' : 'red'} className="num" fw={600} fz={20} mt={2} style={{ letterSpacing: '-0.02em' }}>
+                        {net > 0 ? '+' : ''}
+                        {fmtMoney(net)}
                     </Text>
                 </Box>
             </Group>
@@ -229,7 +236,8 @@ function MonthsChart({ months }: { months: Dashboard['months'] }) {
                 h={250}
                 series={[
                     { name: 'income', label: t('dashboard.income'), color: 'var(--chart-income)' },
-                    { name: 'expenses', label: t('dashboard.spent'), color: 'var(--chart-expense)' }
+                    { name: 'expenses', label: t('dashboard.spent'), color: 'var(--chart-expense)' },
+                    ...(refunds > 0 ? [{ name: 'refunds', label: t('dashboard.refunds'), color: 'var(--chart-refund)' }] : [])
                 ]}
                 tickLine="none"
                 valueFormatter={(v) => fmtMoney(v)}

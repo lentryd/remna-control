@@ -397,6 +397,7 @@ export interface Dashboard {
     cash_balance: number
     income_month: number
     expenses_month: number
+    refunds_month: number
     referral_total: number
     referral_month: number
     debt_total: number
@@ -416,7 +417,7 @@ export interface Dashboard {
           }[]
         | null
     metered: MeteredSummary[] | null
-    months: { month: string; income: number; expenses: number }[]
+    months: { month: string; income: number; expenses: number; refunds: number }[]
     sync: { last_sync: string | null; error: string | null }
 }
 

@@ -62,6 +62,7 @@ type monthPoint struct {
 	Month    string  `json:"month"`
 	Income   float64 `json:"income"`
 	Expenses float64 `json:"expenses"`
+	Refunds  float64 `json:"refunds"`
 }
 
 func (h *Handlers) Dashboard(c *fiber.Ctx) error {
@@ -267,11 +268,24 @@ func (h *Handlers) Dashboard(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	var expTotal, expMonth int64
+	// Refunds are stored as negative expenses. They stay out of the spend
+	// figures, otherwise a refund bigger than the month's charges drives the
+	// "spent" bar below zero; cash_balance still nets them.
+	var expTotal, expMonth, refMonthExp int64
 	for _, e := range exps {
 		expTotal += e.RubAmount
 		m := e.Date.In(h.Config.Location).Format("2006-01")
-		if i, ok := idx[m]; ok {
+		i, inRange := idx[m]
+		if e.RubAmount < 0 {
+			if inRange {
+				points[i].Refunds += money.ToMajor(-e.RubAmount)
+			}
+			if m == thisMonth {
+				refMonthExp += -e.RubAmount
+			}
+			continue
+		}
+		if inRange {
 			points[i].Expenses += money.ToMajor(e.RubAmount)
 		}
 		if m == thisMonth {
@@ -322,6 +336,7 @@ func (h *Handlers) Dashboard(c *fiber.Ctx) error {
 		"cash_balance":     money.ToMajor(incomeTotal - expTotal),
 		"income_month":     money.ToMajor(incomeMonth),
 		"expenses_month":   money.ToMajor(expMonth),
+		"refunds_month":    money.ToMajor(refMonthExp),
 		"referral_total":   money.ToMajor(refTotal),
 		"referral_month":   money.ToMajor(refMonth),
 		"debt_total":       money.ToMajor(debt),

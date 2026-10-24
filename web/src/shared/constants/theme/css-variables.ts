@@ -50,6 +50,7 @@ export const cssVariablesResolver: CSSVariablesResolver = (theme) => {
             // chart series (validated for CVD and contrast on the light surface)
             '--chart-income': '#7958f8',
             '--chart-expense': '#e8590c',
+            '--chart-refund': '#12b886',
             '--chart-grid': '#ececef'
         },
         dark: {
@@ -82,6 +83,7 @@ export const cssVariablesResolver: CSSVariablesResolver = (theme) => {
             // chart series (validated for CVD and contrast on the dark surface)
             '--chart-income': '#8363f9',
             '--chart-expense': '#e8590c',
+            '--chart-refund': '#12b886',
             '--chart-grid': '#222226'
         }
     }
