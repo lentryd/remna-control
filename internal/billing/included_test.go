@@ -15,6 +15,7 @@ import (
 
 	"remna-control/ent"
 	"remna-control/ent/extension"
+	"remna-control/ent/hook"
 	"remna-control/ent/subscriptionaddon"
 	"remna-control/ent/tariff"
 	"remna-control/internal/apperr"
@@ -642,5 +643,43 @@ func TestChangeTariff_ExchangeIncludesPaidAddonKeepsLonger(t *testing.T) {
 				t.Error("add-on not included")
 			}
 		})
+	}
+}
+
+// When the panel accepted an exchange but the local tariff switch fails, the
+// panel expiry is put back (best effort) and the error is still returned.
+func TestChangeTariff_ExchangeRevertsPanelWhenDBFails(t *testing.T) {
+	f, sub, double := exchangeFixture(t)
+	expire := f.panel.users[*sub.RwUserID].ExpireAt
+	f.db.Subscription.Use(func(next ent.Mutator) ent.Mutator {
+		return hook.SubscriptionFunc(func(ctx context.Context, m *ent.SubscriptionMutation) (ent.Value, error) {
+			if _, ok := m.TariffID(); ok {
+				return nil, errors.New("database is locked")
+			}
+			return next.Mutate(ctx, m)
+		})
+	})
+	patches := f.patches()
+
+	err := f.svc.ChangeTariff(f.ctx, ChangeTariffInput{
+		Kind: KindSubscription, ID: sub.ID, TariffID: double.ID, Mode: ModeExchange, ExpectedDays: 30,
+	})
+	if err == nil || !strings.Contains(err.Error(), "database is locked") {
+		t.Fatalf("err = %v", err)
+	}
+	if n := f.patches() - patches; n != 2 {
+		t.Errorf("%d panel updates, want the exchange and its revert", n)
+	}
+	if got := f.panel.users[*sub.RwUserID].ExpireAt; !got.Equal(expire) {
+		t.Errorf("panel expire_at = %s, want reverted to %s", got, expire)
+	}
+	if got := f.db.RwUser.GetX(f.ctx, *sub.RwUserID).ExpireAt; got == nil || !got.Equal(expire) {
+		t.Errorf("cached expire_at = %v", got)
+	}
+	if got := subTariff(f, sub.ID); got != f.plain {
+		t.Errorf("tariff changed to %d", got)
+	}
+	if n := f.audits("tariff.exchange_revert"); n != 1 {
+		t.Errorf("%d revert audits", n)
 	}
 }

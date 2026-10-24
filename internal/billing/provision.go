@@ -427,6 +427,7 @@ func (s *Service) ChangeTariff(ctx context.Context, in ChangeTariffInput) error 
 		return ErrIncluded
 	}
 	var exchangeTo *time.Time
+	prevExpire := cur.expireAt
 	if in.Mode == ModeExchange {
 		now := s.now()
 		d := 0
@@ -500,6 +501,9 @@ func (s *Service) ChangeTariff(ctx context.Context, in ChangeTariffInput) error 
 		err = q.Exec(ctx)
 	}
 	if err != nil {
+		if exchangeTo != nil {
+			s.revertExchange(ctx, cur, prevExpire, err)
+		}
 		return err
 	}
 	// Resets become ours: backfill a missing anchor, and count the due point
@@ -535,6 +539,23 @@ func (s *Service) ChangeTariff(ctx context.Context, in ChangeTariffInput) error 
 		}
 	}
 	return nil
+}
+
+// revertExchange puts the panel expiry back when the panel accepted an
+// exchange but the local tariff switch failed (best effort: a failed revert
+// is only logged, for an admin to fix).
+func (s *Service) revertExchange(ctx context.Context, cur *target, prev *time.Time, cause error) {
+	if cur.rwUserID == nil || prev == nil {
+		return
+	}
+	upd := remnawave.UpdateUserRequest{ID: *cur.rwUserID, ExpireAt: prev}
+	u, err := s.rw.UpdateUser(ctx, upd)
+	if err == nil {
+		_ = rwsync.Upsert(ctx, s.db, u)
+	}
+	audit.Log(ctx, s.db, "tariff.exchange_revert", cur.kind, cur.id, upd, err)
+	slog.Error("tariff exchange: the local switch failed after the panel accepted it",
+		"kind", cur.kind, "id", cur.id, "error", cause, "expire_at", prev, "revert_error", err)
 }
 
 // SetEnabled enables/disables the panel user behind a subscription/add-on.
