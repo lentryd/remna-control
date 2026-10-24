@@ -167,6 +167,8 @@ type target struct {
 	monthly    int64
 	periods    []Period
 	expireAt   *time.Time
+	// tariffID is the current tariff of a subscription (0 if none)
+	tariffID int
 	// included add-ons come with the subscription's tariff
 	included bool
 	// strategy is the effective traffic strategy, manageRw the own tariff's
@@ -215,6 +217,9 @@ func subTarget(sub *ent.Subscription) *target {
 		manageRw:   sub.Edges.Tariff != nil && sub.Edges.Tariff.ManageRw,
 		anchor:     sub.TrafficAnchorAt,
 		resetAt:    sub.TrafficResetAt,
+	}
+	if sub.Edges.Tariff != nil {
+		t.tariffID = sub.Edges.Tariff.ID
 	}
 	if sub.PriceOverride != nil {
 		t.periods = nil // a custom price has no period discounts

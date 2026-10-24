@@ -303,10 +303,15 @@ func (h *Handlers) QuoteTariff(c *fiber.Ctx) error {
 			"tariff_name": a.TariffName, "action": a.Action, "credit": money.ToMajor(a.Credit),
 		})
 	}
-	return c.JSON(fiber.Map{
+	out := fiber.Map{
 		"old_monthly": money.ToMajor(q.OldMonthly), "new_monthly": money.ToMajor(q.NewMonthly),
 		"expire_at": q.ExpireAt, "surcharge": money.ToMajor(q.Surcharge), "addons": addons,
-	})
+		"exchange_days": nil, "exchange_expire_at": nil,
+	}
+	if q.ExchangeDays > 0 {
+		out["exchange_days"], out["exchange_expire_at"] = q.ExchangeDays, q.ExchangeExpireAt
+	}
+	return c.JSON(out)
 }
 
 type changeTariffRequest struct {

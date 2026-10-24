@@ -335,6 +335,10 @@ type TariffQuote struct {
 	Surcharge int64 `json:"surcharge"`
 	// Addons is what the switch does to included add-ons (subscriptions).
 	Addons []AddonChange `json:"addons"`
+	// ExchangeDays/ExchangeExpireAt: the term the remaining time converts
+	// into on the new tariff, instead of paying a surcharge (0/nil: not offered).
+	ExchangeDays     int        `json:"exchange_days,omitempty"`
+	ExchangeExpireAt *time.Time `json:"exchange_expire_at,omitempty"`
 }
 
 // QuoteTariffChange prices switching kind/id to tariffID for the time left.
@@ -356,6 +360,14 @@ func (s *Service) QuoteTariffChange(ctx context.Context, kind string, id, tariff
 		ExpireAt:   cur.expireAt,
 		Surcharge:  ProrateSurcharge(cur.monthly, t.MonthlyPrice, s.now(), cur.expireAt),
 		Addons:     []AddonChange{},
+	}
+	if kind == KindSubscription && t.ID != cur.tariffID {
+		now := s.now()
+		if d := ExchangeDays(cur.monthly, t.MonthlyPrice, now, cur.expireAt); d > 0 {
+			q.ExchangeDays = d
+			at := now.AddDate(0, 0, d)
+			q.ExchangeExpireAt = &at
+		}
 	}
 	if kind == KindSubscription && t.Kind == tariff.KindBase {
 		sub, err := s.loadSubForIncluded(ctx, id)

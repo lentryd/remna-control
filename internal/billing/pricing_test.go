@@ -178,3 +178,29 @@ func TestPlanAddonOfFreeSubscription(t *testing.T) {
 		t.Fatalf("got %+v", alloc)
 	}
 }
+
+func TestExchangeDays(t *testing.T) {
+	now := time.Date(2026, 10, 1, 0, 0, 0, 0, time.UTC)
+	in := func(days int) *time.Time { return ptr(now.AddDate(0, 0, days)) }
+	forever := time.Date(2099, 1, 1, 0, 0, 0, 0, time.UTC)
+	cases := []struct {
+		name     string
+		old, new int64
+		exp      *time.Time
+		want     int
+	}{
+		{"upgrade", 100, 200, in(60), 30},
+		{"downgrade", 100, 50, in(60), 120},
+		{"expired", 100, 200, in(-1), 0},
+		{"no expiry", 100, 200, nil, 0},
+		{"unlimited", 100, 200, &forever, 0},
+		{"free target", 100, 0, in(60), 0},
+		{"under a day", 100, 100000, in(1), 0},
+		{"capped", 100, 1, in(300), 730},
+	}
+	for _, c := range cases {
+		if got := ExchangeDays(c.old, c.new, now, c.exp); got != c.want {
+			t.Errorf("%s: got %d, want %d", c.name, got, c.want)
+		}
+	}
+}

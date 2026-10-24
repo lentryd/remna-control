@@ -83,6 +83,30 @@ func ProrateSurcharge(oldMonthly, newMonthly int64, now time.Time, expireAt *tim
 	return int64(math.Round(float64(newMonthly-oldMonthly) * days / 30))
 }
 
+// maxExchangeDays caps the term a tariff exchange can give (2 years).
+const maxExchangeDays = 730
+
+// ExchangeDays is how many days a tariff switch gives when the remaining
+// time on the old tariff is converted into the new one instead of paying a
+// surcharge: credit = oldMonthly * daysLeft / 30, days = credit / newMonthly * 30.
+// 0 means the exchange isn't offered (expired, unlimited, free target or
+// under a day); the result is capped at 730 days.
+func ExchangeDays(oldMonthly, newMonthly int64, now time.Time, expireAt *time.Time) int {
+	if expireAt == nil || !expireAt.After(now) || Unlimited(expireAt) || newMonthly <= 0 || oldMonthly <= 0 {
+		return 0
+	}
+	daysLeft := expireAt.Sub(now).Hours() / 24
+	credit := float64(oldMonthly) * daysLeft / 30
+	days := math.Round(credit / float64(newMonthly) * 30)
+	if days < 1 {
+		return 0
+	}
+	if days > maxExchangeDays {
+		return maxExchangeDays
+	}
+	return int(days)
+}
+
 // PlanItem is something a payment can extend.
 type PlanItem struct {
 	Kind     string     `json:"kind"` // "subscription" | "addon"

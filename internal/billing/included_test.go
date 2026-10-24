@@ -373,3 +373,37 @@ func TestIncludedAddon_InheritsParentStrategy(t *testing.T) {
 		t.Fatalf("strategy %q limit %d", u.TrafficLimitStrategy, u.TrafficLimitBytes)
 	}
 }
+
+func TestQuoteTariffChange_Exchange(t *testing.T) {
+	f := setup(t)
+	sub := f.provision(t, f.plain) // 200.00/month
+	double := f.db.Tariff.Create().SetKind(tariff.KindBase).SetName("Double").
+		SetMonthlyPrice(40000).SetSquadUuids([]string{"sq-main"}).SaveX(f.ctx)
+	expire := f.now.AddDate(0, 0, 60)
+	f.panel.users[*sub.RwUserID].ExpireAt = expire
+	f.db.RwUser.UpdateOneID(*sub.RwUserID).SetExpireAt(expire).ExecX(f.ctx)
+
+	q, err := f.svc.QuoteTariffChange(f.ctx, KindSubscription, sub.ID, double.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if q.ExchangeDays != 30 || !sameTime(q.ExchangeExpireAt, f.now.AddDate(0, 0, 30)) {
+		t.Errorf("exchange = %d until %v", q.ExchangeDays, q.ExchangeExpireAt)
+	}
+
+	// The same tariff: nothing to exchange.
+	if q, err = f.svc.QuoteTariffChange(f.ctx, KindSubscription, sub.ID, f.plain); err != nil {
+		t.Fatal(err)
+	} else if q.ExchangeDays != 0 || q.ExchangeExpireAt != nil {
+		t.Errorf("same tariff: %d until %v", q.ExchangeDays, q.ExchangeExpireAt)
+	}
+
+	// Unlimited: nothing to exchange.
+	forever := time.Date(2099, 1, 1, 0, 0, 0, 0, time.UTC)
+	f.db.RwUser.UpdateOneID(*sub.RwUserID).SetExpireAt(forever).ExecX(f.ctx)
+	if q, err = f.svc.QuoteTariffChange(f.ctx, KindSubscription, sub.ID, double.ID); err != nil {
+		t.Fatal(err)
+	} else if q.ExchangeDays != 0 || q.ExchangeExpireAt != nil {
+		t.Errorf("unlimited: %d until %v", q.ExchangeDays, q.ExchangeExpireAt)
+	}
+}
