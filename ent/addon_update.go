@@ -118,6 +118,20 @@ func (_u *AddonUpdate) SetNillableSource(v *addon.Source) *AddonUpdate {
 	return _u
 }
 
+// SetArchived sets the "archived" field.
+func (_u *AddonUpdate) SetArchived(v bool) *AddonUpdate {
+	_u.mutation.SetArchived(v)
+	return _u
+}
+
+// SetNillableArchived sets the "archived" field if the given value is not nil.
+func (_u *AddonUpdate) SetNillableArchived(v *bool) *AddonUpdate {
+	if v != nil {
+		_u.SetArchived(*v)
+	}
+	return _u
+}
+
 // SetRemark sets the "remark" field.
 func (_u *AddonUpdate) SetRemark(v string) *AddonUpdate {
 	_u.mutation.SetRemark(v)
@@ -328,6 +342,9 @@ func (_u *AddonUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.Source(); ok {
 		_spec.SetField(addon.FieldSource, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.Archived(); ok {
+		_spec.SetField(addon.FieldArchived, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.Remark(); ok {
 		_spec.SetField(addon.FieldRemark, field.TypeString, value)
@@ -541,6 +558,20 @@ func (_u *AddonUpdateOne) SetSource(v addon.Source) *AddonUpdateOne {
 func (_u *AddonUpdateOne) SetNillableSource(v *addon.Source) *AddonUpdateOne {
 	if v != nil {
 		_u.SetSource(*v)
+	}
+	return _u
+}
+
+// SetArchived sets the "archived" field.
+func (_u *AddonUpdateOne) SetArchived(v bool) *AddonUpdateOne {
+	_u.mutation.SetArchived(v)
+	return _u
+}
+
+// SetNillableArchived sets the "archived" field if the given value is not nil.
+func (_u *AddonUpdateOne) SetNillableArchived(v *bool) *AddonUpdateOne {
+	if v != nil {
+		_u.SetArchived(*v)
 	}
 	return _u
 }
@@ -785,6 +816,9 @@ func (_u *AddonUpdateOne) sqlSave(ctx context.Context) (_node *Addon, err error)
 	}
 	if value, ok := _u.mutation.Source(); ok {
 		_spec.SetField(addon.FieldSource, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.Archived(); ok {
+		_spec.SetField(addon.FieldArchived, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.Remark(); ok {
 		_spec.SetField(addon.FieldRemark, field.TypeString, value)

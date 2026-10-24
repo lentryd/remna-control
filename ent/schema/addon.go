@@ -25,6 +25,8 @@ func (Addon) Fields() []ent.Field {
 		// InConfig is false once a file add-on disappears from the file.
 		field.Bool("in_config").Default(true),
 		field.Enum("source").Values("file", "ui").Default("file"),
+		// Archived add-ons sit in the archive group; only they can be deleted.
+		field.Bool("archived").Default(false),
 		// Remark/RemarkUnlimited/Stubs are subpage's display settings:
 		// config names ({remark}, {remaining}, {limit}, {used}) and the
 		// placeholder config names per non-active status.

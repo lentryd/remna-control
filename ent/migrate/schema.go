@@ -37,6 +37,7 @@ var (
 		{Name: "suffix", Type: field.TypeString, Nullable: true},
 		{Name: "in_config", Type: field.TypeBool, Default: true},
 		{Name: "source", Type: field.TypeEnum, Enums: []string{"file", "ui"}, Default: "file"},
+		{Name: "archived", Type: field.TypeBool, Default: false},
 		{Name: "remark", Type: field.TypeString, Nullable: true},
 		{Name: "remark_unlimited", Type: field.TypeString, Nullable: true},
 		{Name: "stubs", Type: field.TypeJSON, Nullable: true},

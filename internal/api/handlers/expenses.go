@@ -390,6 +390,13 @@ func (h *Handlers) DeleteExpenseItem(c *fiber.Ctx) error {
 		return err
 	}
 	ctx := c.UserContext()
+	it, err := h.DB.ExpenseItem.Get(ctx, id)
+	if err != nil {
+		return badRequest(err)
+	}
+	if it.Active {
+		return apperr.Status(fiber.StatusConflict, "expense_item.not_archived", "archive the item first; only archived items can be deleted")
+	}
 	if _, err := h.DB.Expense.Update().Where(expense.ExpenseItemID(id)).ClearExpenseItemID().Save(ctx); err != nil {
 		return err
 	}
@@ -399,6 +406,23 @@ func (h *Handlers) DeleteExpenseItem(c *fiber.Ctx) error {
 		return badRequest(err)
 	}
 	return c.SendStatus(fiber.StatusNoContent)
+}
+
+// SetExpenseItemArchived: POST /expense-items/:id/archive and /restore.
+// Archived means inactive: the item leaves the plan and the dashboard.
+func (h *Handlers) SetExpenseItemArchived(archived bool) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		id, err := paramID(c, "id")
+		if err != nil {
+			return err
+		}
+		err = h.DB.ExpenseItem.UpdateOneID(id).SetActive(!archived).Exec(c.UserContext())
+		audit.Log(c.UserContext(), h.DB, "expense_item.archive", "expense_item", id, fiber.Map{"archived": archived}, err)
+		if err != nil {
+			return badRequest(err)
+		}
+		return c.SendStatus(fiber.StatusNoContent)
+	}
 }
 
 // MeteredSummary: GET /expense-items/:id/metered?month=YYYY-MM.

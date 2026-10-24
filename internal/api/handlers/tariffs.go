@@ -304,16 +304,39 @@ func (h *Handlers) SyncIncluded(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"subscriptions": n})
 }
 
+// SetTariffArchived: POST /tariffs/:id/archive and /restore.
+func (h *Handlers) SetTariffArchived(archived bool) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		id, err := paramID(c, "id")
+		if err != nil {
+			return err
+		}
+		err = h.DB.Tariff.UpdateOneID(id).SetActive(!archived).Exec(c.UserContext())
+		audit.Log(c.UserContext(), h.DB, "tariff.archive", "tariff", id, fiber.Map{"archived": archived}, err)
+		if err != nil {
+			return badRequest(err)
+		}
+		return c.SendStatus(fiber.StatusNoContent)
+	}
+}
+
 func (h *Handlers) DeleteTariff(c *fiber.Ctx) error {
 	id, err := paramID(c, "id")
 	if err != nil {
 		return err
 	}
 	ctx := c.UserContext()
+	tf, err := h.DB.Tariff.Get(ctx, id)
+	if err != nil {
+		return badRequest(err)
+	}
+	if tf.Active {
+		return apperr.Status(fiber.StatusConflict, "tariff.not_archived", "archive the tariff first; only archived tariffs can be deleted")
+	}
 	n1, _ := h.DB.Subscription.Query().Where(subscription.TariffID(id)).Count(ctx)
 	n2, _ := h.DB.SubscriptionAddon.Query().Where(subscriptionaddon.TariffID(id)).Count(ctx)
 	if n1+n2 > 0 {
-		return apperr.Status(fiber.StatusConflict, "tariff.in_use", "the tariff is in use; deactivate it instead")
+		return apperr.Status(fiber.StatusConflict, "tariff.in_use", "the tariff is in use by subscriptions")
 	}
 	if _, err := h.DB.TariffPeriod.Delete().Where(tariffperiod.TariffID(id)).Exec(ctx); err != nil {
 		return err

@@ -184,6 +184,14 @@ func (h *Handlers) Dashboard(c *fiber.Ctx) error {
 	cancel()
 	dueSoon := []fiber.Map{}
 	usedNodes := map[string]bool{}
+	// An archived item's node must not resurface as an untied panel date.
+	archivedItems, err := h.DB.ExpenseItem.Query().Where(expenseitem.Active(false), expenseitem.RwNodeUUIDNEQ("")).All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, it := range archivedItems {
+		usedNodes[it.RwNodeUUID] = true
+	}
 	for _, p := range planned {
 		it := itemByID[p.ID]
 		due, source := p.NextDueDate, "item"

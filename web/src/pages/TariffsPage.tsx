@@ -23,6 +23,8 @@ import {
 import { useForm } from '@mantine/form'
 import {
     PiCalendarDuotone,
+    PiArchive,
+    PiArrowCounterClockwise,
     PiClockDuotone,
     PiPencilSimple,
     PiPlus,
@@ -63,9 +65,24 @@ export function TariffsPage() {
     const addons = useAddons()
     const [draft, setDraft] = useState<Draft | null>(null)
     const all = tariffs.data ?? []
-    const base = all.filter((t) => t.kind === 'base')
-    const addonTariffs = all.filter((t) => t.kind === 'addon')
+    const archivedAddonIds = new Set((addons.data ?? []).filter((a) => a.archived).map((a) => a.id))
+    const inArchive = (x: Tariff) => !x.active || (x.addon_id != null && archivedAddonIds.has(x.addon_id))
+    const base = all.filter((t) => t.kind === 'base' && !inArchive(t))
+    const addonTariffs = all.filter((t) => t.kind === 'addon' && !inArchive(t))
+    const archivedTariffs = all.filter(inArchive)
+    const liveAddons = (addons.data ?? []).filter((a) => !a.archived)
+    const archivedAddons = (addons.data ?? []).filter((a) => a.archived)
     const invalidate = useInvalidateAll()
+    const setAddonArchived = async (a: Addon, archive: boolean) => {
+        try {
+            await api.post(`addons/${a.id}/${archive ? 'archive' : 'restore'}`)
+            await invalidate()
+        } catch (e) {
+            notifyError(e)
+        }
+    }
+    const archiveAddon = (a: Addon) =>
+        confirmDanger(t('tariffs.archive_addon', { name: a.name }), t('tariffs.archive_hint'), () => setAddonArchived(a, true))
     const deleteAddon = (a: Addon) =>
         confirmDanger(t('tariffs.delete_addon', { name: a.name }), t('tariffs.delete_addon_hint'), async () => {
             try {
@@ -113,8 +130,8 @@ export function TariffsPage() {
 
             <SectionTitle description={t('tariffs.addons_hint')} mt={40} title={t('tariffs.addons_title')} />
             <Stack gap="lg">
-                {(addons.data ?? []).length === 0 && <Alert color="gray">{t('tariffs.no_addons')}</Alert>}
-                {(addons.data ?? []).map((a) => {
+                {liveAddons.length === 0 && <Alert color="gray">{t('tariffs.no_addons')}</Alert>}
+                {liveAddons.map((a) => {
                     const rows = addonTariffs.filter((x) => x.addon_id === a.id)
                     return (
                         <Card className={classes.addon} key={a.id} padding={0}>
@@ -145,9 +162,9 @@ export function TariffsPage() {
                                                     <PiPencilSimple size={16} />
                                                 </ActionIcon>
                                             </Tooltip>
-                                            <Tooltip label={t('common.delete')}>
-                                                <ActionIcon color="red" onClick={() => deleteAddon(a)} size="lg">
-                                                    <PiTrash size={16} />
+                                            <Tooltip label={t('tariffs.archive')}>
+                                                <ActionIcon color="red" onClick={() => archiveAddon(a)} size="lg">
+                                                    <PiArchive size={16} />
                                                 </ActionIcon>
                                             </Tooltip>
                                         </>
@@ -180,6 +197,49 @@ export function TariffsPage() {
                     )
                 })}
             </Stack>
+
+            {(archivedTariffs.length > 0 || archivedAddons.length > 0) && (
+                <>
+                    <SectionTitle mt={40} title={t('tariffs.archive_group')} />
+                    <Stack gap="lg">
+                        {archivedAddons.length > 0 && (
+                            <Stack gap="xs">
+                                {archivedAddons.map((a) => (
+                                    <Card key={a.id} p="sm" withBorder>
+                                        <Group justify="space-between" wrap="nowrap">
+                                            <Group gap="sm" miw={0} wrap="nowrap">
+                                                <ThemeIcon color="gray" radius="md" size={34}>
+                                                    <PiPuzzlePieceDuotone size={18} />
+                                                </ThemeIcon>
+                                                <Text c="dimmed" fw={600}>
+                                                    {a.name}
+                                                </Text>
+                                            </Group>
+                                            <Group gap={4} wrap="nowrap">
+                                                <Tooltip label={t('tariffs.restore')}>
+                                                    <ActionIcon onClick={() => setAddonArchived(a, false)} size="lg">
+                                                        <PiArrowCounterClockwise size={16} />
+                                                    </ActionIcon>
+                                                </Tooltip>
+                                                <Tooltip label={t('common.delete')}>
+                                                    <ActionIcon color="red" onClick={() => deleteAddon(a)} size="lg">
+                                                        <PiTrash size={16} />
+                                                    </ActionIcon>
+                                                </Tooltip>
+                                            </Group>
+                                        </Group>
+                                    </Card>
+                                ))}
+                            </Stack>
+                        )}
+                        <EntityGrid>
+                            {archivedTariffs.map((tf) => (
+                                <TariffCard key={tf.id} onEdit={() => setDraft(tf)} tariff={tf} />
+                            ))}
+                        </EntityGrid>
+                    </Stack>
+                </>
+            )}
 
             <Drawer
                 opened={!!draft}
@@ -220,6 +280,15 @@ function SectionTitle({ title, description, mt }: { title: string; description?:
 function TariffCard({ tariff: tf, onEdit }: { tariff: Tariff; onEdit: () => void }) {
     const { t } = useTranslation()
     const invalidate = useInvalidateAll()
+    const setArchived = async (archive: boolean) => {
+        try {
+            await api.post(`tariffs/${tf.id}/${archive ? 'archive' : 'restore'}`)
+            await invalidate()
+        } catch (e) {
+            notifyError(e)
+        }
+    }
+    const archive = () => confirmDanger(t('tariffs.archive_tariff', { name: tf.name }), t('tariffs.archive_hint'), () => setArchived(true))
     const remove = () =>
         confirmDanger(t('tariffs.delete', { name: tf.name }), t('tariffs.delete_hint'), async () => {
             try {
@@ -251,7 +320,10 @@ function TariffCard({ tariff: tf, onEdit }: { tariff: Tariff; onEdit: () => void
             }
             menu={[
                 { label: t('common.edit'), icon: PiPencilSimple, onClick: onEdit },
-                { label: t('common.delete'), icon: PiTrash, color: 'red', onClick: remove }
+                tf.active
+                    ? { label: t('tariffs.archive'), icon: PiArchive, color: 'red', onClick: archive }
+                    : { label: t('tariffs.restore'), icon: PiArrowCounterClockwise, onClick: () => setArchived(false) },
+                ...(tf.active ? [] : [{ label: t('common.delete'), icon: PiTrash, color: 'red', onClick: remove }])
             ]}
             onClick={onEdit}
             params={

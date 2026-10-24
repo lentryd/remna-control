@@ -32,6 +32,8 @@ type Addon struct {
 	InConfig bool `json:"in_config,omitempty"`
 	// Source holds the value of the "source" field.
 	Source addon.Source `json:"source,omitempty"`
+	// Archived holds the value of the "archived" field.
+	Archived bool `json:"archived,omitempty"`
 	// Remark holds the value of the "remark" field.
 	Remark string `json:"remark,omitempty"`
 	// RemarkUnlimited holds the value of the "remark_unlimited" field.
@@ -80,7 +82,7 @@ func (*Addon) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case addon.FieldStubs:
 			values[i] = new([]byte)
-		case addon.FieldInConfig:
+		case addon.FieldInConfig, addon.FieldArchived:
 			values[i] = new(sql.NullBool)
 		case addon.FieldID:
 			values[i] = new(sql.NullInt64)
@@ -150,6 +152,12 @@ func (_m *Addon) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field source", values[i])
 			} else if value.Valid {
 				_m.Source = addon.Source(value.String)
+			}
+		case addon.FieldArchived:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field archived", values[i])
+			} else if value.Valid {
+				_m.Archived = value.Bool
 			}
 		case addon.FieldRemark:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -237,6 +245,9 @@ func (_m *Addon) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("source=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Source))
+	builder.WriteString(", ")
+	builder.WriteString("archived=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Archived))
 	builder.WriteString(", ")
 	builder.WriteString("remark=")
 	builder.WriteString(_m.Remark)

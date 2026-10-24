@@ -20,6 +20,7 @@ type catalogAddonView struct {
 	Suffix          string            `json:"suffix"`
 	InConfig        bool              `json:"in_config"`
 	Source          string            `json:"source"`
+	Archived        bool              `json:"archived"`
 	Remark          string            `json:"remark"`
 	RemarkUnlimited string            `json:"remark_unlimited"`
 	Stubs           map[string]string `json:"stubs"`
@@ -37,7 +38,7 @@ func (h *Handlers) ListAddons(c *fiber.Ctx) error {
 			stubs = map[string]string{}
 		}
 		out = append(out, catalogAddonView{
-			ID: a.ID, Name: a.Name, Prefix: a.Prefix, Suffix: a.Suffix, InConfig: a.InConfig, Source: a.Source.String(),
+			ID: a.ID, Name: a.Name, Prefix: a.Prefix, Suffix: a.Suffix, InConfig: a.InConfig, Source: a.Source.String(), Archived: a.Archived,
 			Remark: a.Remark, RemarkUnlimited: a.RemarkUnlimited, Stubs: stubs,
 		})
 	}
@@ -135,12 +136,31 @@ func (h *Handlers) UpdateAddon(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusNoContent)
 }
 
+// SetAddonArchived: POST /addons/:id/archive and /restore.
+func (h *Handlers) SetAddonArchived(archived bool) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		a, err := h.uiAddon(c)
+		if err != nil {
+			return err
+		}
+		err = h.DB.Addon.UpdateOne(a).SetArchived(archived).Exec(c.UserContext())
+		audit.Log(c.UserContext(), h.DB, "addon.archive", "addon", a.ID, fiber.Map{"archived": archived}, err)
+		if err != nil {
+			return badRequest(err)
+		}
+		return c.SendStatus(fiber.StatusNoContent)
+	}
+}
+
 func (h *Handlers) DeleteAddon(c *fiber.Ctx) error {
 	a, err := h.uiAddon(c)
 	if err != nil {
 		return err
 	}
 	ctx := c.UserContext()
+	if !a.Archived {
+		return apperr.Status(fiber.StatusConflict, "addon.not_archived", "archive the add-on first; only archived add-ons can be deleted")
+	}
 	used, err := h.DB.SubscriptionAddon.Query().Where(subscriptionaddon.AddonID(a.ID)).Exist(ctx)
 	if err != nil {
 		return err

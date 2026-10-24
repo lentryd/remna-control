@@ -108,7 +108,8 @@
             "included_unknown": "Included extras: unknown tariff",
             "included_not_addon": "Only extra tariffs can be included",
             "included_twice": "An extra is included twice",
-            "in_use": "The tariff is in use — deactivate it instead of deleting",
+            "in_use": "The tariff is in use by subscriptions",
+            "not_archived": "Archive the tariff before deleting it",
             "load_failed": "Tariff {{id}}: {{error}}",
             "no_squads": "Tariff «{{name}}» has no squads — the user would get no servers"
         },
@@ -123,7 +124,11 @@
             "prefix_required": "Set a prefix or a suffix",
             "from_file": "The extra comes from the file — edit it there",
             "duplicate": "An extra with this name already exists",
-            "in_use": "The extra is used by subscriptions or tariffs"
+            "in_use": "The extra is used by subscriptions or tariffs",
+            "not_archived": "Archive the extra before deleting it"
+        },
+        "expense_item": {
+            "not_archived": "Archive the item before deleting it"
         },
         "customer": {
             "not_found": "Customer not found",
@@ -290,8 +295,14 @@
         "scope_node": "all node users"
     },
     "tariffs": {
+        "archive": "Archive",
+        "restore": "Restore",
+        "archive_group": "Archive",
+        "archive_tariff": "Archive tariff «{{name}}»?",
+        "archive_addon": "Archive extra «{{name}}»?",
+        "archive_hint": "It is hidden from sale; subscriptions keep working. You can restore it or delete it from the archive.",
         "delete_addon": "Delete extra «{{name}}»?",
-        "delete_addon_hint": "Only an extra without tariffs and subscriptions can be deleted.",
+        "delete_addon_hint": "Only an archived extra without tariffs and subscriptions can be deleted.",
         "description": "Prices and panel user parameters for base subscriptions and extras",
         "addon": "Extra",
         "tariff": "Tariff",
@@ -306,7 +317,7 @@
         "removed_from_file": "removed from file",
         "new_tariff": "New tariff",
         "delete": "Delete tariff «{{name}}»?",
-        "delete_hint": "Only an unused tariff can be deleted.",
+        "delete_hint": "Only an archived, unused tariff can be deleted.",
         "col_name": "Name",
         "active": "active",
         "hidden": "hidden",
@@ -379,6 +390,11 @@
         "no_tariffs_yet": "No tariffs yet"
     },
     "expense_items": {
+        "archive": "Archive",
+        "restore": "Restore",
+        "archive_group": "Archive",
+        "archive_confirm": "Archive «{{name}}»?",
+        "archive_hint": "The item stops counting in plans and payment reminders. You can restore it or delete it from the archive.",
         "overdue_one": "{{count}} day overdue",
         "overdue_other": "{{count}} days overdue",
         "today": "today",
@@ -420,7 +436,7 @@
         "traffic_forecast": "Traffic and forecast",
         "close_period": "Close period",
         "delete": "Delete «{{name}}»?",
-        "delete_hint": "Expenses already booked stay, their link to the item is removed.",
+        "delete_hint": "Only archived items can be deleted. Expenses already booked stay, their link to the item is removed.",
         "period": "Period",
         "close_hint": "The expense is booked at the amount calculated from traffic. When the invoice arrives, correct the amount in the log — the calculation is kept for comparison.",
         "month": "Month",

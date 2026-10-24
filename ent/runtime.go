@@ -59,6 +59,10 @@ func init() {
 	addonDescInConfig := addonFields[3].Descriptor()
 	// addon.DefaultInConfig holds the default value on creation for the in_config field.
 	addon.DefaultInConfig = addonDescInConfig.Default.(bool)
+	// addonDescArchived is the schema descriptor for archived field.
+	addonDescArchived := addonFields[5].Descriptor()
+	// addon.DefaultArchived holds the default value on creation for the archived field.
+	addon.DefaultArchived = addonDescArchived.Default.(bool)
 	auditlogFields := schema.AuditLog{}.Fields()
 	_ = auditlogFields
 	// auditlogDescAt is the schema descriptor for at field.

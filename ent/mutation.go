@@ -859,6 +859,7 @@ type AddonMutation struct {
 	suffix                     *string
 	in_config                  *bool
 	source                     *addon.Source
+	archived                   *bool
 	remark                     *string
 	remark_unlimited           *string
 	stubs                      *map[string]string
@@ -1250,6 +1251,42 @@ func (m *AddonMutation) ResetSource() {
 	m.source = nil
 }
 
+// SetArchived sets the "archived" field.
+func (m *AddonMutation) SetArchived(b bool) {
+	m.archived = &b
+}
+
+// Archived returns the value of the "archived" field in the mutation.
+func (m *AddonMutation) Archived() (r bool, exists bool) {
+	v := m.archived
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldArchived returns the old "archived" field's value of the Addon entity.
+// If the Addon object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AddonMutation) OldArchived(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldArchived is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldArchived requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldArchived: %w", err)
+	}
+	return oldValue.Archived, nil
+}
+
+// ResetArchived resets all changes to the "archived" field.
+func (m *AddonMutation) ResetArchived() {
+	m.archived = nil
+}
+
 // SetRemark sets the "remark" field.
 func (m *AddonMutation) SetRemark(s string) {
 	m.remark = &s
@@ -1539,7 +1576,7 @@ func (m *AddonMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AddonMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 11)
 	if m.created_at != nil {
 		fields = append(fields, addon.FieldCreatedAt)
 	}
@@ -1560,6 +1597,9 @@ func (m *AddonMutation) Fields() []string {
 	}
 	if m.source != nil {
 		fields = append(fields, addon.FieldSource)
+	}
+	if m.archived != nil {
+		fields = append(fields, addon.FieldArchived)
 	}
 	if m.remark != nil {
 		fields = append(fields, addon.FieldRemark)
@@ -1592,6 +1632,8 @@ func (m *AddonMutation) Field(name string) (ent.Value, bool) {
 		return m.InConfig()
 	case addon.FieldSource:
 		return m.Source()
+	case addon.FieldArchived:
+		return m.Archived()
 	case addon.FieldRemark:
 		return m.Remark()
 	case addon.FieldRemarkUnlimited:
@@ -1621,6 +1663,8 @@ func (m *AddonMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldInConfig(ctx)
 	case addon.FieldSource:
 		return m.OldSource(ctx)
+	case addon.FieldArchived:
+		return m.OldArchived(ctx)
 	case addon.FieldRemark:
 		return m.OldRemark(ctx)
 	case addon.FieldRemarkUnlimited:
@@ -1684,6 +1728,13 @@ func (m *AddonMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetSource(v)
+		return nil
+	case addon.FieldArchived:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetArchived(v)
 		return nil
 	case addon.FieldRemark:
 		v, ok := value.(string)
@@ -1808,6 +1859,9 @@ func (m *AddonMutation) ResetField(name string) error {
 		return nil
 	case addon.FieldSource:
 		m.ResetSource()
+		return nil
+	case addon.FieldArchived:
+		m.ResetArchived()
 		return nil
 	case addon.FieldRemark:
 		m.ResetRemark()

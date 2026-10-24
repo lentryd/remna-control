@@ -85,6 +85,11 @@ func InConfig(v bool) predicate.Addon {
 	return predicate.Addon(sql.FieldEQ(FieldInConfig, v))
 }
 
+// Archived applies equality check predicate on the "archived" field. It's identical to ArchivedEQ.
+func Archived(v bool) predicate.Addon {
+	return predicate.Addon(sql.FieldEQ(FieldArchived, v))
+}
+
 // Remark applies equality check predicate on the "remark" field. It's identical to RemarkEQ.
 func Remark(v string) predicate.Addon {
 	return predicate.Addon(sql.FieldEQ(FieldRemark, v))
@@ -418,6 +423,16 @@ func SourceIn(vs ...Source) predicate.Addon {
 // SourceNotIn applies the NotIn predicate on the "source" field.
 func SourceNotIn(vs ...Source) predicate.Addon {
 	return predicate.Addon(sql.FieldNotIn(FieldSource, vs...))
+}
+
+// ArchivedEQ applies the EQ predicate on the "archived" field.
+func ArchivedEQ(v bool) predicate.Addon {
+	return predicate.Addon(sql.FieldEQ(FieldArchived, v))
+}
+
+// ArchivedNEQ applies the NEQ predicate on the "archived" field.
+func ArchivedNEQ(v bool) predicate.Addon {
+	return predicate.Addon(sql.FieldNEQ(FieldArchived, v))
 }
 
 // RemarkEQ applies the EQ predicate on the "remark" field.

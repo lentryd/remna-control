@@ -23,6 +23,7 @@ import { type UseFormReturnType, useForm } from '@mantine/form'
 import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
 import {
+    PiArchive,
     PiArrowsClockwise,
     PiBuildingsDuotone,
     PiCalendarCheckDuotone,
@@ -38,6 +39,7 @@ import {
     PiPlus,
     PiReceipt,
     PiTextAa,
+    PiArrowCounterClockwise,
     PiTrash,
     PiUsersDuotone
 } from 'react-icons/pi'
@@ -141,6 +143,7 @@ export function ExpenseItemsPage() {
         return [...(data?.items ?? [])].sort((x, y) => Number(y.active) - Number(x.active) || due(x) - due(y))
     }, [data, billing])
     const active = items.filter((x) => x.active)
+    const archived = items.filter((x) => !x.active)
     const next = active.find((x) => dueDate(x, billing))
     const create = () => setEdit({ pricing: 'fixed', active: true, currency: baseCurrency(), share_percent: 100, period: 'month' })
 
@@ -175,11 +178,23 @@ export function ExpenseItemsPage() {
             />
             <EntityGrid min={300}>
                 {!data && [0, 1, 2].map((i) => <Skeleton h={250} key={i} radius="lg" />)}
-                {items.map((it) => (
+                {active.map((it) => (
                     <ExpenseItemCard item={it} key={it.id} onEdit={() => setEdit(it)} onMetered={() => setMetered(it)} />
                 ))}
-                {data && items.length === 0 && <EntityAdd label={t('expense_items.new_item')} onClick={create} />}
+                {data && active.length === 0 && <EntityAdd label={t('expense_items.new_item')} onClick={create} />}
             </EntityGrid>
+            {archived.length > 0 && (
+                <>
+                    <Text c="var(--app-text-strong)" fw={600} fz={17} mb="md" mt={40}>
+                        {t('expense_items.archive_group')}
+                    </Text>
+                    <EntityGrid min={300}>
+                        {archived.map((it) => (
+                            <ExpenseItemCard item={it} key={it.id} onEdit={() => setEdit(it)} onMetered={() => setMetered(it)} />
+                        ))}
+                    </EntityGrid>
+                </>
+            )}
             <Drawer
                 opened={!!edit}
                 onClose={() => setEdit(null)}
@@ -214,6 +229,15 @@ function ExpenseItemCard({ item: it, onEdit, onMetered }: { item: ExpenseItem; o
     const { t } = useTranslation()
     const invalidate = useInvalidateAll()
     const metered = it.pricing === 'metered'
+    const setArchived = async (archive: boolean) => {
+        try {
+            await api.post(`expense-items/${it.id}/${archive ? 'archive' : 'restore'}`)
+            await invalidate()
+        } catch (e) {
+            notifyError(e)
+        }
+    }
+    const archive = () => confirmDanger(t('expense_items.archive_confirm', { name: it.name }), t('expense_items.archive_hint'), () => setArchived(true))
     const remove = () =>
         confirmDanger(t('expense_items.delete', { name: it.name }), t('expense_items.delete_hint'), async () => {
             try {
@@ -273,7 +297,10 @@ function ExpenseItemCard({ item: it, onEdit, onMetered }: { item: ExpenseItem; o
                       ]
                     : []),
                 { label: t('common.edit'), icon: PiPencilSimple, onClick: onEdit },
-                { label: t('common.delete'), icon: PiTrash, color: 'red', onClick: remove }
+                it.active
+                    ? { label: t('expense_items.archive'), icon: PiArchive, color: 'red', onClick: archive }
+                    : { label: t('expense_items.restore'), icon: PiArrowCounterClockwise, onClick: () => setArchived(false) },
+                ...(it.active ? [] : [{ label: t('common.delete'), icon: PiTrash, color: 'red', onClick: remove }])
             ]}
             onClick={onEdit}
             params={

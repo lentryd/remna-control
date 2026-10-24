@@ -203,6 +203,8 @@ export interface Addon {
     // file add-ons come from ADDONS_CONFIG and are read-only here
     in_config: boolean
     source: 'file' | 'ui'
+    // archived add-ons sit in the archive group; only they can be deleted
+    archived: boolean
     remark: string
     remark_unlimited: string
     stubs: Record<string, string>

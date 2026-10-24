@@ -29,6 +29,8 @@ const (
 	FieldInConfig = "in_config"
 	// FieldSource holds the string denoting the source field in the database.
 	FieldSource = "source"
+	// FieldArchived holds the string denoting the archived field in the database.
+	FieldArchived = "archived"
 	// FieldRemark holds the string denoting the remark field in the database.
 	FieldRemark = "remark"
 	// FieldRemarkUnlimited holds the string denoting the remark_unlimited field in the database.
@@ -67,6 +69,7 @@ var Columns = []string{
 	FieldSuffix,
 	FieldInConfig,
 	FieldSource,
+	FieldArchived,
 	FieldRemark,
 	FieldRemarkUnlimited,
 	FieldStubs,
@@ -91,6 +94,8 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// DefaultInConfig holds the default value on creation for the "in_config" field.
 	DefaultInConfig bool
+	// DefaultArchived holds the default value on creation for the "archived" field.
+	DefaultArchived bool
 )
 
 // Source defines the type for the "source" enum field.
@@ -160,6 +165,11 @@ func ByInConfig(opts ...sql.OrderTermOption) OrderOption {
 // BySource orders the results by the source field.
 func BySource(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSource, opts...).ToFunc()
+}
+
+// ByArchived orders the results by the archived field.
+func ByArchived(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldArchived, opts...).ToFunc()
 }
 
 // ByRemark orders the results by the remark field.

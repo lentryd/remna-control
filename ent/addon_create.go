@@ -114,6 +114,20 @@ func (_c *AddonCreate) SetNillableSource(v *addon.Source) *AddonCreate {
 	return _c
 }
 
+// SetArchived sets the "archived" field.
+func (_c *AddonCreate) SetArchived(v bool) *AddonCreate {
+	_c.mutation.SetArchived(v)
+	return _c
+}
+
+// SetNillableArchived sets the "archived" field if the given value is not nil.
+func (_c *AddonCreate) SetNillableArchived(v *bool) *AddonCreate {
+	if v != nil {
+		_c.SetArchived(*v)
+	}
+	return _c
+}
+
 // SetRemark sets the "remark" field.
 func (_c *AddonCreate) SetRemark(v string) *AddonCreate {
 	_c.mutation.SetRemark(v)
@@ -229,6 +243,10 @@ func (_c *AddonCreate) defaults() {
 		v := addon.DefaultSource
 		_c.mutation.SetSource(v)
 	}
+	if _, ok := _c.mutation.Archived(); !ok {
+		v := addon.DefaultArchived
+		_c.mutation.SetArchived(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -252,6 +270,9 @@ func (_c *AddonCreate) check() error {
 		if err := addon.SourceValidator(v); err != nil {
 			return &ValidationError{Name: "source", err: fmt.Errorf(`ent: validator failed for field "Addon.source": %w`, err)}
 		}
+	}
+	if _, ok := _c.mutation.Archived(); !ok {
+		return &ValidationError{Name: "archived", err: errors.New(`ent: missing required field "Addon.archived"`)}
 	}
 	return nil
 }
@@ -307,6 +328,10 @@ func (_c *AddonCreate) createSpec() (*Addon, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Source(); ok {
 		_spec.SetField(addon.FieldSource, field.TypeEnum, value)
 		_node.Source = value
+	}
+	if value, ok := _c.mutation.Archived(); ok {
+		_spec.SetField(addon.FieldArchived, field.TypeBool, value)
+		_node.Archived = value
 	}
 	if value, ok := _c.mutation.Remark(); ok {
 		_spec.SetField(addon.FieldRemark, field.TypeString, value)
@@ -485,6 +510,18 @@ func (u *AddonUpsert) SetSource(v addon.Source) *AddonUpsert {
 // UpdateSource sets the "source" field to the value that was provided on create.
 func (u *AddonUpsert) UpdateSource() *AddonUpsert {
 	u.SetExcluded(addon.FieldSource)
+	return u
+}
+
+// SetArchived sets the "archived" field.
+func (u *AddonUpsert) SetArchived(v bool) *AddonUpsert {
+	u.Set(addon.FieldArchived, v)
+	return u
+}
+
+// UpdateArchived sets the "archived" field to the value that was provided on create.
+func (u *AddonUpsert) UpdateArchived() *AddonUpsert {
+	u.SetExcluded(addon.FieldArchived)
 	return u
 }
 
@@ -682,6 +719,20 @@ func (u *AddonUpsertOne) SetSource(v addon.Source) *AddonUpsertOne {
 func (u *AddonUpsertOne) UpdateSource() *AddonUpsertOne {
 	return u.Update(func(s *AddonUpsert) {
 		s.UpdateSource()
+	})
+}
+
+// SetArchived sets the "archived" field.
+func (u *AddonUpsertOne) SetArchived(v bool) *AddonUpsertOne {
+	return u.Update(func(s *AddonUpsert) {
+		s.SetArchived(v)
+	})
+}
+
+// UpdateArchived sets the "archived" field to the value that was provided on create.
+func (u *AddonUpsertOne) UpdateArchived() *AddonUpsertOne {
+	return u.Update(func(s *AddonUpsert) {
+		s.UpdateArchived()
 	})
 }
 
@@ -1054,6 +1105,20 @@ func (u *AddonUpsertBulk) SetSource(v addon.Source) *AddonUpsertBulk {
 func (u *AddonUpsertBulk) UpdateSource() *AddonUpsertBulk {
 	return u.Update(func(s *AddonUpsert) {
 		s.UpdateSource()
+	})
+}
+
+// SetArchived sets the "archived" field.
+func (u *AddonUpsertBulk) SetArchived(v bool) *AddonUpsertBulk {
+	return u.Update(func(s *AddonUpsert) {
+		s.SetArchived(v)
+	})
+}
+
+// UpdateArchived sets the "archived" field to the value that was provided on create.
+func (u *AddonUpsertBulk) UpdateArchived() *AddonUpsertBulk {
+	return u.Update(func(s *AddonUpsert) {
+		s.UpdateArchived()
 	})
 }
 
