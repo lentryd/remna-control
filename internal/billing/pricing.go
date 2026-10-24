@@ -4,6 +4,7 @@ package billing
 
 import (
 	"math"
+	"math/big"
 	"sort"
 	"time"
 )
@@ -88,23 +89,26 @@ const maxExchangeDays = 730
 
 // ExchangeDays is how many days a tariff switch gives when the remaining
 // time on the old tariff is converted into the new one instead of paying a
-// surcharge: credit = oldMonthly * daysLeft / 30, days = credit / newMonthly * 30.
-// 0 means the exchange isn't offered (expired, unlimited, free target or
-// under a day); the result is capped at 730 days.
+// surcharge: credit = oldMonthly * daysLeft / 30, days = floor(credit /
+// newMonthly * 30). Rounding down keeps a round trip (A to B and back) from
+// ever gaining term. 0 means the exchange isn't offered (expired, unlimited,
+// free target or under a day); the result is capped at 730 days.
 func ExchangeDays(oldMonthly, newMonthly int64, now time.Time, expireAt *time.Time) int {
 	if expireAt == nil || !expireAt.After(now) || Unlimited(expireAt) || newMonthly <= 0 || oldMonthly <= 0 {
 		return 0
 	}
-	daysLeft := expireAt.Sub(now).Hours() / 24
-	credit := float64(oldMonthly) * daysLeft / 30
-	days := math.Round(credit / float64(newMonthly) * 30)
-	if days < 1 {
+	// Exact integer maths: days = floor(oldMonthly * left / (newMonthly * day)).
+	left := big.NewInt(int64(expireAt.Sub(now)))
+	num := new(big.Int).Mul(big.NewInt(oldMonthly), left)
+	den := new(big.Int).Mul(big.NewInt(newMonthly), big.NewInt(int64(24*time.Hour)))
+	q := new(big.Int).Quo(num, den)
+	if q.Sign() < 1 {
 		return 0
 	}
-	if days > maxExchangeDays {
+	if !q.IsInt64() || q.Int64() > maxExchangeDays {
 		return maxExchangeDays
 	}
-	return int(days)
+	return int(q.Int64())
 }
 
 // PlanItem is something a payment can extend.

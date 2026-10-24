@@ -197,10 +197,41 @@ func TestExchangeDays(t *testing.T) {
 		{"free target", 100, 0, in(60), 0},
 		{"under a day", 100, 100000, in(1), 0},
 		{"capped", 100, 1, in(300), 730},
+		// 59.02 days at 100 are worth 29.51 days at 200: rounded down.
+		{"rounds down", 100, 200, ptr(now.Add(time.Duration(59.02 * 24 * float64(time.Hour)))), 29},
+		{"same price keeps whole days", 100, 100, ptr(now.Add(59*24*time.Hour + 23*time.Hour)), 59},
 	}
 	for _, c := range cases {
 		if got := ExchangeDays(c.old, c.new, now, c.exp); got != c.want {
 			t.Errorf("%s: got %d, want %d", c.name, got, c.want)
+		}
+	}
+}
+
+// An exchange there and straight back never gives more term than it
+// started with, so repeating it can't be used to gain days.
+func TestExchangeDays_RoundTripNeverGains(t *testing.T) {
+	now := time.Date(2026, 10, 1, 12, 0, 0, 0, time.UTC)
+	fractions := []time.Duration{0, time.Minute, 7 * time.Hour, 11*time.Hour + 59*time.Minute, 12 * time.Hour, 23*time.Hour + 59*time.Minute}
+	for a := int64(50); a <= 500; a += 15 {
+		for e := int64(50); e <= 500; e += 15 {
+			if a == e {
+				continue
+			}
+			for d := 1; d <= 300; d++ {
+				for _, fr := range fractions {
+					start := now.Add(time.Duration(d)*24*time.Hour + fr)
+					there := ExchangeDays(a, e, now, &start)
+					if there == 0 {
+						continue
+					}
+					mid := now.AddDate(0, 0, there)
+					back := ExchangeDays(e, a, now, &mid)
+					if end := now.AddDate(0, 0, back); end.After(start) {
+						t.Fatalf("%d -> %d -> %d with %s left: %d then %d days", a, e, a, start.Sub(now), there, back)
+					}
+				}
+			}
 		}
 	}
 }
