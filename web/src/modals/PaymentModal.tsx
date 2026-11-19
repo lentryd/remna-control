@@ -2,22 +2,7 @@ import { Alert, Badge, Group, Loader, NumberInput, Paper, SimpleGrid, Stack, Swi
 import { DateInput } from '@mantine/dates'
 import { useDebouncedValue } from '@mantine/hooks'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import {
-    PiBank,
-    PiCalendarDuotone,
-    PiCalendarPlusDuotone,
-    PiCheck,
-    PiCheckCircleDuotone,
-    PiClockDuotone,
-    PiCreditCardDuotone,
-    PiHexagonDuotone,
-    PiNotePencil,
-    PiPuzzlePieceDuotone,
-    PiTreeStructure,
-    PiUser,
-    PiX
-} from 'react-icons/pi'
-import { TbCalendar } from 'react-icons/tb'
+import { IconBinaryTree, IconBuildingBank, IconCalendar, IconCalendarPlus, IconCheck, IconCircleCheck, IconClock, IconCreditCard, IconEdit, IconHexagon, IconPuzzle, IconUser, IconX } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 
@@ -42,7 +27,7 @@ import { useTranslation } from 'react-i18next'
 // subscriptions. Without a customer the form starts by picking one.
 export function openPaymentModal(p: { customerId?: number; name?: string } = {}) {
     openModal(
-        { icon: PiCreditCardDuotone, color: 'teal', title: i18n.t('payment.title'), subtitle: p.name },
+        { icon: IconCreditCard, color: 'teal', title: i18n.t('payment.title'), subtitle: p.name },
         (close) => <PaymentForm customerId={p.customerId} onDone={close} />,
         'xl'
     )
@@ -119,9 +104,9 @@ function PaymentForm({ customerId: fixedCustomer, onDone }: { customerId?: numbe
     if (results) {
         return (
             <FormStack>
-                <FormSection icon={PiCheckCircleDuotone} color="teal" title={t('payment.recorded')} description={t('payment.balance', { amount: fmtMoney(results.balance, 2) })}>
+                <FormSection icon={IconCircleCheck} color="teal" title={t('payment.recorded')} description={t('payment.balance', { amount: fmtMoney(results.balance, 2) })}>
                     {results.ref && (
-                        <Badge color="grape" leftSection={<PiTreeStructure size={14} />} size="lg" variant="soft">
+                        <Badge color="grape" leftSection={<IconBinaryTree size={14} />} size="lg" variant="soft">
                             {t('payment.ref_result', { name: results.ref.referrer_name, amount: fmtMoney(results.ref.amount, 2), pct: results.ref.percent })}
                         </Badge>
                     )}
@@ -133,7 +118,7 @@ function PaymentForm({ customerId: fixedCustomer, onDone }: { customerId?: numbe
                     {results.ext.map((e) => (
                         <Group gap="xs" key={`${e.kind}-${e.id}`} wrap="nowrap">
                             <ThemeIcon color={e.ok ? 'teal' : 'red'} size="md" variant="soft">
-                                {e.ok ? <PiCheck size={14} /> : <PiX size={14} />}
+                                {e.ok ? <IconCheck size={14} /> : <IconX size={14} />}
                             </ThemeIcon>
                             <Text size="sm">
                                 {e.title}: {durationLabel(e.months, e.days)}
@@ -142,7 +127,7 @@ function PaymentForm({ customerId: fixedCustomer, onDone }: { customerId?: numbe
                         </Group>
                     ))}
                 </FormSection>
-                <FormFooter onSubmit={onDone} submitIcon={<PiCheck size={16} />} submitLabel={t('common.done')} />
+                <FormFooter onSubmit={onDone} submitIcon={<IconCheck size={16} />} submitLabel={t('common.done')} />
             </FormStack>
         )
     }
@@ -154,13 +139,13 @@ function PaymentForm({ customerId: fixedCustomer, onDone }: { customerId?: numbe
 
     return (
         <FormStack>
-            <FormSection icon={PiCreditCardDuotone} color="teal" title={t('payment.income')} description={t('payment.income_hint')}>
+            <FormSection icon={IconCreditCard} color="teal" title={t('payment.income')} description={t('payment.income_hint')}>
                 {!fixedCustomer && (
                     <SearchSelect
                         data={(customers.data ?? []).filter((c) => !c.archived).map((c) => ({ value: String(c.id), label: c.name }))}
                         data-autofocus
                         label={t('sub.customer')}
-                        leftSection={<PiUser size={16} />}
+                        leftSection={<IconUser size={16} />}
                         onChange={setPicked}
                         placeholder={t('payment.pick_customer')}
                         value={picked}
@@ -177,9 +162,9 @@ function PaymentForm({ customerId: fixedCustomer, onDone }: { customerId?: numbe
                         onChange={(v) => setAmount(Number(v) || 0)}
                         data-autofocus={fixedCustomer ? true : undefined}
                     />
-                    <DateInput label={t('customer.col_date')} leftSection={<PiCalendarDuotone size={16} />} value={date} onChange={setDate} valueFormat={dateLayout()} />
-                    <Autocomplete label={t('payment.method')} leftSection={<PiBank size={16} />} data={paymentMethods()} value={method} onChange={setMethod} />
-                    <TextInput label={t('payment.comment')} leftSection={<PiNotePencil size={16} />} value={note} onChange={(e) => setNote(e.currentTarget.value)} />
+                    <DateInput label={t('customer.col_date')} leftSection={<IconCalendar size={16} />} value={date} onChange={setDate} valueFormat={dateLayout()} />
+                    <Autocomplete label={t('payment.method')} leftSection={<IconBuildingBank size={16} />} data={paymentMethods()} value={method} onChange={setMethod} />
+                    <TextInput label={t('payment.comment')} leftSection={<IconEdit size={16} />} value={note} onChange={(e) => setNote(e.currentTarget.value)} />
                 </SimpleGrid>
                 <Switch
                     label={t('payment.rest_to_days')}
@@ -199,11 +184,11 @@ function PaymentForm({ customerId: fixedCustomer, onDone }: { customerId?: numbe
                         ]}
                     />
                     {p.referral && (
-                        <Badge color="grape" leftSection={<PiTreeStructure size={14} />} size="lg" variant="soft">
+                        <Badge color="grape" leftSection={<IconBinaryTree size={14} />} size="lg" variant="soft">
                             {t('payment.ref_preview', { name: p.referral.referrer_name, amount: fmtMoney(p.referral.amount, 2), pct: p.referral.percent })}
                         </Badge>
                     )}
-                    <FormSection icon={PiCalendarPlusDuotone} color="teal" title={t('sub.renewal')} description={t('payment.renewal_hint')}>
+                    <FormSection icon={IconCalendarPlus} color="teal" title={t('sub.renewal')} description={t('payment.renewal_hint')}>
                         {rows.length === 0 && (
                             <Alert color="yellow" variant="soft">
                                 {t('payment.no_items')}
@@ -231,7 +216,7 @@ function PaymentForm({ customerId: fixedCustomer, onDone }: { customerId?: numbe
                         onError: (e) => notifyError(e)
                     })
                 }
-                submitIcon={<PiCheck size={16} />}
+                submitIcon={<IconCheck size={16} />}
                 submitLabel={t('payment.commit')}
             />
         </FormStack>
@@ -248,7 +233,7 @@ function AllocationRow({ row: r, onChange }: { row: Row; onChange: (patch: Parti
                 <Group justify="space-between" wrap="nowrap">
                     <BaseOverlayHeader
                         iconColor={r.item.kind === 'addon' ? 'grape' : 'brand'}
-                        IconComponent={r.item.kind === 'addon' ? PiPuzzlePieceDuotone : PiHexagonDuotone}
+                        IconComponent={r.item.kind === 'addon' ? IconPuzzle : IconHexagon}
                         subtitle={t('payment.item_subtitle', { monthly: fmtMoney(r.item.monthly), date: fmtDate(r.item.expire_at) })}
                         title={r.item.title}
                         titleOrder={6}
@@ -259,7 +244,7 @@ function AllocationRow({ row: r, onChange }: { row: Row; onChange: (patch: Parti
                                 {t('payment.manual')}
                             </Badge>
                         )}
-                        <Badge color={active ? 'teal' : 'gray'} leftSection={<TbCalendar size={14} />} size="lg" variant="soft">
+                        <Badge color={active ? 'teal' : 'gray'} leftSection={<IconCalendar size={14} />} size="lg" variant="soft">
                             {active ? fmtDate(base.add(r.months, 'month').add(r.days, 'day').toISOString()) : t('payment.no_extension')}
                         </Badge>
                     </Group>
@@ -267,7 +252,7 @@ function AllocationRow({ row: r, onChange }: { row: Row; onChange: (patch: Parti
                 <SimpleGrid cols={3} spacing="xs">
                     <NumberInput
                         label={t('tariffs.months')}
-                        leftSection={<PiCalendarDuotone size={14} />}
+                        leftSection={<IconCalendar size={14} />}
                         min={0}
                         max={36}
                         size="xs"
@@ -276,7 +261,7 @@ function AllocationRow({ row: r, onChange }: { row: Row; onChange: (patch: Parti
                     />
                     <NumberInput
                         label={t('tariffs.days')}
-                        leftSection={<PiClockDuotone size={14} />}
+                        leftSection={<IconClock size={14} />}
                         min={0}
                         max={365}
                         size="xs"

@@ -1,7 +1,7 @@
 import { Box, Button, Card, Group, Stack, Text, ThemeIcon, ThemeIconProps } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
 import { createContext, type ReactNode, useContext } from 'react'
-import { PiFloppyDiskDuotone } from 'react-icons/pi'
+import { IconDeviceFloppy } from '@tabler/icons-react'
 
 import { ModalFooter } from '../modal-footer'
 import { useTranslation } from 'react-i18next'
@@ -129,7 +129,7 @@ export function FormFooter({
             )}
             <Button
                 disabled={disabled}
-                leftSection={submitIcon ?? <PiFloppyDiskDuotone size={16} />}
+                leftSection={submitIcon ?? <IconDeviceFloppy size={16} />}
                 loading={loading}
                 onClick={onSubmit}
                 type={onSubmit ? 'button' : 'submit'}

@@ -2,22 +2,7 @@ import { ActionIcon, Alert, Box, Button, Group, Menu, NumberInput, Stack, Switch
 import { useForm } from '@mantine/form'
 import dayjs from 'dayjs'
 import { type ReactNode, useEffect, useMemo, useRef } from 'react'
-import {
-    PiArrowSquareOut,
-    PiArrowsLeftRight,
-    PiArrowsClockwise,
-    PiFloppyDiskDuotone,
-    PiTag,
-    PiTagDuotone,
-    PiUser,
-    PiCalendarPlus,
-    PiCopy,
-    PiHexagonDuotone,
-    PiPuzzlePiece,
-    PiPuzzlePieceDuotone,
-    PiLinkBreak
-} from 'react-icons/pi'
-import { TbDots, TbUser } from 'react-icons/tb'
+import { IconArrowsLeftRight, IconCalendarPlus, IconCopy, IconDeviceFloppy, IconDots, IconExternalLink, IconHexagon, IconLinkOff, IconPuzzle, IconRefresh, IconTag, IconUser } from '@tabler/icons-react'
 import { Link } from 'react-router'
 
 import { api } from '@/api/client'
@@ -48,7 +33,7 @@ function IdentityPanel({ rw, caption }: { rw: RwUser | null; caption?: string })
     const { copyLink } = useItemActions()
     if (!rw) {
         return (
-            <Alert color="yellow" icon={<PiLinkBreak size={18} />} mb="md" title={caption}>
+            <Alert color="yellow" icon={<IconLinkOff size={18} />} mb="md" title={caption}>
                 {t('view.not_linked')}
             </Alert>
         )
@@ -78,13 +63,13 @@ function IdentityPanel({ rw, caption }: { rw: RwUser | null; caption?: string })
                     <StatusBadge user={rw} />
                     <Tooltip label={t('view.copy_link')}>
                         <ActionIcon onClick={() => copyLink(rw.subscription_url)} size="lg" variant="default">
-                            <PiCopy size={16} />
+                            <IconCopy size={16} />
                         </ActionIcon>
                     </Tooltip>
                     {rw.subscription_url && (
                         <Tooltip label={t('view.open_page')}>
                             <ActionIcon component="a" href={rw.subscription_url} rel="noopener noreferrer" size="lg" target="_blank" variant="default">
-                                <PiArrowSquareOut size={16} />
+                                <IconExternalLink size={16} />
                             </ActionIcon>
                         </Tooltip>
                     )}
@@ -156,7 +141,7 @@ function useSyncedForm<T extends Record<string, unknown>>(server: T) {
 function CustomerLink({ id, onNavigate }: { id: number; onNavigate: () => void }) {
     const { t } = useTranslation()
     return (
-        <Button component={Link} onClick={onNavigate} rightSection={<PiArrowSquareOut size={14} />} size="xs" to={`/customers/${id}`} variant="default">
+        <Button component={Link} onClick={onNavigate} rightSection={<IconExternalLink size={14} />} size="xs" to={`/customers/${id}`} variant="default">
             {t('sub.customer')}
         </Button>
     )
@@ -186,7 +171,7 @@ function SwitchAutoExtend(props: ReturnType<ReturnType<typeof useForm>['getInput
         <Switch
             description={t('sub.auto_extend_hint')}
             label={t('sub.auto_extend')}
-            thumbIcon={<PiArrowsClockwise size={10} />}
+            thumbIcon={<IconRefresh size={10} />}
             {...props}
         />
     )
@@ -197,12 +182,12 @@ function AddonsCard({ sub }: { sub: Subscription }) {
     return (
         <FormSection
             actions={
-                <Button disabled={!sub.rw_user} leftSection={<PiPuzzlePiece size={15} />} onClick={() => openConnectAddonModal(sub)} size="xs" variant="default">
+                <Button disabled={!sub.rw_user} leftSection={<IconPuzzle size={15} />} onClick={() => openConnectAddonModal(sub)} size="xs" variant="default">
                     {t('sub.connect')}
                 </Button>
             }
             color="grape"
-            icon={PiPuzzlePieceDuotone}
+            icon={IconPuzzle}
             title={t('view.addons')}
         >
             {sub.addons.length === 0 && (
@@ -240,7 +225,7 @@ function MoreMenu({ children }: { children: ReactNode }) {
     return (
         <Menu keepMounted position="top-end" shadow="md">
             <Menu.Target>
-                <Button leftSection={<TbDots size={18} />} mr="auto" variant="default">
+                <Button leftSection={<IconDots size={18} />} mr="auto" variant="default">
                     {t('customer.more')}
                 </Button>
             </Menu.Target>
@@ -306,19 +291,19 @@ function SubscriptionEditor({ sub, close }: { sub: Subscription; close: () => vo
                             actions={<CustomerLink id={sub.customer_id} onNavigate={close} />}
                             color="indigo"
                             description={t('view.records_hint')}
-                            icon={TbUser}
+                            icon={IconUser}
                             title={t('view.records')}
                         >
                             <SearchSelect
                                 data={(customers.data ?? []).map((c) => ({ value: String(c.id), label: c.name }))}
                                 label={t('sub.customer')}
-                                leftSection={<PiUser size={16} />}
+                                leftSection={<IconUser size={16} />}
                                 {...form.getInputProps('customer_id')}
                             />
                             <TextInput
                                 description={t('sub.label_hint')}
                                 label={t('sub.label')}
-                                leftSection={<PiTag size={16} />}
+                                leftSection={<IconTag size={16} />}
                                 placeholder={t('sub.label_placeholder')}
                                 {...form.getInputProps('label')}
                             />
@@ -333,14 +318,14 @@ function SubscriptionEditor({ sub, close }: { sub: Subscription; close: () => vo
                 }
                 right={
                     <>
-                        <FormSection color="teal" description={t('sub.tariff_price_hint')} icon={PiTagDuotone} title={t('sub.tariff_price')}>
+                        <FormSection color="teal" description={t('sub.tariff_price_hint')} icon={IconTag} title={t('sub.tariff_price')}>
                             <SearchSelect
                                 allowDeselect
                                 clearable
                                 data={(tariffs.data ?? []).filter((t) => t.kind === 'base').map((t) => ({ value: String(t.id), label: tariffLabel(t) }))}
                                 description={t('sub.tariff_no_rw')}
                                 label={t('tariffs.tariff')}
-                                leftSection={<PiTag size={16} />}
+                                leftSection={<IconTag size={16} />}
                                 placeholder={t('sub.no_tariff')}
                                 {...form.getInputProps('tariff_id')}
                             />
@@ -363,7 +348,7 @@ function SubscriptionEditor({ sub, close }: { sub: Subscription; close: () => vo
                     <SubscriptionMenuItems inView onUnlinked={close} sub={sub} />
                 </MoreMenu>
                 <Button
-                    leftSection={<PiArrowsLeftRight size={16} />}
+                    leftSection={<IconArrowsLeftRight size={16} />}
                     onClick={() => openChangeTariffModal({ kind: 'subscription', id: sub.id, title: sub.title, tariffId: sub.tariff_id })}
                     variant="default"
                 >
@@ -371,7 +356,7 @@ function SubscriptionEditor({ sub, close }: { sub: Subscription; close: () => vo
                 </Button>
                 <Button
                     disabled={!sub.rw_user || sub.rw_user.unlimited}
-                    leftSection={<PiCalendarPlus size={16} />}
+                    leftSection={<IconCalendarPlus size={16} />}
                     onClick={() => openExtendModal({ kind: 'subscription', id: sub.id, title: sub.title })}
                     variant={form.isDirty() ? 'default' : 'filled'}
                 >
@@ -386,7 +371,7 @@ function SubscriptionEditor({ sub, close }: { sub: Subscription; close: () => vo
 function SaveButton({ dirty, loading }: { dirty: boolean; loading: boolean }) {
     const { t } = useTranslation()
     return (
-        <Button disabled={!dirty} leftSection={<PiFloppyDiskDuotone size={16} />} loading={loading} type="submit" variant={dirty ? 'filled' : 'default'}>
+        <Button disabled={!dirty} leftSection={<IconDeviceFloppy size={16} />} loading={loading} type="submit" variant={dirty ? 'filled' : 'default'}>
             {t('common.save')}
         </Button>
     )
@@ -439,7 +424,7 @@ function AddonEditor({ addon, sub, close }: { addon: AddonItem; sub: Subscriptio
                             actions={<CustomerLink id={sub.customer_id} onNavigate={close} />}
                             color="grape"
                             description={`${sub.customer_name} · ${addon.tariff_name || t('view.no_tariff')}`}
-                            icon={PiTagDuotone}
+                            icon={IconTag}
                             title={t('view.price_renewal')}
                         >
                             {addon.included ? (
@@ -463,7 +448,7 @@ function AddonEditor({ addon, sub, close }: { addon: AddonItem; sub: Subscriptio
                     </>
                 }
                 right={
-                    <FormSection color="brand" icon={PiHexagonDuotone} title={t('view.main_subscription', { title: sub.title })}>
+                    <FormSection color="brand" icon={IconHexagon} title={t('view.main_subscription', { title: sub.title })}>
                         <MiniIdentity rw={sub.rw_user} />
                     </FormSection>
                 }
@@ -474,7 +459,7 @@ function AddonEditor({ addon, sub, close }: { addon: AddonItem; sub: Subscriptio
                 </MoreMenu>
                 {!addon.included && (
                     <Button
-                        leftSection={<PiArrowsLeftRight size={16} />}
+                        leftSection={<IconArrowsLeftRight size={16} />}
                         onClick={() =>
                             openChangeTariffModal({ kind: 'addon', id: addon.id, title, tariffId: addon.tariff_id, addonId: addon.addon_id })
                         }
@@ -485,7 +470,7 @@ function AddonEditor({ addon, sub, close }: { addon: AddonItem; sub: Subscriptio
                 )}
                 <Button
                     disabled={!addon.rw_user || addon.rw_user.unlimited || addon.included}
-                    leftSection={<PiCalendarPlus size={16} />}
+                    leftSection={<IconCalendarPlus size={16} />}
                     onClick={() => openExtendModal({ kind: 'addon', id: addon.id, title })}
                     variant={form.isDirty() ? 'default' : 'filled'}
                 >
@@ -499,7 +484,7 @@ function AddonEditor({ addon, sub, close }: { addon: AddonItem; sub: Subscriptio
 
 export function openViewSubscriptionModal(sub: Pick<Subscription, 'id' | 'title' | 'customer_name'>) {
     openModal(
-        { icon: PiHexagonDuotone, title: sub.title, subtitle: sub.customer_name },
+        { icon: IconHexagon, title: sub.title, subtitle: sub.customer_name },
         (close) => <ViewSubscription close={close} id={sub.id} />,
         '1000px'
     )
@@ -507,7 +492,7 @@ export function openViewSubscriptionModal(sub: Pick<Subscription, 'id' | 'title'
 
 export function openViewAddonModal(addonId: number, subId: number) {
     openModal(
-        { icon: PiPuzzlePieceDuotone, color: 'grape', title: i18n.t('tariffs.addon') },
+        { icon: IconPuzzle, color: 'grape', title: i18n.t('tariffs.addon') },
         (close) => <ViewAddon close={close} id={addonId} subId={subId} />,
         '1000px'
     )

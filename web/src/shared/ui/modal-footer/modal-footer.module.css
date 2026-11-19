@@ -5,7 +5,7 @@
     margin-left: -20px;
     margin-right: -20px;
     margin-bottom: -20px;
-    padding: 14px 20px;
+    padding: 16px 20px;
     padding-bottom: max(14px, env(safe-area-inset-bottom, 0px));
     background: color-mix(in srgb, var(--app-surface) 92%, transparent);
     backdrop-filter: blur(8px);
@@ -16,7 +16,7 @@
 .offline {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     margin-right: auto;
     flex-grow: 0 !important;
     font-size: var(--mantine-font-size-xs);

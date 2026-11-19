@@ -12,18 +12,7 @@ import {
     Tabs,
     Text
 } from '@mantine/core'
-import {
-    PiCalendarPlusDuotone,
-    PiCreditCardDuotone,
-    PiLink,
-    PiPencilSimple,
-    PiPlus,
-    PiScales,
-    PiTrash,
-    PiUserPlus,
-    PiWalletDuotone
-} from 'react-icons/pi'
-import { TbChevronDown } from 'react-icons/tb'
+import { IconCalendarPlus, IconChevronDown, IconCreditCard, IconLink, IconPencil, IconPlus, IconScale, IconTrash, IconUserPlus, IconWallet } from '@tabler/icons-react'
 import { Link, useNavigate, useParams } from 'react-router'
 
 import { api } from '@/api/client'
@@ -179,30 +168,30 @@ export function CustomerPage() {
                 }
                 actions={
                     <>
-                        <Button variant="filled" leftSection={<PiCreditCardDuotone size={16} />} onClick={() => openPaymentModal({ customerId: c.id, name: c.name })}>
+                        <Button variant="filled" leftSection={<IconCreditCard size={16} />} onClick={() => openPaymentModal({ customerId: c.id, name: c.name })}>
                             {t('customer.record_payment')}
                         </Button>
                         <Menu position="bottom-end">
                             <Menu.Target>
-                                <Button rightSection={<TbChevronDown size={14} />}>
+                                <Button rightSection={<IconChevronDown size={14} />}>
                                     {t('customer.more')}
                                 </Button>
                             </Menu.Target>
                             <Menu.Dropdown>
-                                <Menu.Item leftSection={<PiUserPlus size={16} />} onClick={() => openProvisionModal(c)}>
+                                <Menu.Item leftSection={<IconUserPlus size={16} />} onClick={() => openProvisionModal(c)}>
                                     {t('customer.create_subscription')}
                                 </Menu.Item>
-                                <Menu.Item leftSection={<PiLink size={16} />} onClick={() => openSubscriptionForm({ customerId: c.id })}>
+                                <Menu.Item leftSection={<IconLink size={16} />} onClick={() => openSubscriptionForm({ customerId: c.id })}>
                                     {t('sub.link_title')}
                                 </Menu.Item>
-                                <Menu.Item leftSection={<PiScales size={16} />} onClick={() => openAdjustModal(c)}>
+                                <Menu.Item leftSection={<IconScale size={16} />} onClick={() => openAdjustModal(c)}>
                                     {t('customer.adjust_balance')}
                                 </Menu.Item>
-                                <Menu.Item leftSection={<PiPencilSimple size={16} />} onClick={() => openCustomerForm(c)}>
+                                <Menu.Item leftSection={<IconPencil size={16} />} onClick={() => openCustomerForm(c)}>
                                     {t('common.edit')}
                                 </Menu.Item>
                                 <Menu.Divider />
-                                <Menu.Item color="red" leftSection={<PiTrash size={16} />} onClick={remove}>
+                                <Menu.Item color="red" leftSection={<IconTrash size={16} />} onClick={remove}>
                                     {t('common.delete')}
                                 </Menu.Item>
                             </Menu.Dropdown>
@@ -256,10 +245,10 @@ export function CustomerPage() {
                             <Text c="dimmed">{t('customer.no_subs')}</Text>
                         )}
                         <Group>
-                            <Button leftSection={<PiPlus size={16} />} onClick={() => openProvisionModal(c)} variant="light">
+                            <Button leftSection={<IconPlus size={16} />} onClick={() => openProvisionModal(c)} variant="light">
                                 {t('sub.create_in_panel')}
                             </Button>
-                            <Button leftSection={<PiLink size={16} />} onClick={() => openSubscriptionForm({ customerId: c.id })}>
+                            <Button leftSection={<IconLink size={16} />} onClick={() => openSubscriptionForm({ customerId: c.id })}>
                                 {t('customer.link_existing')}
                             </Button>
                         </Group>
@@ -270,7 +259,7 @@ export function CustomerPage() {
                     <DataTableCard
                         compact
                         storageKey="customer-payments"
-                        icon={<PiCreditCardDuotone size={24} />}
+                        icon={<IconCreditCard size={24} />}
                         title={t('menu.payments')}
                         {...paymentTableProps}
                         columns={cols.payments}
@@ -282,7 +271,7 @@ export function CustomerPage() {
                     <DataTableCard
                         compact
                         storageKey="customer-ledger"
-                        icon={<PiWalletDuotone size={24} />}
+                        icon={<IconWallet size={24} />}
                         title={t('customer.ledger_title')}
                         columns={cols.ledger}
                         data={c.ledger ?? []}
@@ -343,7 +332,7 @@ export function CustomerPage() {
                     <DataTableCard
                         compact
                         storageKey="customer-extensions"
-                        icon={<PiCalendarPlusDuotone size={24} />}
+                        icon={<IconCalendarPlus size={24} />}
                         title={t('customer.tab_ext')}
                         description={t('customer.ext_hint')}
                         columns={cols.ext}

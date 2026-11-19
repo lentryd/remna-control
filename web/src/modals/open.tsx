@@ -1,7 +1,7 @@
 import { FocusTrap } from '@mantine/core'
 import { modals } from '@mantine/modals'
 import type { ReactNode } from 'react'
-import { PiWarningDuotone } from 'react-icons/pi'
+import { IconAlertTriangle } from '@tabler/icons-react'
 
 import { BaseOverlayHeader } from '@shared/ui/overlays/base-overlay-header'
 import { networkStore } from '@/api/client'
@@ -44,7 +44,7 @@ export function openModal(header: ModalHeader, render: (close: () => void) => Re
 
 export function confirmDanger(title: string, text: ReactNode, onConfirm: () => void, confirmLabel = i18n.t('common.delete')) {
     modals.openConfirmModal({
-        title: <BaseOverlayHeader iconColor="red" IconComponent={PiWarningDuotone} title={title} />,
+        title: <BaseOverlayHeader iconColor="red" IconComponent={IconAlertTriangle} title={title} />,
         children: (
             <>
                 <FocusTrap.InitialFocus />

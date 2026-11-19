@@ -5,7 +5,7 @@ import { modals } from '@mantine/modals'
 import { notifications } from '@mantine/notifications'
 import { useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { TbAlertTriangle, TbBrandTelegram, TbCheck, TbClearAll, TbClipboard, TbCookie, TbCopy, TbEye, TbHexagon, TbWorld } from 'react-icons/tb'
+import { IconAlertTriangle, IconBrandTelegram, IconCheck, IconClearAll, IconClipboard, IconCookie, IconCopy, IconEye, IconHexagon, IconWorld } from '@tabler/icons-react'
 
 import { api } from '@/api/client'
 import { useApiMutation } from '@/api/hooks'
@@ -122,7 +122,7 @@ export function CreateApiTokenContent({ isMobile }: { isMobile: boolean }) {
                     modals.closeAll()
                     await sleep(300)
                     modals.open({
-                        title: <BaseOverlayHeader iconColor="teal" IconComponent={TbCookie} iconVariant="soft" title={data.name} />,
+                        title: <BaseOverlayHeader iconColor="teal" IconComponent={IconCookie} iconVariant="soft" title={data.name} />,
                         fullScreen: isMobile,
                         centered: true,
                         size: 'min(800px, 90vw)',
@@ -141,7 +141,7 @@ export function CreateApiTokenContent({ isMobile }: { isMobile: boolean }) {
     return (
         <Stack gap="md">
             <Box className={classes.oneTimeNotice}>
-                <TbAlertTriangle className={classes.oneTimeNoticeIcon} size={20} />
+                <IconAlertTriangle className={classes.oneTimeNoticeIcon} size={20} />
                 <Text className={classes.oneTimeNoticeText}>
                     <Trans components={{ emphasis: <span className={classes.oneTimeNoticeEmphasis} /> }} i18nKey="tokens.one_time_notice" />
                 </Text>
@@ -171,16 +171,16 @@ export function CreateApiTokenContent({ isMobile }: { isMobile: boolean }) {
             </Flex>
 
             <Group gap="xs">
-                <Button leftSection={<TbEye size={16} />} onClick={presetRead} size="xs" variant="default">
+                <Button leftSection={<IconEye size={16} />} onClick={presetRead} size="xs" variant="default">
                     {t('tokens.read_only')}
                 </Button>
-                <Button leftSection={<TbWorld size={16} />} onClick={presetFull} size="xs" variant="default">
+                <Button leftSection={<IconWorld size={16} />} onClick={presetFull} size="xs" variant="default">
                     {t('tokens.full_access')}
                 </Button>
-                <Button leftSection={<TbHexagon size={16} />} onClick={presetSubpage} size="xs" variant="default">
+                <Button leftSection={<IconHexagon size={16} />} onClick={presetSubpage} size="xs" variant="default">
                     Subpage
                 </Button>
-                <Button leftSection={<TbBrandTelegram size={16} />} onClick={presetBot} size="xs" variant="default">
+                <Button leftSection={<IconBrandTelegram size={16} />} onClick={presetBot} size="xs" variant="default">
                     Telegram bot
                 </Button>
             </Group>
@@ -204,7 +204,7 @@ export function CreateApiTokenContent({ isMobile }: { isMobile: boolean }) {
                 <ActionIconGroup ml="auto">
                     <Tooltip label={t('tokens.clear')}>
                         <ActionIcon color="gray" onClick={() => setSelectedEndpoints(new Set())} size="input-md" variant="soft">
-                            <TbClearAll size={24} />
+                            <IconClearAll size={24} />
                         </ActionIcon>
                     </Tooltip>
 
@@ -212,7 +212,7 @@ export function CreateApiTokenContent({ isMobile }: { isMobile: boolean }) {
                         {({ copied, copy }) => (
                             <Tooltip label={t('common.copy')}>
                                 <ActionIcon color={copied ? 'teal' : 'gray'} onClick={copy} size="input-md" variant="soft">
-                                    {copied ? <TbCheck size={24} /> : <TbCopy size={24} />}
+                                    {copied ? <IconCheck size={24} /> : <IconCopy size={24} />}
                                 </ActionIcon>
                             </Tooltip>
                         )}
@@ -220,14 +220,14 @@ export function CreateApiTokenContent({ isMobile }: { isMobile: boolean }) {
 
                     <Tooltip label={t('tokens.paste')}>
                         <ActionIcon color="gray" onClick={handlePasteScopes} size="input-md" variant="soft">
-                            <TbClipboard size={24} />
+                            <IconClipboard size={24} />
                         </ActionIcon>
                     </Tooltip>
                 </ActionIconGroup>
 
                 <Button
                     disabled={!canCreate}
-                    leftSection={<TbCookie size="24px" />}
+                    leftSection={<IconCookie size="24px" />}
                     loading={create.isPending}
                     onClick={handleSubmit}
                     size="md"

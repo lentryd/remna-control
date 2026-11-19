@@ -1,4 +1,4 @@
-import { Anchor, Group, Text, ThemeIconProps } from '@mantine/core'
+import { Anchor, Group, Text } from '@mantine/core'
 import { IconChevronLeft } from '@tabler/icons-react'
 import { Link } from 'react-router'
 import type { ReactNode } from 'react'
@@ -42,16 +42,14 @@ export function StatCard({
     title,
     value,
     hint,
-    icon,
-    color = 'brand'
+    tone
 }: {
     title: string
     value: ReactNode
     hint?: ReactNode
-    icon: React.ComponentType<{ size: number }>
-    color?: ThemeIconProps['color']
+    tone?: string
 }) {
-    return <MetricCardShared IconComponent={icon} iconColor={color} subtitle={hint} title={title} value={value} />
+    return <MetricCardShared subtitle={hint} title={title} tone={tone} value={value} />
 }
 
 export function Money({ value, signed, digits = 0 }: { value: number | null | undefined; signed?: boolean; digits?: 0 | 2 }) {

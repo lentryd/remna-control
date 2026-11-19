@@ -1,7 +1,6 @@
 import type { MRT_ColumnDef } from '@kastov/mantine-react-table-open'
 import { ActionIcon, Badge, Button, Group, Menu, Tabs, Text, Tooltip } from '@mantine/core'
-import { PiArrowUDownLeft, PiArrowUpRight, PiBuildingsDuotone, PiPencilSimple, PiPlus, PiReceiptDuotone, PiTrash } from 'react-icons/pi'
-import { TbDots } from 'react-icons/tb'
+import { IconArrowBackUp, IconArrowUpRight, IconBuildingSkyscraper, IconDots, IconPencil, IconPlus, IconReceipt, IconTrash } from '@tabler/icons-react'
 import { useMemo } from 'react'
 
 import { api } from '@/api/client'
@@ -54,11 +53,11 @@ export function ExpensesPage() {
                 mantineFilterSelectProps: { data: [{ value: 'charge', label: t('expenses.charge') }, { value: 'refund', label: t('expenses.refund') }] },
                 Cell: ({ row }) =>
                     row.original.kind === 'refund' ? (
-                        <Badge color="teal" leftSection={<PiArrowUDownLeft size={13} />} size="md">
+                        <Badge color="teal" leftSection={<IconArrowBackUp size={13} />} size="md">
                             {t('expenses.refund_badge')}
                         </Badge>
                     ) : (
-                        <Badge color="orange" leftSection={<PiArrowUpRight size={13} />} size="md">
+                        <Badge color="orange" leftSection={<IconArrowUpRight size={13} />} size="md">
                             {t('expenses.charge_badge')}
                         </Badge>
                     )
@@ -175,11 +174,11 @@ export function ExpensesPage() {
     return (
         <Page title={t('menu.expenses')}>
             <PageHeader
-                icon={<PiReceiptDuotone size={24} />}
+                icon={<IconReceipt size={24} />}
                 title={t('menu.expenses')}
                 description={t('expenses.description', { currency: baseCurrency() })}
                 actions={
-                    <Button leftSection={<PiPlus size={16} />} onClick={() => openExpenseForm({})} variant="filled">
+                    <Button leftSection={<IconPlus size={16} />} onClick={() => openExpenseForm({})} variant="filled">
                         {t('expenses.expense')}
                     </Button>
                 }
@@ -200,7 +199,7 @@ export function ExpensesPage() {
                 <Tabs.Panel value="journal">
                     <DataTableCard
                         storageKey="expenses"
-                        icon={<PiReceiptDuotone size={24} />}
+                        icon={<IconReceipt size={24} />}
                         title={t('expenses.journal_title')}
                         columns={columns}
                         data={expenses.data ?? []}
@@ -213,20 +212,20 @@ export function ExpensesPage() {
                             <Menu position="bottom-end" withinPortal>
                                 <Menu.Target>
                                     <ActionIcon variant="subtle" color="gray">
-                                        <TbDots size={18} />
+                                        <IconDots size={18} />
                                     </ActionIcon>
                                 </Menu.Target>
                                 <Menu.Dropdown>
-                                    <Menu.Item leftSection={<PiPencilSimple size={16} />} onClick={() => openExpenseForm({ expense: row.original })}>
+                                    <Menu.Item leftSection={<IconPencil size={16} />} onClick={() => openExpenseForm({ expense: row.original })}>
                                         {t('common.edit')}
                                     </Menu.Item>
                                     {row.original.kind === 'charge' && (
-                                        <Menu.Item leftSection={<PiArrowUDownLeft size={16} />} onClick={() => openExpenseForm({ refundOf: row.original })}>
+                                        <Menu.Item leftSection={<IconArrowBackUp size={16} />} onClick={() => openExpenseForm({ refundOf: row.original })}>
                                             {t('expenses.make_refund')}
                                         </Menu.Item>
                                     )}
                                     <Menu.Divider />
-                                    <Menu.Item color="red" leftSection={<PiTrash size={16} />} onClick={() => remove(row.original)}>
+                                    <Menu.Item color="red" leftSection={<IconTrash size={16} />} onClick={() => remove(row.original)}>
                                         {t('common.delete')}
                                     </Menu.Item>
                                 </Menu.Dropdown>
@@ -237,7 +236,7 @@ export function ExpensesPage() {
                 <Tabs.Panel value="providers">
                     <DataTableCard
                         storageKey="providers"
-                        icon={<PiBuildingsDuotone size={24} />}
+                        icon={<IconBuildingSkyscraper size={24} />}
                         title={t('expenses.by_provider')}
                         description={t('expenses.by_provider_hint')}
                         compact

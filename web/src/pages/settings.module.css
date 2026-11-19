@@ -7,7 +7,7 @@
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 12px;
-    padding: 10px 10px 10px 18px;
+    padding: 8px 8px 8px 20px;
     border-radius: var(--mantine-radius-lg);
     background: var(--app-surface-raised);
     border: 1px solid var(--app-border-strong);

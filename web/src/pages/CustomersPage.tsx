@@ -1,7 +1,7 @@
 import type { MRT_ColumnDef } from '@kastov/mantine-react-table-open'
 import { ActionIcon, Badge, Button, Group, SegmentedControl, Text, Tooltip } from '@mantine/core'
 import { useMemo, useState } from 'react'
-import { PiCreditCard, PiPencilSimple, PiUserPlus, PiUsersDuotone } from 'react-icons/pi'
+import { IconCreditCard, IconPencil, IconUserPlus, IconUsers } from '@tabler/icons-react'
 import { useNavigate } from 'react-router'
 
 import { useCustomers } from '@/api/hooks'
@@ -111,11 +111,11 @@ export function CustomersPage() {
     return (
         <Page title={t('menu.customers')}>
             <PageHeader
-                icon={<PiUsersDuotone size={24} />}
+                icon={<IconUsers size={24} />}
                 title={t('menu.customers')}
                 description={t('customers.description')}
                 actions={
-                    <Button leftSection={<PiUserPlus size={16} />} onClick={() => openCustomerForm()} variant="filled">
+                    <Button leftSection={<IconUserPlus size={16} />} onClick={() => openCustomerForm()} variant="filled">
                         {t('customers.new')}
                     </Button>
                 }
@@ -146,7 +146,7 @@ export function CustomersPage() {
             />
             <DataTableCard
                 storageKey="customers"
-                icon={<PiUsersDuotone size={24} />}
+                icon={<IconUsers size={24} />}
                 title={t('customers.list')}
                 actions={
                     <SegmentedControl
@@ -171,13 +171,13 @@ export function CustomersPage() {
                     <Group gap={6} wrap="nowrap">
                         <Tooltip label={t('common.edit')} withArrow>
                             <ActionIcon size="md" variant="default" onClick={() => openCustomerForm(row.original)}>
-                                <PiPencilSimple size={14} />
+                                <IconPencil size={14} />
                             </ActionIcon>
                         </Tooltip>
                         <Button
                             size="compact-sm"
                             variant="default"
-                            leftSection={<PiCreditCard size={14} />}
+                            leftSection={<IconCreditCard size={14} />}
                             onClick={() => openPaymentModal({ customerId: row.original.id, name: row.original.name })}
                         >
                             {t('payment.title')}

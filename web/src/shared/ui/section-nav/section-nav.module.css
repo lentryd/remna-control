@@ -35,7 +35,7 @@
     display: flex;
     align-items: flex-start;
     gap: 12px;
-    padding: 9px 11px;
+    padding: 8px 12px;
     border: 1px solid transparent;
     border-radius: var(--mantine-radius-md);
     color: var(--app-text-muted);
@@ -65,7 +65,7 @@
 
     @media (max-width: $mantine-breakpoint-lg) {
         align-items: center;
-        padding: 7px 11px;
+        padding: 8px 12px;
         white-space: nowrap;
 
         & svg {

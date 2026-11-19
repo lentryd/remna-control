@@ -48,7 +48,7 @@
     gap: 3px;
     width: 236px;
     height: 76px;
-    padding: 8px 10px 8px 12px;
+    padding: 8px 8px 8px 12px;
     border-radius: var(--mantine-radius-lg);
     background: var(--app-surface);
     border: 1px solid var(--app-border-strong);
@@ -102,7 +102,7 @@
     align-items: center;
     gap: 2px;
     height: 22px;
-    padding: 0 6px;
+    padding: 0 8px;
     border-radius: var(--mantine-radius-sm);
     font-size: 11px;
     font-weight: 600;

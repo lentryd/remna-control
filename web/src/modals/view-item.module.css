@@ -11,7 +11,7 @@
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 12px;
-    padding: 14px 16px;
+    padding: 16px 16px;
 }
 
 .identityFacts {
@@ -42,7 +42,7 @@
 .factLabel {
     font-size: var(--mantine-font-size-xs);
     color: var(--app-text-muted);
-    margin-bottom: 6px;
+    margin-bottom: 8px;
 }
 
 .addonList {
@@ -56,7 +56,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 10px 12px;
+    padding: 8px 12px;
     transition: background-color 120ms var(--app-ease);
 
     & + & {

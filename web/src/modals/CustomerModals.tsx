@@ -1,15 +1,6 @@
 import { NumberInput, Stack, Switch, Text, Textarea, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import {
-    PiArchiveDuotone,
-    PiNotePencil,
-    PiPercentDuotone,
-    PiScalesDuotone,
-    PiTelegramLogoDuotone,
-    PiUserDuotone,
-    PiUsersThreeDuotone
-} from 'react-icons/pi'
-import { TbUser, TbUserPlus } from 'react-icons/tb'
+import { IconArchive, IconBrandTelegram, IconEdit, IconPercentage, IconScale, IconUser, IconUserPlus, IconUsersGroup } from '@tabler/icons-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 
@@ -33,8 +24,8 @@ import { useTranslation } from 'react-i18next'
 export function openCustomerForm(customer?: Customer, onCreated?: (id: number) => void, opts: { provision?: boolean } = {}) {
     openModal(
         customer
-            ? { icon: TbUser, color: 'brand', title: i18n.t('sub.customer'), subtitle: customer.name }
-            : { icon: TbUserPlus, color: 'brand', title: i18n.t('customers.new') },
+            ? { icon: IconUser, color: 'brand', title: i18n.t('sub.customer'), subtitle: customer.name }
+            : { icon: IconUserPlus, color: 'brand', title: i18n.t('customers.new') },
         (close) => <CustomerForm customer={customer} offerProvision={!customer && opts.provision !== false} onCreated={onCreated} onDone={close} />,
         '560px'
     )
@@ -102,13 +93,13 @@ function CustomerForm({
                         data-autofocus
                         description={t('customers.name_hint')}
                         label={t('customers.name')}
-                        leftSection={<PiUserDuotone size={16} />}
+                        leftSection={<IconUser size={16} />}
                         required
                         {...form.getInputProps('name')}
                     />
                     <TextInput
                         label={t('customers.contact')}
-                        leftSection={<PiTelegramLogoDuotone size={16} />}
+                        leftSection={<IconBrandTelegram size={16} />}
                         placeholder={t('customers.contact_placeholder')}
                         {...form.getInputProps('contact')}
                     />
@@ -118,14 +109,14 @@ function CustomerForm({
                         description={t('customers.telegram_id_hint')}
                         hideControls
                         label={t('customers.telegram_id')}
-                        leftSection={<PiTelegramLogoDuotone size={16} />}
+                        leftSection={<IconBrandTelegram size={16} />}
                         {...form.getInputProps('telegram_id')}
                     />
                     {customer && (
                         <Switch
                             description={t('customers.archived_hint')}
                             label={t('customers.archived')}
-                            thumbIcon={<PiArchiveDuotone size={10} />}
+                            thumbIcon={<IconArchive size={10} />}
                             {...form.getInputProps('archived', { type: 'checkbox' })}
                         />
                     )}
@@ -136,7 +127,7 @@ function CustomerForm({
                             clearable
                             data={(customers.data ?? []).filter((c) => c.id !== customer?.id).map((c) => ({ value: String(c.id), label: c.name }))}
                             label={t('customers.referrer')}
-                            leftSection={<PiUsersThreeDuotone size={16} />}
+                            leftSection={<IconUsersGroup size={16} />}
                             placeholder={t('customers.no_referrer')}
                             {...form.getInputProps('referrer_id')}
                         />
@@ -144,7 +135,7 @@ function CustomerForm({
                             decimalScale={2}
                             description={t('customers.ref_percent_hint')}
                             label={t('customers.ref_percent')}
-                            leftSection={<PiPercentDuotone size={16} />}
+                            leftSection={<IconPercentage size={16} />}
                             max={100}
                             min={0}
                             {...form.getInputProps('referral_percent')}
@@ -169,7 +160,7 @@ function CustomerForm({
 }
 
 export function openAdjustModal(customer: { id: number; name: string }) {
-    openModal({ icon: PiScalesDuotone, color: 'yellow', title: i18n.t('customer.adjust_balance'), subtitle: customer.name }, (close) => <AdjustForm id={customer.id} onDone={close} />)
+    openModal({ icon: IconScale, color: 'yellow', title: i18n.t('customer.adjust_balance'), subtitle: customer.name }, (close) => <AdjustForm id={customer.id} onDone={close} />)
 }
 
 function AdjustForm({ id, onDone }: { id: number; onDone: () => void }) {
@@ -193,7 +184,7 @@ function AdjustForm({ id, onDone }: { id: number; onDone: () => void }) {
                     {t('customers.adjust_hint')}
                 </Text>
                     <NumberInput label={t('common.amount_in', { currency: currencySymbol() })} leftSection={<CurrencyIcon size={16} />} decimalScale={2} {...form.getInputProps('amount')} />
-                    <TextInput label={t('customers.reason')} leftSection={<PiNotePencil size={16} />} required {...form.getInputProps('note')} />
+                    <TextInput label={t('customers.reason')} leftSection={<IconEdit size={16} />} required {...form.getInputProps('note')} />
             </Stack>
             <FormFooter loading={m.isPending} onCancel={onDone} submitLabel={t('customers.apply')} />
         </form>

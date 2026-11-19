@@ -1,6 +1,6 @@
 import type { MRT_ColumnDef } from '@kastov/mantine-react-table-open'
 import { Badge, Skeleton, Tabs } from '@mantine/core'
-import { PiCoinsDuotone, PiTreeStructureDuotone } from 'react-icons/pi'
+import { IconBinaryTree, IconCoins } from '@tabler/icons-react'
 import { useMemo } from 'react'
 
 import { useAccruals, useReferralTree, useSettings } from '@/api/hooks'
@@ -50,7 +50,7 @@ export function ReferralsPage() {
     return (
         <Page title={t('menu.referrals')}>
             <PageHeader
-                icon={<PiTreeStructureDuotone size={24} />}
+                icon={<IconBinaryTree size={24} />}
                 title={t('menu.referrals')}
                 description={t('referrals.description', { pct: settings.data?.referral_percent ?? '…', total: fmtMoney(totals, 2) })}
             />
@@ -74,7 +74,7 @@ export function ReferralsPage() {
                 <Tabs.Panel value="accruals">
                     <DataTableCard
                         storageKey="accruals"
-                        icon={<PiCoinsDuotone size={24} />}
+                        icon={<IconCoins size={24} />}
                         title={t('referrals.accruals')}
                         description={t('referrals.accruals_hint')}
                         columns={columns}

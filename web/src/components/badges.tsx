@@ -39,7 +39,7 @@ export function StatusBadge({ user, ...props }: { user: RwUser | null } & Omit<B
 export function StatusPill({ status, size = 'md', ...props }: { status: string } & Omit<BadgeProps, 'children' | 'color'>) {
     const color = statusColor[status] ?? 'gray'
     return (
-        <Badge color={color} leftSection={<Dot color={color} pulse={status === 'ACTIVE'} size={6} />} radius="xl" size={size === 'lg' ? 'md' : size} variant="soft" {...props}>
+        <Badge color={color} leftSection={<Dot color={color} size={6} />} radius="xl" size={size === 'lg' ? 'md' : size} variant="soft" {...props}>
             {statusLabel(status)}
         </Badge>
     )

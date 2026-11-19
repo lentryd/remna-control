@@ -2,7 +2,7 @@ import { Badge, Group, Text } from '@mantine/core'
 import { modals } from '@mantine/modals'
 import dayjs from 'dayjs'
 import { useTranslation } from 'react-i18next'
-import { TbActivity, TbCalendarPlus, TbEye, TbKey, TbShieldCheck, TbTrash } from 'react-icons/tb'
+import { IconActivity, IconCalendarPlus, IconEye, IconKey, IconShieldCheck, IconTrash } from '@tabler/icons-react'
 
 import { api } from '@/api/client'
 import { useApiMutation } from '@/api/hooks'
@@ -31,7 +31,7 @@ export function ApiTokenItem({ token }: { token: ApiToken }) {
     const view = () => {
         const isMobile = isMobileViewport()
         modals.open({
-            title: <BaseOverlayHeader iconColor="teal" IconComponent={TbKey} iconVariant="soft" title={token.name} />,
+            title: <BaseOverlayHeader iconColor="teal" IconComponent={IconKey} iconVariant="soft" title={token.name} />,
             fullScreen: isMobile,
             centered: true,
             size: 'min(800px, 90vw)',
@@ -63,16 +63,16 @@ export function ApiTokenItem({ token }: { token: ApiToken }) {
                 </>
             }
             menu={[
-                { label: t('tokens.view'), icon: TbEye, onClick: view },
-                { label: t('common.delete'), icon: TbTrash, color: 'red', onClick: del, disabled: remove.isPending }
+                { label: t('tokens.view'), icon: IconEye, onClick: view },
+                { label: t('common.delete'), icon: IconTrash, color: 'red', onClick: del, disabled: remove.isPending }
             ]}
             onClick={view}
             params={
                 <>
-                    <EntityParam icon={TbCalendarPlus} label={t('tokens.col_created')}>
+                    <EntityParam icon={IconCalendarPlus} label={t('tokens.col_created')}>
                         {fmtDateTime(token.created_at)}
                     </EntityParam>
-                    <EntityParam icon={TbActivity} label={t('tokens.last_used')}>
+                    <EntityParam icon={IconActivity} label={t('tokens.last_used')}>
                         {token.last_used_at ? (
                             fromNow(token.last_used_at)
                         ) : (
@@ -92,7 +92,7 @@ export function ApiTokenItem({ token }: { token: ApiToken }) {
         >
             <Group gap={6} mt="md">
                 {isFull ? (
-                    <Badge color="teal" leftSection={<TbShieldCheck size={12} />} size="lg">
+                    <Badge color="teal" leftSection={<IconShieldCheck size={12} />} size="lg">
                         {t('tokens.full_access')}
                     </Badge>
                 ) : (

@@ -1,6 +1,6 @@
 // Adapted from remnawave/frontend (AGPL-3.0): api-tokens-card/modals/scopes.utils
 import { createElement, ReactNode } from 'react'
-import { TbAffiliate, TbApi, TbChartBar, TbCreditCard, TbDatabase, TbPackage, TbPuzzle, TbReceipt, TbRefresh, TbServer, TbTag, TbUsers } from 'react-icons/tb'
+import { IconAffiliate, IconApi, IconChartBar, IconCreditCard, IconDatabase, IconPackage, IconPuzzle, IconReceipt, IconRefresh, IconServer, IconTag, IconUsers } from '@tabler/icons-react'
 
 export interface ScopeEndpoint {
     key: string
@@ -18,20 +18,20 @@ export interface ScopeResource {
 export type KindState = 'none' | 'off' | 'on' | 'partial'
 
 const RESOURCE_ICONS: Record<string, React.ComponentType<{ size?: number }>> = {
-    customers: TbUsers,
-    payments: TbCreditCard,
-    subscriptions: TbPackage,
-    items: TbRefresh,
-    tariffs: TbTag,
-    addons: TbPuzzle,
-    referrals: TbAffiliate,
-    expenses: TbReceipt,
-    remnawave: TbServer,
-    stats: TbChartBar,
-    backups: TbDatabase
+    customers: IconUsers,
+    payments: IconCreditCard,
+    subscriptions: IconPackage,
+    items: IconRefresh,
+    tariffs: IconTag,
+    addons: IconPuzzle,
+    referrals: IconAffiliate,
+    expenses: IconReceipt,
+    remnawave: IconServer,
+    stats: IconChartBar,
+    backups: IconDatabase
 }
 
-export const renderResourceIcon = (resource: string, size = 18): ReactNode => createElement(RESOURCE_ICONS[resource] ?? TbApi, { size })
+export const renderResourceIcon = (resource: string, size = 18): ReactNode => createElement(RESOURCE_ICONS[resource] ?? IconApi, { size })
 
 export const humanizeResource = (resource: string): string =>
     resource

@@ -1,7 +1,7 @@
 // Adapted from remnawave/frontend (AGPL-3.0)
 import { Box, Collapse, Group, Stack, Text, ThemeIcon, UnstyledButton } from '@mantine/core'
 import clsx from 'clsx'
-import { TbChevronRight } from 'react-icons/tb'
+import { IconChevronRight } from '@tabler/icons-react'
 
 import classes from '../api-token-card.module.css'
 import { KindPill } from './kind-pill'
@@ -50,7 +50,7 @@ export const ScopeResourceRow = (props: IProps) => {
             <Group className={classes.resourceHeader} gap="xs" wrap="nowrap">
                 <UnstyledButton className={classes.resourceTrigger} onClick={onToggleExpand}>
                     <Group gap="sm" wrap="nowrap">
-                        <TbChevronRight
+                        <IconChevronRight
                             className={clsx(classes.chevron, expanded && classes.chevronOpen)}
                             size={12}
                         />

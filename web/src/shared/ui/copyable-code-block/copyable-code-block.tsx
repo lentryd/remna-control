@@ -1,7 +1,7 @@
 // Adapted from remnawave/frontend (AGPL-3.0)
 import { ActionIcon, Box, CopyButton, Input, InputWrapperProps, MantineColor } from '@mantine/core'
 import clsx from 'clsx'
-import { PiCheck, PiCopy } from 'react-icons/pi'
+import { IconCheck, IconCopy } from '@tabler/icons-react'
 
 import styles from './copyable-code-block.module.css'
 
@@ -37,7 +37,7 @@ export function CopyableCodeBlock({ color, value, size = 'normal', inputWrapperP
                             size={isSmall ? 'xs' : 'sm'}
                             variant="transparent"
                         >
-                            {copied ? <PiCheck size={iconSize} /> : <PiCopy size={iconSize} />}
+                            {copied ? <IconCheck size={iconSize} /> : <IconCopy size={iconSize} />}
                         </ActionIcon>
                     </Box>
                 )}

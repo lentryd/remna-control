@@ -1,16 +1,6 @@
 import { ActionIcon, Menu } from '@mantine/core'
 import { useClipboard } from '@mantine/hooks'
-import {
-    PiArrowsLeftRight,
-    PiCalendarPlus,
-    PiCopy,
-    PiLinkBreak,
-    PiPause,
-    PiPencilSimple,
-    PiPlay,
-    PiPuzzlePiece
-} from 'react-icons/pi'
-import { TbDots } from 'react-icons/tb'
+import { IconArrowsLeftRight, IconCalendarPlus, IconCopy, IconDots, IconLinkOff, IconPencil, IconPlayerPause, IconPlayerPlay, IconPuzzle } from '@tabler/icons-react'
 
 import { api } from '@/api/client'
 import { useInvalidateAll } from '@/api/hooks'
@@ -90,33 +80,33 @@ export function SubscriptionMenuItems({ sub, onUnlinked, inView }: { sub: Subscr
         <>
             <Menu.Label>{t('expense_items.manage')}</Menu.Label>
             <Menu.Item
-                leftSection={<PiCalendarPlus size={16} />}
+                leftSection={<IconCalendarPlus size={16} />}
                 disabled={!sub.rw_user || sub.rw_user.unlimited}
                 onClick={() => openExtendModal({ kind: 'subscription', id: sub.id, title: sub.title })}
             >
                 {t('dashboard.extend')}
             </Menu.Item>
-            <Menu.Item leftSection={<PiPuzzlePiece size={16} />} disabled={!sub.rw_user} onClick={() => openConnectAddonModal(sub)}>
+            <Menu.Item leftSection={<IconPuzzle size={16} />} disabled={!sub.rw_user} onClick={() => openConnectAddonModal(sub)}>
                 {t('sub.connect_addon')}
             </Menu.Item>
             <Menu.Item
-                leftSection={<PiArrowsLeftRight size={16} />}
+                leftSection={<IconArrowsLeftRight size={16} />}
                 onClick={() => openChangeTariffModal({ kind: 'subscription', id: sub.id, title: sub.title, tariffId: sub.tariff_id })}
             >
                 {t('sub.change_tariff')}
             </Menu.Item>
             {!inView && (
-                <Menu.Item leftSection={<PiPencilSimple size={16} />} onClick={() => openViewSubscriptionModal(sub)}>
+                <Menu.Item leftSection={<IconPencil size={16} />} onClick={() => openViewSubscriptionModal(sub)}>
                     {t('common.edit')}
                 </Menu.Item>
             )}
             {sub.rw_user && (
                 <>
-                    <Menu.Item leftSection={<PiCopy size={16} />} onClick={() => copyLink(sub.rw_user!.subscription_url)}>
+                    <Menu.Item leftSection={<IconCopy size={16} />} onClick={() => copyLink(sub.rw_user!.subscription_url)}>
                         {t('view.copy_link')}
                     </Menu.Item>
                     <Menu.Item
-                        leftSection={disabled ? <PiPlay size={16} /> : <PiPause size={16} />}
+                        leftSection={disabled ? <IconPlayerPlay size={16} /> : <IconPlayerPause size={16} />}
                         onClick={() => toggle('subscription', sub.id, disabled)}
                     >
                         {disabled ? t('actions.enable') : t('actions.disable')}
@@ -125,7 +115,7 @@ export function SubscriptionMenuItems({ sub, onUnlinked, inView }: { sub: Subscr
             )}
             <Menu.Divider />
             <Menu.Label>{t('common.danger_zone')}</Menu.Label>
-            <Menu.Item color="red" leftSection={<PiLinkBreak size={16} />} onClick={() => unlinkSubscription(sub, onUnlinked)}>
+            <Menu.Item color="red" leftSection={<IconLinkOff size={16} />} onClick={() => unlinkSubscription(sub, onUnlinked)}>
                 {t('actions.unlink')}
             </Menu.Item>
         </>
@@ -153,14 +143,14 @@ export function AddonMenuItems({
             {!addon.included && (
                 <>
                     <Menu.Item
-                        leftSection={<PiCalendarPlus size={16} />}
+                        leftSection={<IconCalendarPlus size={16} />}
                         disabled={!addon.rw_user || addon.rw_user.unlimited}
                         onClick={() => openExtendModal({ kind: 'addon', id: addon.id, title })}
                     >
                         {t('dashboard.extend')}
                     </Menu.Item>
                     <Menu.Item
-                        leftSection={<PiArrowsLeftRight size={16} />}
+                        leftSection={<IconArrowsLeftRight size={16} />}
                         onClick={() =>
                             openChangeTariffModal({ kind: 'addon', id: addon.id, title, tariffId: addon.tariff_id, addonId: addon.addon_id })
                         }
@@ -170,13 +160,13 @@ export function AddonMenuItems({
                 </>
             )}
             {!inView && (
-                <Menu.Item leftSection={<PiPencilSimple size={16} />} onClick={() => openViewAddonModal(addon.id, addon.subscription_id)}>
+                <Menu.Item leftSection={<IconPencil size={16} />} onClick={() => openViewAddonModal(addon.id, addon.subscription_id)}>
                     {t('common.edit')}
                 </Menu.Item>
             )}
             {addon.rw_user && (
                 <Menu.Item
-                    leftSection={disabled ? <PiPlay size={16} /> : <PiPause size={16} />}
+                    leftSection={disabled ? <IconPlayerPlay size={16} /> : <IconPlayerPause size={16} />}
                     onClick={() => toggle('addon', addon.id, disabled)}
                 >
                     {disabled ? t('actions.enable') : t('actions.disable')}
@@ -184,7 +174,7 @@ export function AddonMenuItems({
             )}
             <Menu.Divider />
             <Menu.Label>{t('common.danger_zone')}</Menu.Label>
-            <Menu.Item color="red" leftSection={<PiLinkBreak size={16} />} onClick={() => unlinkAddon(addon, onUnlinked)}>
+            <Menu.Item color="red" leftSection={<IconLinkOff size={16} />} onClick={() => unlinkAddon(addon, onUnlinked)}>
                 {t('actions.unlink')}
             </Menu.Item>
         </>
@@ -196,7 +186,7 @@ function DotsTarget() {
     return (
         <Menu.Target>
             <ActionIcon aria-label={t('common.actions')} color="gray" onClick={(e) => e.stopPropagation()} variant="subtle">
-                <TbDots size={18} />
+                <IconDots size={18} />
             </ActionIcon>
         </Menu.Target>
     )

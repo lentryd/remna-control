@@ -1,6 +1,6 @@
 import { SimpleGrid, Stack, Text, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import { PiPuzzlePieceDuotone, PiTextAa } from 'react-icons/pi'
+import { IconLetterCase, IconPuzzle } from '@tabler/icons-react'
 
 import { api } from '@/api/client'
 import { useApiMutation } from '@/api/hooks'
@@ -16,7 +16,7 @@ const STUB_STATUSES = ['LIMITED', 'EXPIRED', 'DISABLED'] as const
 
 export function openAddonModal(addon?: Addon) {
     openModal(
-        { icon: PiPuzzlePieceDuotone, color: 'grape', title: addon ? i18n.t('tariffs.addon') : i18n.t('addon_form.new'), subtitle: addon?.name },
+        { icon: IconPuzzle, color: 'grape', title: addon ? i18n.t('tariffs.addon') : i18n.t('addon_form.new'), subtitle: addon?.name },
         (close) => <AddonForm addon={addon} onDone={close} />,
         'lg'
     )
@@ -53,7 +53,7 @@ function AddonForm({ addon, onDone }: { addon?: Addon; onDone: () => void }) {
         >
             <Stack gap={0}>
                 <FieldGroup title={t('addon_form.user')} description={t('addon_form.user_hint')}>
-                    <TextInput label={t('tariffs.col_name')} leftSection={<PiTextAa size={16} />} placeholder="premium" {...form.getInputProps('name')} />
+                    <TextInput label={t('tariffs.col_name')} leftSection={<IconLetterCase size={16} />} placeholder="premium" {...form.getInputProps('name')} />
                     <SimpleGrid cols={2}>
                         <TextInput label={t('addon_form.prefix')} placeholder="premium_" {...form.getInputProps('prefix')} />
                         <TextInput label={t('addon_form.suffix')} placeholder="_premium" {...form.getInputProps('suffix')} />

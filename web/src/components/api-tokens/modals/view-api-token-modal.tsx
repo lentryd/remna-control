@@ -4,7 +4,7 @@ import { modals } from '@mantine/modals'
 import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { TbCheck, TbCopy } from 'react-icons/tb'
+import { IconCheck, IconCopy } from '@tabler/icons-react'
 
 import type { ApiToken } from '@/api/types'
 import { CopyableCodeBlock } from '@shared/ui/copyable-code-block'
@@ -61,7 +61,7 @@ export function ViewApiTokenContent({ isMobile, token }: { isMobile: boolean; to
                                 {({ copied, copy }) => (
                                     <Tooltip label={t('common.copy')}>
                                         <ActionIcon color={copied ? 'teal' : 'gray'} onClick={copy} size="xs" variant="subtle">
-                                            {copied ? <TbCheck size={14} /> : <TbCopy size={14} />}
+                                            {copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
                                         </ActionIcon>
                                     </Tooltip>
                                 )}
@@ -93,7 +93,7 @@ export function ViewApiTokenContent({ isMobile, token }: { isMobile: boolean; to
                         {({ copied, copy }) => (
                             <Tooltip label={t('common.copy')}>
                                 <ActionIcon color={copied ? 'teal' : 'gray'} onClick={copy} size="input-md" variant="soft">
-                                    {copied ? <TbCheck size={24} /> : <TbCopy size={24} />}
+                                    {copied ? <IconCheck size={24} /> : <IconCopy size={24} />}
                                 </ActionIcon>
                             </Tooltip>
                         )}

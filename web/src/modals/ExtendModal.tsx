@@ -1,5 +1,5 @@
 import { Alert } from '@mantine/core'
-import { PiCalendarPlus, PiCalendarPlusDuotone, PiCheck } from 'react-icons/pi'
+import { IconCalendarPlus, IconCheck } from '@tabler/icons-react'
 import { useDebouncedValue } from '@mantine/hooks'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
@@ -49,7 +49,7 @@ interface PaymentResult {
 // just paid (the payment is recorded and spent on this item in one go) or
 // the term is charged to their balance.
 export function openExtendModal(p: { kind: Kind; id: number; title: string }) {
-    openModal({ icon: PiCalendarPlusDuotone, color: 'teal', title: i18n.t('sub.renewal'), subtitle: p.title }, (close) => <ExtendForm {...p} onDone={close} />, '1000px')
+    openModal({ icon: IconCalendarPlus, color: 'teal', title: i18n.t('sub.renewal'), subtitle: p.title }, (close) => <ExtendForm {...p} onDone={close} />, '1000px')
 }
 
 function ExtendForm({ kind, id, onDone }: { kind: Kind; id: number; onDone: () => void }) {
@@ -165,7 +165,7 @@ function ExtendForm({ kind, id, onDone }: { kind: Kind; id: number; onDone: () =
                 loading={m.isPending}
                 onCancel={onDone}
                 onSubmit={submit}
-                submitIcon={paid ? <PiCheck size={16} /> : <PiCalendarPlus size={16} />}
+                submitIcon={paid ? <IconCheck size={16} /> : <IconCalendarPlus size={16} />}
                 submitLabel={paid ? t('payment.commit') : t('extend.submit')}
             />
         </>

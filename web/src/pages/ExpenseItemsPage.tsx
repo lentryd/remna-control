@@ -22,28 +22,7 @@ import { DateInput, MonthPickerInput } from '@mantine/dates'
 import { type UseFormReturnType, useForm } from '@mantine/form'
 import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
-import {
-    PiArchive,
-    PiArrowsClockwise,
-    PiBuildingsDuotone,
-    PiCalendarCheckDuotone,
-    PiCalendarDuotone,
-    PiChartBar,
-    PiChartBarDuotone,
-    PiCoinsDuotone,
-    PiLock,
-    PiNotePencil,
-    PiPencilSimple,
-    PiPencilSimpleDuotone,
-    PiPercent,
-    PiPlus,
-    PiReceipt,
-    PiTextAa,
-    PiArrowCounterClockwise,
-    PiTrash,
-    PiUsersDuotone
-} from 'react-icons/pi'
-import { TbCloudDataConnection, TbServer2 } from 'react-icons/tb'
+import { IconArchive, IconBuildingSkyscraper, IconCalendar, IconCalendarCheck, IconChartBar, IconCloudDataConnection, IconCoins, IconEdit, IconLetterCase, IconLock, IconPencil, IconPercentage, IconPlus, IconReceipt, IconRefresh, IconRotate, IconServer2, IconTrash, IconUsers } from '@tabler/icons-react'
 
 import { api } from '@/api/client'
 import { useApiMutation, useExpenseItems, useInfra, useInvalidateAll, useMetered, useNodes, useSettings } from '@/api/hooks'
@@ -150,15 +129,15 @@ export function ExpenseItemsPage() {
     return (
         <Page title={t('menu.expense_items')}>
             <PageHeader
-                icon={<PiBuildingsDuotone size={24} />}
+                icon={<IconBuildingSkyscraper size={24} />}
                 title={t('menu.expense_items')}
                 description={t('expense_items.table_hint')}
                 actions={
                     <>
-                        <Button leftSection={<PiArrowsClockwise size={16} />} loading={syncing} onClick={syncTraffic}>
+                        <Button leftSection={<IconRefresh size={16} />} loading={syncing} onClick={syncTraffic}>
                             {t('expense_items.sync_traffic')}
                         </Button>
-                        <Button variant="filled" leftSection={<PiPlus size={16} />} onClick={create}>
+                        <Button variant="filled" leftSection={<IconPlus size={16} />} onClick={create}>
                             {t('expense_items.item')}
                         </Button>
                     </>
@@ -202,7 +181,7 @@ export function ExpenseItemsPage() {
                 size="lg"
                 title={
                     <BaseOverlayHeader
-                        IconComponent={edit?.id ? PiPencilSimpleDuotone : PiPlus}
+                        IconComponent={edit?.id ? IconPencil : IconPlus}
                         subtitle={edit?.id ? edit.name : undefined}
                         title={edit?.id ? t('expense_items.item_title') : t('expense_items.new_item')}
                     />
@@ -215,7 +194,7 @@ export function ExpenseItemsPage() {
                 onClose={() => setMetered(null)}
                 position="right"
                 size="xl"
-                title={<BaseOverlayHeader IconComponent={PiChartBarDuotone} subtitle={metered?.name} title={t('expense_items.traffic_cost')} />}
+                title={<BaseOverlayHeader IconComponent={IconChartBar} subtitle={metered?.name} title={t('expense_items.traffic_cost')} />}
             >
                 {metered && <MeteredView item={metered} />}
             </Drawer>
@@ -269,7 +248,7 @@ function ExpenseItemCard({ item: it, onEdit, onMetered }: { item: ExpenseItem; o
 
     return (
         <EntityCard
-            badges={metered && <Badge color="brand" leftSection={<TbCloudDataConnection size={12} />}>{t('expense_items.metered_badge')}</Badge>}
+            badges={metered && <Badge color="brand" leftSection={<IconCloudDataConnection size={12} />}>{t('expense_items.metered_badge')}</Badge>}
             dimmed={!it.active}
             dot={it.active ? 'teal' : 'gray'}
             footer={
@@ -289,27 +268,27 @@ function ExpenseItemCard({ item: it, onEdit, onMetered }: { item: ExpenseItem; o
                 </>
             }
             menu={[
-                { label: t('expense_items.pay'), icon: PiReceipt, onClick: () => openExpenseForm({ itemId: it.id, name: it.name }) },
+                { label: t('expense_items.pay'), icon: IconReceipt, onClick: () => openExpenseForm({ itemId: it.id, name: it.name }) },
                 ...(metered
                     ? [
-                          { label: t('expense_items.traffic_forecast'), icon: PiChartBar, onClick: onMetered },
-                          { label: t('expense_items.close_period'), icon: PiLock, onClick: () => openClosePeriod(it) }
+                          { label: t('expense_items.traffic_forecast'), icon: IconChartBar, onClick: onMetered },
+                          { label: t('expense_items.close_period'), icon: IconLock, onClick: () => openClosePeriod(it) }
                       ]
                     : []),
-                { label: t('common.edit'), icon: PiPencilSimple, onClick: onEdit },
+                { label: t('common.edit'), icon: IconPencil, onClick: onEdit },
                 it.active
-                    ? { label: t('expense_items.archive'), icon: PiArchive, color: 'red', onClick: archive }
-                    : { label: t('expense_items.restore'), icon: PiArrowCounterClockwise, onClick: () => setArchived(false) },
-                ...(it.active ? [] : [{ label: t('common.delete'), icon: PiTrash, color: 'red', onClick: remove }])
+                    ? { label: t('expense_items.archive'), icon: IconArchive, color: 'red', onClick: archive }
+                    : { label: t('expense_items.restore'), icon: IconRotate, onClick: () => setArchived(false) },
+                ...(it.active ? [] : [{ label: t('common.delete'), icon: IconTrash, color: 'red', onClick: remove }])
             ]}
             onClick={onEdit}
             params={
                 <>
-                    <EntityParam icon={PiBuildingsDuotone} label={t('expense_items.provider')}>
+                    <EntityParam icon={IconBuildingSkyscraper} label={t('expense_items.provider')}>
                         {it.provider ? <ProviderLabel name={it.provider} size="xs" uuid={it.provider_uuid} /> : <Text c="dimmed" component="span" inherit>—</Text>}
                     </EntityParam>
                     {it.rw_node_uuid && (
-                        <EntityParam icon={TbServer2} label={t('expense_items.col_node')}>
+                        <EntityParam icon={IconServer2} label={t('expense_items.col_node')}>
                             <Group gap={6} wrap="nowrap">
                                 <NodeLabel size="xs" uuid={it.rw_node_uuid} />
                                 {it.rw_squad_uuid && <SquadBadge size="xs" uuid={it.rw_squad_uuid} />}
@@ -346,7 +325,7 @@ function ExpenseItemCard({ item: it, onEdit, onMetered }: { item: ExpenseItem; o
 }
 
 function openClosePeriod(item: ExpenseItem) {
-    openModal({ icon: PiCalendarCheckDuotone, color: 'orange', title: i18n.t('expense_items.close_period'), subtitle: item.name }, (close) => (
+    openModal({ icon: IconCalendarCheck, color: 'orange', title: i18n.t('expense_items.close_period'), subtitle: item.name }, (close) => (
         <ClosePeriodForm item={item} onDone={close} />
     ))
 }
@@ -360,12 +339,12 @@ function ClosePeriodForm({ item, onDone }: { item: ExpenseItem; onDone: () => vo
     return (
         <FormStack>
             <FormSection
-                icon={PiCalendarCheckDuotone}
+                icon={IconCalendarCheck}
                 color="orange"
                 title={t('expense_items.period')}
                 description={t('expense_items.close_hint')}
             >
-                <MonthPickerInput label={t('expense_items.month')} leftSection={<PiCalendarDuotone size={16} />} value={month} onChange={setMonth} />
+                <MonthPickerInput label={t('expense_items.month')} leftSection={<IconCalendar size={16} />} value={month} onChange={setMonth} />
             </FormSection>
             <FormFooter
                 loading={m.isPending}
@@ -379,7 +358,7 @@ function ClosePeriodForm({ item, onDone }: { item: ExpenseItem; onDone: () => vo
                         onError: (e) => notifyError(e)
                     })
                 }
-                submitIcon={<PiLock size={16} />}
+                submitIcon={<IconLock size={16} />}
                 submitLabel={t('expense_items.close_period')}
             />
         </FormStack>
@@ -402,7 +381,7 @@ function MeteredView({ item }: { item: ExpenseItem }) {
     )
     return (
         <Stack>
-            <MonthPickerInput label={t('expense_items.month')} leftSection={<PiCalendarDuotone size={16} />} value={month} onChange={setMonth} w={220} />
+            <MonthPickerInput label={t('expense_items.month')} leftSection={<IconCalendar size={16} />} value={month} onChange={setMonth} w={220} />
             {q.error && (
                 <Alert color="red" variant="soft">
                     {q.error.message}
@@ -414,7 +393,7 @@ function MeteredView({ item }: { item: ExpenseItem }) {
                     compact
                     columns={consumers}
                     data={q.data.top_consumers}
-                    icon={<PiUsersDuotone size={24} />}
+                    icon={<IconUsers size={24} />}
                     initialState={{ sorting: [{ id: 'gb', desc: true }] }}
                     storageKey="consumers"
                     title={t('expense_items.all_consumers')}
@@ -489,8 +468,8 @@ function ItemForm({ item, onDone }: { item: Partial<ExpenseItem>; onDone: () => 
             )}
         >
             <Stack gap="md">
-                <FormSection icon={PiBuildingsDuotone} title={t('expense_items.item')} description={t('expense_items.item_hint')}>
-                    <TextInput label={t('tariffs.col_name')} leftSection={<PiTextAa size={16} />} required {...form.getInputProps('name')} />
+                <FormSection icon={IconBuildingSkyscraper} title={t('expense_items.item')} description={t('expense_items.item_hint')}>
+                    <TextInput label={t('tariffs.col_name')} leftSection={<IconLetterCase size={16} />} required {...form.getInputProps('name')} />
                     <ProviderInput
                         label={t('expense_items.provider')}
                         placeholder={t('expense_items.provider_placeholder')}
@@ -518,7 +497,7 @@ function ItemForm({ item, onDone }: { item: Partial<ExpenseItem>; onDone: () => 
                     <Switch label={t('expense_items.active')} description={t('expense_items.active_hint')} {...form.getInputProps('active', { type: 'checkbox' })} />
                 </FormSection>
 
-                <FormSection icon={PiCoinsDuotone} color="teal" title={t('expense_items.pricing')}>
+                <FormSection icon={IconCoins} color="teal" title={t('expense_items.pricing')}>
                     <SegmentedControl
                         data={[
                             { value: 'fixed', label: t('expense_items.fixed') },
@@ -543,7 +522,7 @@ function ItemForm({ item, onDone }: { item: Partial<ExpenseItem>; onDone: () => 
                         {v.pricing === 'fixed' ? (
                             <Select
                                 label={t('expense_items.period')}
-                                leftSection={<PiCalendarDuotone size={16} />}
+                                leftSection={<IconCalendar size={16} />}
                                 data={[
                                     { value: 'month', label: t('expense_items.monthly_cap') },
                                     { value: 'year', label: t('expense_items.yearly_cap') }
@@ -554,7 +533,7 @@ function ItemForm({ item, onDone }: { item: Partial<ExpenseItem>; onDone: () => 
                             <NumberInput
                                 label={t('expense_items.billing_day')}
                                 description={t('expense_items.billing_day_hint')}
-                                leftSection={<PiCalendarDuotone size={16} />}
+                                leftSection={<IconCalendar size={16} />}
                                 min={1}
                                 max={28}
                                 allowDecimal={false}
@@ -565,7 +544,7 @@ function ItemForm({ item, onDone }: { item: Partial<ExpenseItem>; onDone: () => 
                     {v.pricing === 'fixed' ? (
                         <NumberInput
                             label={t('expense_items.period_price', { currency: v.currency })}
-                            leftSection={<PiCoinsDuotone size={16} />}
+                            leftSection={<IconCoins size={16} />}
                             min={0}
                             decimalScale={2}
                             {...form.getInputProps('amount')}
@@ -576,14 +555,14 @@ function ItemForm({ item, onDone }: { item: Partial<ExpenseItem>; onDone: () => 
                     <SimpleGrid cols={{ base: 1, xs: 2 }}>
                         <NumberInput
                             label={t('expense_items.fee')}
-                            leftSection={<PiPercent size={16} />}
+                            leftSection={<IconPercentage size={16} />}
                             decimalScale={2}
                             {...form.getInputProps('fee_percent')}
                         />
                         <NumberInput
                             label={t('expense_items.share')}
                             description={t('expense_items.share_hint')}
-                            leftSection={<PiPercent size={16} />}
+                            leftSection={<IconPercentage size={16} />}
                             min={0}
                             max={100}
                             decimalScale={2}
@@ -593,7 +572,7 @@ function ItemForm({ item, onDone }: { item: Partial<ExpenseItem>; onDone: () => 
                     <DateInput
                         label={t('expense_items.next_payment')}
                         description={panelBilling ? t('expense_items.next_payment_hint') : undefined}
-                        leftSection={<PiCalendarDuotone size={16} />}
+                        leftSection={<IconCalendar size={16} />}
                         clearable
                         valueFormat={dateLayout()}
                         {...form.getInputProps('next_due_date')}
@@ -601,7 +580,7 @@ function ItemForm({ item, onDone }: { item: Partial<ExpenseItem>; onDone: () => 
                 </FormSection>
 
                 {v.pricing === 'metered' && (
-                    <FormSection icon={TbServer2} color="violet" title={t('expense_items.whose_traffic')} description={t('expense_items.whose_traffic_hint')}>
+                    <FormSection icon={IconServer2} color="violet" title={t('expense_items.whose_traffic')} description={t('expense_items.whose_traffic_hint')}>
                         <SquadSelect
                             label={t('expense_items.squad')}
                             description={t('expense_items.squad_hint')}
@@ -613,7 +592,7 @@ function ItemForm({ item, onDone }: { item: Partial<ExpenseItem>; onDone: () => 
                     </FormSection>
                 )}
 
-                <FormSection icon={PiNotePencil} color="gray" title={t('expense_items.notes')}>
+                <FormSection icon={IconEdit} color="gray" title={t('expense_items.notes')}>
                     <Textarea autosize minRows={2} {...form.getInputProps('notes')} />
                 </FormSection>
                 <FormFooter inline loading={m.isPending} onCancel={onDone} />
@@ -645,7 +624,7 @@ function MeteredPricingFields<T extends ItemFormValues>({ form }: { form: UseFor
         <>
             <Select
                 label={t('expense_items.gb_unit')}
-                leftSection={<TbCloudDataConnection size={16} />}
+                leftSection={<IconCloudDataConnection size={16} />}
                 data={[
                     { value: 'binary', label: t('expense_items.gb_binary') },
                     { value: 'decimal', label: t('expense_items.gb_decimal') }
@@ -668,7 +647,7 @@ function MeteredPricingFields<T extends ItemFormValues>({ form }: { form: UseFor
                             ? t('expense_items.free_formula')
                             : t('expense_items.floor_formula', { gb: !tiered && firstPrice ? fmtNum(v.min_charge / firstPrice) : '—' })
                     }
-                    leftSection={<PiCoinsDuotone size={16} />}
+                    leftSection={<IconCoins size={16} />}
                     min={0}
                     decimalScale={2}
                     {...form.getInputProps('min_charge')}
@@ -676,7 +655,7 @@ function MeteredPricingFields<T extends ItemFormValues>({ form }: { form: UseFor
                 {free && (
                     <NumberInput
                         label={t('expense_items.free_gb')}
-                        leftSection={<TbCloudDataConnection size={16} />}
+                        leftSection={<IconCloudDataConnection size={16} />}
                         min={0}
                         decimalScale={2}
                         {...form.getInputProps('free_gb')}
@@ -725,12 +704,12 @@ function MeteredPricingFields<T extends ItemFormValues>({ form }: { form: UseFor
                                 onClick={() => set('tiers', v.tiers.filter((_, j) => j !== i))}
                                 variant="subtle"
                             >
-                                <PiTrash size={16} />
+                                <IconTrash size={16} />
                             </ActionIcon>
                         </Group>
                     ))}
                     <Button
-                        leftSection={<PiPlus size={14} />}
+                        leftSection={<IconPlus size={14} />}
                         onClick={() => set('tiers', [...v.tiers, { up_to_gb: 0, price_per_gb: firstPrice }])}
                         size="compact-sm"
                         variant="subtle"
@@ -742,7 +721,7 @@ function MeteredPricingFields<T extends ItemFormValues>({ form }: { form: UseFor
             ) : (
                 <NumberInput
                     label={t('expense_items.price_per_gb', { currency: v.currency })}
-                    leftSection={<TbCloudDataConnection size={16} />}
+                    leftSection={<IconCloudDataConnection size={16} />}
                     min={0}
                     decimalScale={4}
                     {...form.getInputProps('price_per_gb')}

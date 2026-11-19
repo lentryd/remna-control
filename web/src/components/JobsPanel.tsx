@@ -137,7 +137,7 @@ function JobHistory({ jobKey }: { jobKey: string }) {
         <Stack gap="md">
             {failures.length > 0 && (
                 <Stack gap="sm">
-                    <Text c="dimmed" fw={600} size="xs" tt="uppercase">
+                    <Text c="dimmed" fw={500} size="xs">
                         {t('jobs.failures')} · {failures.length}
                     </Text>
                     {failures.map((r) => (
@@ -147,7 +147,7 @@ function JobHistory({ jobKey }: { jobKey: string }) {
             )}
             {successes.length > 0 && (
                 <Stack gap={4}>
-                    <Text c="dimmed" fw={600} size="xs" tt="uppercase">
+                    <Text c="dimmed" fw={500} size="xs">
                         {t('jobs.successes')} · {successes.length}
                     </Text>
                     {successes.map((r) => (

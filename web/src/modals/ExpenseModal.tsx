@@ -1,15 +1,5 @@
 import { Alert, Group, NumberInput, Paper, Select, SimpleGrid, Switch, Text, TextInput } from '@mantine/core'
-import {
-    PiArrowUDownLeft,
-    PiArrowUpRight,
-    PiBuildingsDuotone,
-    PiCalendarDuotone,
-    PiCoinsDuotone,
-    PiCurrencyCircleDollar,
-    PiNotePencil,
-    PiPercent,
-    PiReceiptDuotone
-} from 'react-icons/pi'
+import { IconArrowBackUp, IconArrowUpRight, IconBuildingSkyscraper, IconCalendar, IconCoin, IconCoins, IconEdit, IconPercentage, IconReceipt } from '@tabler/icons-react'
 import { DateInput } from '@mantine/dates'
 import { useForm } from '@mantine/form'
 import { useQuery } from '@tanstack/react-query'
@@ -42,7 +32,7 @@ interface ExpensePrefill {
 export function openExpenseForm(p: { expense?: Expense; refundOf?: Expense } & ExpensePrefill) {
     const title = p.expense ? i18n.t('expenses.expense') : p.refundOf ? i18n.t('expense_modal.refund') : i18n.t('expense_modal.new')
     const subtitle = p.expense ? `${p.expense.provider} · ${dayjs(p.expense.date).format(dateLayout())}` : (p.refundOf?.provider ?? p.name)
-    openModal({ icon: PiReceiptDuotone, color: 'orange', title, subtitle }, (close) => <ExpenseForm {...p} onDone={close} />, '1000px')
+    openModal({ icon: IconReceipt, color: 'orange', title, subtitle }, (close) => <ExpenseForm {...p} onDone={close} />, '1000px')
 }
 
 // nextDue is an item's payment date after one more period.
@@ -142,12 +132,12 @@ function ExpenseForm({
         >
             <FormColumns
                 left={
-                    <FormSection icon={PiReceiptDuotone} color="orange" title={t('payment.title')} description={t('expense_modal.payment_hint')}>
+                    <FormSection icon={IconReceipt} color="orange" title={t('payment.title')} description={t('expense_modal.payment_hint')}>
                         <SimpleGrid cols={{ base: 1, xs: 2 }}>
-                            <DateInput label={t('customer.col_date')} leftSection={<PiCalendarDuotone size={16} />} valueFormat={dateLayout()} {...form.getInputProps('date')} />
+                            <DateInput label={t('customer.col_date')} leftSection={<IconCalendar size={16} />} valueFormat={dateLayout()} {...form.getInputProps('date')} />
                             <Select
                                 label={t('backup.col_kind')}
-                                leftSection={v.kind === 'refund' ? <PiArrowUDownLeft size={16} /> : <PiArrowUpRight size={16} />}
+                                leftSection={v.kind === 'refund' ? <IconArrowBackUp size={16} /> : <IconArrowUpRight size={16} />}
                                 data={[
                                     { value: 'charge', label: t('expenses.charge') },
                                     { value: 'refund', label: t('expense_modal.refund') }
@@ -164,7 +154,7 @@ function ExpenseForm({
                         />
                         <Select
                             label={t('expense_items.item_title')}
-                            leftSection={<PiBuildingsDuotone size={16} />}
+                            leftSection={<IconBuildingSkyscraper size={16} />}
                             placeholder={t('expense_modal.no_item')}
                             clearable
                             allowDeselect
@@ -187,7 +177,7 @@ function ExpenseForm({
                             <SearchSelect
                                 label={t('expense_modal.refund_of')}
                                 description={t('expense_modal.refund_of_hint')}
-                                leftSection={<PiArrowUDownLeft size={16} />}
+                                leftSection={<IconArrowBackUp size={16} />}
                                 clearable
                                 allowDeselect
                                 data={(all.data ?? [])
@@ -204,12 +194,12 @@ function ExpenseForm({
                 }
                 right={
                     <>
-                        <FormSection icon={PiCoinsDuotone} color="teal" title={t('customer.col_amount')} description={t('expense_modal.amount_hint', { currency: baseCurrency() })}>
+                        <FormSection icon={IconCoins} color="teal" title={t('customer.col_amount')} description={t('expense_modal.amount_hint', { currency: baseCurrency() })}>
                             <SimpleGrid cols={{ base: 1, xs: 2 }}>
-                                <NumberInput label={t('customer.col_amount')} leftSection={<PiCoinsDuotone size={16} />} min={0} decimalScale={2} {...form.getInputProps('orig_amount')} />
+                                <NumberInput label={t('customer.col_amount')} leftSection={<IconCoins size={16} />} min={0} decimalScale={2} {...form.getInputProps('orig_amount')} />
                                 <SearchSelect
                                     label={t('expense_items.currency')}
-                                    leftSection={<PiCurrencyCircleDollar size={16} />}
+                                    leftSection={<IconCoin size={16} />}
                                     data={CURRENCIES}
                                     {...form.getInputProps('orig_currency')}
                                 />
@@ -227,7 +217,7 @@ function ExpenseForm({
                                     <NumberInput
                                         label={t('expense_items.fee')}
                                         description={t('expense_modal.fee_hint')}
-                                        leftSection={<PiPercent size={16} />}
+                                        leftSection={<IconPercentage size={16} />}
                                         decimalScale={2}
                                         {...form.getInputProps('fee_percent')}
                                     />
@@ -236,7 +226,7 @@ function ExpenseForm({
                             <NumberInput
                                 label={t('expense_items.share')}
                                 description={t('expense_items.share_hint')}
-                                leftSection={<PiPercent size={16} />}
+                                leftSection={<IconPercentage size={16} />}
                                 min={0}
                                 max={100}
                                 decimalScale={2}
@@ -252,14 +242,14 @@ function ExpenseForm({
                                     <Text c="dimmed" size="sm">
                                         {t('expense_modal.total', { currency: baseCurrency() })}
                                     </Text>
-                                    <Text c={v.kind === 'refund' ? 'teal' : 'orange'} className="num" fw={700}>
+                                    <Text c={v.kind === 'refund' ? 'teal' : 'orange'} className="num" fw={600}>
                                         {v.kind === 'refund' ? '−' : ''}
                                         {fmtMoney(rub, 2)}
                                     </Text>
                                 </Group>
                             </Paper>
                         </FormSection>
-                        <FormSection icon={PiNotePencil} color="gray" title={t('payment.comment')}>
+                        <FormSection icon={IconEdit} color="gray" title={t('payment.comment')}>
                             <TextInput placeholder={t('expense_modal.note_placeholder')} {...form.getInputProps('note')} />
                         </FormSection>
                     </>

@@ -1,24 +1,6 @@
 import { Alert, Badge, Group, Indicator, NumberInput, Paper, SegmentedControl, Select, type SelectProps, SimpleGrid, Stack, Switch, Text, TextInput } from '@mantine/core'
 import { DateTimePicker } from '@mantine/dates'
-import { TbUser } from 'react-icons/tb'
-import {
-    PiArrowsClockwise,
-    PiArrowsClockwiseDuotone,
-    PiArrowsLeftRight,
-    PiArrowsLeftRightDuotone,
-    PiCalendarDuotone,
-    PiLinkDuotone,
-    PiPlusCircle,
-    PiPlusCircleDuotone,
-    PiPuzzlePiece,
-    PiPuzzlePieceDuotone,
-    PiTag,
-    PiTagDuotone,
-    PiUser,
-    PiUserCircle,
-    PiUserCircleDuotone,
-    PiWalletDuotone
-} from 'react-icons/pi'
+import { IconArrowsLeftRight, IconCalendar, IconCirclePlus, IconLink, IconPuzzle, IconRefresh, IconTag, IconUser, IconUserCircle, IconWallet } from '@tabler/icons-react'
 import { useForm } from '@mantine/form'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
@@ -63,7 +45,7 @@ const statusColor: Record<string, string> = { ACTIVE: 'teal', EXPIRED: 'red', LI
 // openSubscriptionForm links a panel user to a customer; an existing link
 // is edited in the subscription modal itself.
 export function openSubscriptionForm(p: { customerId?: number; rwUserId?: number }) {
-    openModal({ icon: PiLinkDuotone, color: 'brand', title: i18n.t('sub.link_title') }, (close) => <SubscriptionForm {...p} onDone={close} />, '1000px')
+    openModal({ icon: IconLink, color: 'brand', title: i18n.t('sub.link_title') }, (close) => <SubscriptionForm {...p} onDone={close} />, '1000px')
 }
 
 // RwUserSelect picks a panel user, listed the way the panel shows them.
@@ -79,7 +61,7 @@ export function RwUserSelect({
             clearable
             data={options}
             label={t('sub.rw_user')}
-            leftSection={<PiUserCircle size={16} />}
+            leftSection={<IconUserCircle size={16} />}
             nothingFoundMessage={t('sub.no_free_users')}
             placeholder={t('sub.choose_user')}
             renderOption={({ option }) => {
@@ -192,23 +174,23 @@ function SubscriptionForm({ customerId, rwUserId, onDone }: { customerId?: numbe
             <FormColumns
                 left={
                     <>
-                        <FormSection color="blue" icon={TbUser} title={t('sub.customer')} description={t('sub.customer_hint')}>
+                        <FormSection color="blue" icon={IconUser} title={t('sub.customer')} description={t('sub.customer_hint')}>
                             <SearchSelect
                                 data={(customers.data ?? []).map((c) => ({ value: String(c.id), label: c.name }))}
                                 label={t('sub.customer')}
-                                leftSection={<PiUser size={16} />}
+                                leftSection={<IconUser size={16} />}
                                 required
                                 {...form.getInputProps('customer_id')}
                             />
                             <TextInput
                                 description={t('sub.label_hint')}
                                 label={t('sub.label')}
-                                leftSection={<PiTag size={16} />}
+                                leftSection={<IconTag size={16} />}
                                 placeholder={t('sub.label_placeholder')}
                                 {...form.getInputProps('label')}
                             />
                         </FormSection>
-                        <FormSection color="brand" icon={PiUserCircleDuotone} title={t('sub.panel_user')} description={t('sub.panel_user_hint')}>
+                        <FormSection color="brand" icon={IconUserCircle} title={t('sub.panel_user')} description={t('sub.panel_user_hint')}>
                             <RwUserSelect options={rwOptions} users={rwUsers.data} {...form.getInputProps('rw_user_id')} />
                             {picked && <RwUserPreview user={picked} />}
                         </FormSection>
@@ -216,14 +198,14 @@ function SubscriptionForm({ customerId, rwUserId, onDone }: { customerId?: numbe
                 }
                 right={
                     <>
-                        <FormSection color="teal" icon={PiTagDuotone} title={t('sub.tariff_price')} description={t('sub.tariff_price_hint')}>
+                        <FormSection color="teal" icon={IconTag} title={t('sub.tariff_price')} description={t('sub.tariff_price_hint')}>
                             <SearchSelect
                                 allowDeselect
                                 clearable
                                 data={(tariffs.data ?? []).filter((t) => t.kind === 'base').map((t) => ({ value: String(t.id), label: tariffLabel(t) }))}
                                 description={t('sub.tariff_no_rw')}
                                 label={t('tariffs.tariff')}
-                                leftSection={<PiTag size={16} />}
+                                leftSection={<IconTag size={16} />}
                                 placeholder={t('sub.no_tariff')}
                                 {...form.getInputProps('tariff_id')}
                             />
@@ -236,25 +218,25 @@ function SubscriptionForm({ customerId, rwUserId, onDone }: { customerId?: numbe
                                 {...form.getInputProps('price_override')}
                             />
                         </FormSection>
-                        <FormSection color="orange" icon={PiArrowsClockwiseDuotone} title={t('sub.renewal')}>
+                        <FormSection color="orange" icon={IconRefresh} title={t('sub.renewal')}>
                             <Switch
                                 description={t('sub.auto_extend_hint')}
                                 label={t('sub.auto_extend')}
-                                thumbIcon={<PiArrowsClockwise size={10} />}
+                                thumbIcon={<IconRefresh size={10} />}
                                 {...form.getInputProps('auto_extend', { type: 'checkbox' })}
                             />
                         </FormSection>
                     </>
                 }
             />
-            <FormFooter loading={m.isPending} onCancel={onDone} submitIcon={<PiLinkDuotone size={16} />} submitLabel={t('sub.link')} />
+            <FormFooter loading={m.isPending} onCancel={onDone} submitIcon={<IconLink size={16} />} submitLabel={t('sub.link')} />
         </form>
     )
 }
 
 // openProvisionModal creates a brand-new panel user for a customer.
 export function openProvisionModal(customer: { id: number; name: string }) {
-    openModal({ icon: PiPlusCircleDuotone, color: 'teal', title: i18n.t('sub.new_title'), subtitle: customer.name }, (close) => <ProvisionForm customerId={customer.id} onDone={close} />, '1000px')
+    openModal({ icon: IconCirclePlus, color: 'teal', title: i18n.t('sub.new_title'), subtitle: customer.name }, (close) => <ProvisionForm customerId={customer.id} onDone={close} />, '1000px')
 }
 
 function ProvisionForm({ customerId, onDone }: { customerId: number; onDone: () => void }) {
@@ -314,11 +296,11 @@ function ProvisionForm({ customerId, onDone }: { customerId: number; onDone: () 
             <FormColumns
                 left={
                     <>
-                        <FormSection color="brand" icon={PiUserCircleDuotone} title={t('sub.panel_user_new')} description={t('sub.panel_user_new_hint')}>
+                        <FormSection color="brand" icon={IconUserCircle} title={t('sub.panel_user_new')} description={t('sub.panel_user_new_hint')}>
                             <Select
                                 data={eligible.map((t) => ({ value: String(t.id), label: tariffLabel(t) }))}
                                 label={t('tariffs.tariff')}
-                                leftSection={<PiTag size={16} />}
+                                leftSection={<IconTag size={16} />}
                                 onChange={setTariffId}
                                 placeholder={t('sub.choose_tariff')}
                                 value={tariffId}
@@ -327,13 +309,13 @@ function ProvisionForm({ customerId, onDone }: { customerId: number; onDone: () 
                                 data-autofocus
                                 description={t('sub.username_hint')}
                                 label="Username"
-                                leftSection={<PiUser size={16} />}
+                                leftSection={<IconUser size={16} />}
                                 onChange={(e) => setUsername(e.currentTarget.value.trim())}
                                 value={username}
                             />
                             <TextInput
                                 label={t('sub.label')}
-                                leftSection={<PiTag size={16} />}
+                                leftSection={<IconTag size={16} />}
                                 onChange={(e) => setLabel(e.currentTarget.value)}
                                 placeholder={t('sub.label_placeholder')}
                                 value={label}
@@ -385,7 +367,7 @@ function ProvisionForm({ customerId, onDone }: { customerId: number; onDone: () 
                         onError: (e) => notifyError(e)
                     })
                 }
-                submitIcon={<PiPlusCircle size={16} />}
+                submitIcon={<IconCirclePlus size={16} />}
                 submitLabel={t('sub.create_in_panel')}
             />
         </>
@@ -393,7 +375,7 @@ function ProvisionForm({ customerId, onDone }: { customerId: number; onDone: () 
 }
 
 export function openConnectAddonModal(sub: Subscription) {
-    openModal({ icon: PiPuzzlePieceDuotone, color: 'grape', title: i18n.t('sub.connect_addon'), subtitle: sub.title }, (close) => <ConnectAddonForm sub={sub} onDone={close} />, '1000px')
+    openModal({ icon: IconPuzzle, color: 'grape', title: i18n.t('sub.connect_addon'), subtitle: sub.title }, (close) => <ConnectAddonForm sub={sub} onDone={close} />, '1000px')
 }
 
 function ConnectAddonForm({ sub, onDone }: { sub: Subscription; onDone: () => void }) {
@@ -466,11 +448,11 @@ function ConnectAddonForm({ sub, onDone }: { sub: Subscription; onDone: () => vo
             <FormColumns
                 left={
                     <>
-                        <FormSection color="grape" icon={PiPuzzlePieceDuotone} title={t('tariffs.addon')} description={t('sub.addon_hint')}>
+                        <FormSection color="grape" icon={IconPuzzle} title={t('tariffs.addon')} description={t('sub.addon_hint')}>
                             <Select
                                 data={groups}
                                 label={t('sub.addon_tariff')}
-                                leftSection={<PiPuzzlePiece size={16} />}
+                                leftSection={<IconPuzzle size={16} />}
                                 onChange={setTariffId}
                                 placeholder={t('errors.tariff.addon_required')}
                                 value={tariffId}
@@ -509,7 +491,7 @@ function ConnectAddonForm({ sub, onDone }: { sub: Subscription; onDone: () => vo
                         onError: (e) => notifyError(e)
                     })
                 }
-                submitIcon={<PiPuzzlePiece size={16} />}
+                submitIcon={<IconPuzzle size={16} />}
                 submitLabel={t('sub.connect')}
             />
         </>
@@ -517,7 +499,7 @@ function ConnectAddonForm({ sub, onDone }: { sub: Subscription; onDone: () => vo
 }
 
 export function openChangeTariffModal(p: { kind: 'subscription' | 'addon'; id: number; title: string; tariffId: number | null; addonId?: number }) {
-    openModal({ icon: PiArrowsLeftRightDuotone, color: 'indigo', title: i18n.t('sub.change_tariff'), subtitle: p.title }, (close) => <ChangeTariffForm {...p} onDone={close} />, '1000px')
+    openModal({ icon: IconArrowsLeftRight, color: 'indigo', title: i18n.t('sub.change_tariff'), subtitle: p.title }, (close) => <ChangeTariffForm {...p} onDone={close} />, '1000px')
 }
 
 function ChangeTariffForm({
@@ -573,10 +555,10 @@ function ChangeTariffForm({
         <>
             <FormColumns
                 left={
-                    <FormSection color="indigo" icon={PiArrowsLeftRightDuotone} title={t('tariffs.new_tariff')} description={t('sub.compare_hint')}>
+                    <FormSection color="indigo" icon={IconArrowsLeftRight} title={t('tariffs.new_tariff')} description={t('sub.compare_hint')}>
                         <Select
                             label={t('tariffs.tariff')}
-                            leftSection={<PiTag size={16} />}
+                            leftSection={<IconTag size={16} />}
                             data={options.filter((o) => o.id !== tariffId).map((o) => ({ value: String(o.id), label: tariffLabel(o) }))}
                             placeholder={t('sub.choose_tariff')}
                             value={target}
@@ -659,7 +641,7 @@ function ChangeTariffForm({
                     </FormSection>
                 }
                 right={
-                    <FormSection icon={PiWalletDuotone} color="orange" title={t('sub.surcharge_title')} description={t('sub.surcharge_hint')}>
+                    <FormSection icon={IconWallet} color="orange" title={t('sub.surcharge_title')} description={t('sub.surcharge_hint')}>
                         <NumberInput
                             label={t('sub.surcharge', { currency: currencySymbol() })}
                             description={t('sub.surcharge_desc')}
@@ -690,7 +672,7 @@ function ChangeTariffForm({
                         onError: (e) => notifyError(e)
                     })
                 }
-                submitIcon={<PiArrowsLeftRight size={16} />}
+                submitIcon={<IconArrowsLeftRight size={16} />}
                 submitLabel={t('sub.change')}
             />
         </>
@@ -698,7 +680,7 @@ function ChangeTariffForm({
 }
 
 export function openTrafficAnchorModal(p: { kind: 'subscription' | 'addon'; id: number; title: string; anchor: string }) {
-    openModal({ icon: PiCalendarDuotone, color: 'indigo', title: i18n.t('sub.traffic_anchor_edit'), subtitle: p.title }, (close) => <TrafficAnchorForm {...p} onDone={close} />)
+    openModal({ icon: IconCalendar, color: 'indigo', title: i18n.t('sub.traffic_anchor_edit'), subtitle: p.title }, (close) => <TrafficAnchorForm {...p} onDone={close} />)
 }
 
 function TrafficAnchorForm({ kind, id, anchor, onDone }: { kind: 'subscription' | 'addon'; id: number; anchor: string; onDone: () => void }) {
@@ -709,7 +691,7 @@ function TrafficAnchorForm({ kind, id, anchor, onDone }: { kind: 'subscription' 
     )
     return (
         <>
-            <DateTimePicker label={t('sub.traffic_anchor')} description={t('sub.traffic_anchor_hint')} leftSection={<PiCalendarDuotone size={16} />} value={value} onChange={setValue} />
+            <DateTimePicker label={t('sub.traffic_anchor')} description={t('sub.traffic_anchor_hint')} leftSection={<IconCalendar size={16} />} value={value} onChange={setValue} />
             <FormFooter
                 disabled={!value}
                 loading={m.isPending}
@@ -723,7 +705,7 @@ function TrafficAnchorForm({ kind, id, anchor, onDone }: { kind: 'subscription' 
                         onError: (e) => notifyError(e)
                     })
                 }
-                submitIcon={<PiCalendarDuotone size={16} />}
+                submitIcon={<IconCalendar size={16} />}
                 submitLabel={t('common.save')}
             />
         </>

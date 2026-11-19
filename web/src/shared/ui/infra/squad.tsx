@@ -1,5 +1,5 @@
 import { Badge, BadgeProps, type SelectProps } from '@mantine/core'
-import { PiUsersThreeDuotone } from 'react-icons/pi'
+import { IconUsersGroup } from '@tabler/icons-react'
 
 import { useSquads } from '@/api/hooks'
 import { SearchSelect } from '../forms/search-select'
@@ -15,7 +15,7 @@ export function useSquadName() {
 export function SquadBadge({ uuid, ...props }: { uuid: string } & Omit<BadgeProps, 'children'>) {
     const name = useSquadName()
     return (
-        <Badge color="violet" leftSection={<PiUsersThreeDuotone size={14} />} variant="soft" w="fit-content" {...props}>
+        <Badge color="violet" leftSection={<IconUsersGroup size={14} />} variant="soft" w="fit-content" {...props}>
             {name(uuid)}
         </Badge>
     )
@@ -27,7 +27,7 @@ export function SquadSelect(props: Omit<SelectProps, 'data'>) {
     return (
         <SearchSelect
             data={(squads.data ?? []).map((s) => ({ value: s.uuid, label: `${s.name} · ${t('infra.members', { count: s.info.membersCount })}` }))}
-            leftSection={<PiUsersThreeDuotone size={16} />}
+            leftSection={<IconUsersGroup size={16} />}
             nothingFoundMessage={t('infra.no_squads')}
             {...props}
         />

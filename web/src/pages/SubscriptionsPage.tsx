@@ -1,8 +1,7 @@
 import type { MRT_ColumnDef } from '@kastov/mantine-react-table-open'
 import { Anchor, Badge, Button, Group, SegmentedControl, Stack } from '@mantine/core'
 import { useMemo, useState } from 'react'
-import { PiLinkDuotone } from 'react-icons/pi'
-import { TbHexagon } from 'react-icons/tb'
+import { IconHexagon, IconLink } from '@tabler/icons-react'
 import { Link } from 'react-router'
 
 import { useSubscriptions } from '@/api/hooks'
@@ -211,7 +210,7 @@ export function SubscriptionsPage() {
         <Page title={t('menu.subscriptions')}>
             <PageHeaderShared
                 actions={
-                    <Button leftSection={<PiLinkDuotone size={16} />} onClick={() => openSubscriptionForm({})} variant="filled">
+                    <Button leftSection={<IconLink size={16} />} onClick={() => openSubscriptionForm({})} variant="filled">
                         {t('sub.link')}
                     </Button>
                 }
@@ -223,7 +222,7 @@ export function SubscriptionsPage() {
 
                 <DataTableCard
                     storageKey="subscriptions"
-                    icon={<TbHexagon size={24} />}
+                    icon={<IconHexagon size={24} />}
                     title={t('subscriptions.table_title')}
                     actions={
                         <>

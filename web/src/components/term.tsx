@@ -4,8 +4,7 @@ import { Autocomplete, Box, Button, Group, NumberInput, Paper, SegmentedControl,
 import { DateInput, DatePickerInput } from '@mantine/dates'
 import dayjs, { type Dayjs } from 'dayjs'
 import type { ReactNode } from 'react'
-import { PiBank, PiCalendarDuotone, PiCalendarPlusDuotone, PiClockDuotone, PiCreditCardDuotone, PiWalletDuotone } from 'react-icons/pi'
-import { TbArrowRight } from 'react-icons/tb'
+import { IconArrowRight, IconBuildingBank, IconCalendar, IconCalendarPlus, IconClock, IconCreditCard, IconWallet } from '@tabler/icons-react'
 
 import type { Period } from '@/api/types'
 import { durationLabel, fmtDate, fmtMoney, currencySymbol } from '@/components/format'
@@ -82,7 +81,7 @@ export function TermSection({
     const empty = value.months + value.days <= 0 && !value.until
 
     return (
-        <FormSection color="teal" description={description ?? t('term.from_expiry')} icon={PiCalendarPlusDuotone} title={t('dashboard.col_term')}>
+        <FormSection color="teal" description={description ?? t('term.from_expiry')} icon={IconCalendarPlus} title={t('dashboard.col_term')}>
             {presets.length > 0 && (
                 <Group gap={6}>
                     {presets.map((p) => {
@@ -112,7 +111,7 @@ export function TermSection({
             <SimpleGrid cols={{ base: 1, xs: 2 }}>
                 <NumberInput
                     label={t('tariffs.months')}
-                    leftSection={<PiCalendarDuotone size={16} />}
+                    leftSection={<IconCalendar size={16} />}
                     max={36}
                     min={0}
                     onChange={(v) => onChange({ months: Number(v) || 0, days: value.days, until: null })}
@@ -120,7 +119,7 @@ export function TermSection({
                 />
                 <NumberInput
                     label={t('tariffs.days')}
-                    leftSection={<PiClockDuotone size={16} />}
+                    leftSection={<IconClock size={16} />}
                     max={365}
                     min={0}
                     onChange={(v) => onChange({ months: value.months, days: Number(v) || 0, until: null })}
@@ -130,7 +129,7 @@ export function TermSection({
             <DatePickerInput
                 description={t('term.pick_date')}
                 label={t('term.end_date')}
-                leftSection={<PiCalendarDuotone size={16} />}
+                leftSection={<IconCalendar size={16} />}
                 minDate={base.add(1, 'day').format('YYYY-MM-DD')}
                 onChange={(d) => {
                     if (!d) return
@@ -149,7 +148,7 @@ export function TermSection({
                         {fmtDate(base.toISOString())}
                     </Text>
                 </Box>
-                <TbArrowRight color="var(--app-text-faint)" size={18} style={{ flex: '0 0 auto' }} />
+                <IconArrowRight color="var(--app-text-faint)" size={18} style={{ flex: '0 0 auto' }} />
                 <Box ta="right">
                     <Text c="dimmed" size="xs">
                         {t('term.to')}
@@ -212,7 +211,7 @@ export const incomeFor = (charge: number, balance: number) => Math.max(0, Math.r
 export function IncomeSection({ value, onChange }: { value: Income; onChange: (v: Income) => void }) {
     const { t } = useTranslation()
     return (
-        <FormSection color="teal" description={t('term.income_hint')} icon={PiCreditCardDuotone} title={t('payment.income')}>
+        <FormSection color="teal" description={t('term.income_hint')} icon={IconCreditCard} title={t('payment.income')}>
             <NumberInput
                 decimalScale={2}
                 label={t('common.amount_in', { currency: currencySymbol() })}
@@ -224,7 +223,7 @@ export function IncomeSection({ value, onChange }: { value: Income; onChange: (v
             <SimpleGrid cols={{ base: 1, xs: 2 }}>
                 <DateInput
                     label={t('customer.col_date')}
-                    leftSection={<PiCalendarDuotone size={16} />}
+                    leftSection={<IconCalendar size={16} />}
                     onChange={(d) => onChange({ ...value, date: d })}
                     value={value.date}
                     valueFormat={dateLayout()}
@@ -232,7 +231,7 @@ export function IncomeSection({ value, onChange }: { value: Income; onChange: (v
                 <Autocomplete
                     data={paymentMethods()}
                     label={t('payment.method')}
-                    leftSection={<PiBank size={16} />}
+                    leftSection={<IconBuildingBank size={16} />}
                     onChange={(m) => onChange({ ...value, method: m })}
                     value={value.method}
                 />
@@ -266,7 +265,7 @@ export function PaymentSection({
     const after = balance === undefined ? undefined : balance + (income ?? 0) - (amount ?? 0)
     const short = after !== undefined && after < 0 && !allowDebt
     return (
-        <FormSection color="orange" description={t('term.charged_hint')} icon={PiWalletDuotone} title={t('term.payment')}>
+        <FormSection color="orange" description={t('term.charged_hint')} icon={IconWallet} title={t('term.payment')}>
             <NumberInput
                 decimalScale={2}
                 description={description ?? t('term.amount_hint')}

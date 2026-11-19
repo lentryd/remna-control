@@ -1,6 +1,6 @@
 import { Button } from '@mantine/core'
 import dayjs from 'dayjs'
-import { PiCreditCardDuotone, PiPlus } from 'react-icons/pi'
+import { IconCreditCard, IconPlus } from '@tabler/icons-react'
 import { useMemo } from 'react'
 
 import { usePayments } from '@/api/hooks'
@@ -30,12 +30,12 @@ export function PaymentsPage() {
         <Page title={t('menu.payments')}>
             <PageHeader
                 actions={
-                    <Button leftSection={<PiPlus size={16} />} onClick={() => openPaymentModal()} variant="filled">
+                    <Button leftSection={<IconPlus size={16} />} onClick={() => openPaymentModal()} variant="filled">
                         {t('customer.record_payment')}
                     </Button>
                 }
                 description={t('payments.description')}
-                icon={<PiCreditCardDuotone size={24} />}
+                icon={<IconCreditCard size={24} />}
                 title={t('menu.payments')}
             />
             <StatStrip
@@ -51,7 +51,7 @@ export function PaymentsPage() {
                 columns={columns}
                 data={data ?? []}
                 description={t('payments.table_hint')}
-                icon={<PiCreditCardDuotone size={24} />}
+                icon={<IconCreditCard size={24} />}
                 state={{ showProgressBars: isFetching, isLoading: !data }}
                 storageKey="payments"
                 title={t('payments.table_title')}

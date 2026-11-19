@@ -1,7 +1,7 @@
 import { ActionIcon, Box, Button, Group, Skeleton, Text, Tooltip } from '@mantine/core'
 import { modals } from '@mantine/modals'
 import { useTranslation } from 'react-i18next'
-import { TbKey, TbPlus, TbRefresh } from 'react-icons/tb'
+import { IconKey, IconPlus, IconRefresh } from '@tabler/icons-react'
 
 import { BaseOverlayHeader } from '@shared/ui/overlays/base-overlay-header'
 import { EntityAdd, EntityGrid } from '@shared/ui/entity-card'
@@ -13,7 +13,7 @@ import { CreateApiTokenContent } from './modals/create-api-token-modal'
 function openCreate(title: string) {
     const isMobile = isMobileViewport()
     modals.open({
-        title: <BaseOverlayHeader IconComponent={TbKey} title={title} />,
+        title: <BaseOverlayHeader IconComponent={IconKey} title={title} />,
         fullScreen: isMobile,
         centered: true,
         size: 'min(800px, 90vw)',
@@ -43,10 +43,10 @@ export function ApiTokensCard() {
                 <Group gap="xs" wrap="nowrap">
                     <Tooltip label={t('tokens.refresh')}>
                         <ActionIcon aria-label={t('tokens.refresh')} loading={isRefetching} onClick={() => refetch()} size="lg" variant="default">
-                            <TbRefresh size={16} />
+                            <IconRefresh size={16} />
                         </ActionIcon>
                     </Tooltip>
-                    <Button leftSection={<TbPlus size={16} />} onClick={create} variant="filled">
+                    <Button leftSection={<IconPlus size={16} />} onClick={create} variant="filled">
                         {t('tokens.create')}
                     </Button>
                 </Group>

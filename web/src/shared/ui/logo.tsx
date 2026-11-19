@@ -16,7 +16,7 @@ export function Wordmark({ size = 24, compact }: { size?: number; compact?: bool
         <Group gap={9} wrap="nowrap">
             <Logo size={size} />
             {!compact && (
-                <Text c="var(--app-text-strong)" fw={650} fz={15} lh={1} style={{ letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>
+                <Text c="var(--app-text-strong)" fw={600} fz={15} lh={1} style={{ whiteSpace: 'nowrap' }}>
                     Remna Control
                 </Text>
             )}

@@ -1,6 +1,6 @@
 // Adapted from remnawave/frontend (AGPL-3.0)
 import { ActionIcon, CopyButton, Input } from '@mantine/core'
-import { PiCheck, PiCopy } from 'react-icons/pi'
+import { IconCheck, IconCopy } from '@tabler/icons-react'
 
 import classes from './copyable-field.module.css'
 
@@ -36,7 +36,7 @@ export const CopyableFieldShared = ({
                                     onClick={copy}
                                     variant="subtle"
                                 >
-                                    {copied ? <PiCheck size="16px" /> : <PiCopy size="16px" />}
+                                    {copied ? <IconCheck size="16px" /> : <IconCopy size="16px" />}
                                 </ActionIcon>
                             }
                             size={size}

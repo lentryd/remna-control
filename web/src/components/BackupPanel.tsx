@@ -2,18 +2,7 @@ import type { MRT_ColumnDef } from '@kastov/mantine-react-table-open'
 import { ActionIcon, Alert, Anchor, Badge, Box, Button, Checkbox, FileButton, Group, NumberInput, SimpleGrid, Stack, Text, ThemeIcon, Tooltip } from '@mantine/core'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo, useState, useCallback } from 'react'
-import {
-    PiArchiveDuotone,
-    PiArrowCounterClockwise,
-    PiCameraDuotone,
-    PiDownloadSimple,
-    PiDownloadSimpleDuotone,
-    PiFloppyDiskDuotone,
-    PiPlus,
-    PiTrash,
-    PiUploadSimpleDuotone,
-    PiWarningDuotone
-} from 'react-icons/pi'
+import { IconAlertTriangle, IconArchive, IconCamera, IconDeviceFloppy, IconDownload, IconPlus, IconRotate, IconTrash, IconUpload } from '@tabler/icons-react'
 
 import { api } from '@/api/client'
 import { useApiMutation, useInvalidateAll, useSettings } from '@/api/hooks'
@@ -183,12 +172,12 @@ function ExportCard({ categories, counts }: { categories: BackupCategory[]; coun
     }
 
     return (
-        <Pane color="teal" description={t('backup.export_hint')} icon={PiDownloadSimpleDuotone} title={t('backup.export')}>
+        <Pane color="teal" description={t('backup.export_hint')} icon={IconDownload} title={t('backup.export')}>
             <CategoryPicker categories={categories} counts={(c) => counts[c.key] ?? 0} value={selected} onChange={setSelected} />
             <Group justify="flex-end" mt="auto">
                     <Button
                         disabled={selected.length === 0}
-                        leftSection={<PiArchiveDuotone size={16} />}
+                        leftSection={<IconArchive size={16} />}
                         loading={busy}
                         variant="filled"
                         onClick={run}
@@ -259,12 +248,12 @@ function ImportCard({ categories }: { categories: BackupCategory[] }) {
     }
 
     return (
-        <Pane color="orange" description={t('backup.import_hint')} icon={PiUploadSimpleDuotone} title={t('backup.import')}>
+        <Pane color="orange" description={t('backup.import_hint')} icon={IconUpload} title={t('backup.import')}>
                 <Stack>
                     <Group>
                         <FileButton accept=".zip,application/zip" onChange={pick}>
                             {(props) => (
-                                <Button {...props} leftSection={<PiArchiveDuotone size={16} />} loading={inspecting} variant="default">
+                                <Button {...props} leftSection={<IconArchive size={16} />} loading={inspecting} variant="default">
                                     {t('backup.choose_archive')}
                                 </Button>
                             )}
@@ -287,7 +276,7 @@ function ImportCard({ categories }: { categories: BackupCategory[] }) {
                                 value={selected}
                                 onChange={setSelected}
                             />
-                            <Alert color="yellow" icon={<PiWarningDuotone />}>
+                            <Alert color="yellow" icon={<IconAlertTriangle size="1em" />}>
                                 {t('backup.import_warning')}
                             </Alert>
                         </>
@@ -297,7 +286,7 @@ function ImportCard({ categories }: { categories: BackupCategory[] }) {
                     <Button
                         color="orange"
                         disabled={!info || selected.length === 0}
-                        leftSection={<PiUploadSimpleDuotone size={16} />}
+                        leftSection={<IconUpload size={16} />}
                         loading={importMut.isPending}
                         variant="light"
                         onClick={run}
@@ -374,7 +363,7 @@ function SnapshotsCard({ categories }: { categories: BackupCategory[] }) {
         <DataTableCard
             actions={
                 <Button
-                    leftSection={<PiPlus size={14} />}
+                    leftSection={<IconPlus size={14} />}
                     loading={create.isPending}
                     onClick={() => create.mutate(undefined, { onSuccess: (sn) => notifyOk(t('backup.snapshot_created', { name: sn.name })), onError: (e) => notifyError(e) })}
                     size="xs"
@@ -387,7 +376,7 @@ function SnapshotsCard({ categories }: { categories: BackupCategory[] }) {
             data={q.data?.snapshots ?? []}
             description={t('backup.snapshots_hint')}
             enableRowActions
-            icon={<PiCameraDuotone size={24} />}
+            icon={<IconCamera size={24} />}
             initialState={{ sorting: [{ id: 'created_at', desc: true }] }}
             renderRowActions={({ row }) => (
                 <Group gap={4} wrap="nowrap">
@@ -397,7 +386,7 @@ function SnapshotsCard({ categories }: { categories: BackupCategory[] }) {
                             onClick={() => api.download(`backup/snapshots/${row.original.name}`, row.original.name).catch(notifyError)}
                             variant="subtle"
                         >
-                            <PiDownloadSimple size={16} />
+                            <IconDownload size={16} />
                         </ActionIcon>
                     </Tooltip>
                     <Tooltip label={t('backup.restore')}>
@@ -405,19 +394,19 @@ function SnapshotsCard({ categories }: { categories: BackupCategory[] }) {
                             color="orange"
                             onClick={() =>
                                 openModal(
-                                    { icon: PiArrowCounterClockwise, color: 'orange', title: t('backup.restore'), subtitle: row.original.name },
+                                    { icon: IconRotate, color: 'orange', title: t('backup.restore'), subtitle: row.original.name },
                                     (close) => <RestoreSnapshotForm categories={categories} name={row.original.name} onDone={close} />,
                                     'lg'
                                 )
                             }
                             variant="subtle"
                         >
-                            <PiArrowCounterClockwise size={16} />
+                            <IconRotate size={16} />
                         </ActionIcon>
                     </Tooltip>
                     <Tooltip label={t('common.delete')}>
                         <ActionIcon color="red" onClick={() => remove(row.original)} variant="subtle">
-                            <PiTrash size={16} />
+                            <IconTrash size={16} />
                         </ActionIcon>
                     </Tooltip>
                 </Group>
@@ -449,7 +438,7 @@ function RestoreSnapshotForm({ name, categories, onDone }: { name: string; categ
                     onChange={setSelected}
                 />
             )}
-            <Alert color="yellow" icon={<PiWarningDuotone />}>
+            <Alert color="yellow" icon={<IconAlertTriangle size="1em" />}>
                 {t('backup.restore_warning')}
             </Alert>
             <FormFooter
@@ -466,7 +455,7 @@ function RestoreSnapshotForm({ name, categories, onDone }: { name: string; categ
                         onError: (e) => notifyError(e)
                     })
                 }
-                submitIcon={<PiArrowCounterClockwise size={16} />}
+                submitIcon={<IconRotate size={16} />}
                 submitLabel={t('backup.restore')}
             />
         </Stack>
@@ -491,7 +480,7 @@ function ScheduleGroup() {
             actions={
                 <Button
                     disabled={!dirty}
-                    leftSection={<PiFloppyDiskDuotone size={16} />}
+                    leftSection={<IconDeviceFloppy size={16} />}
                     loading={save.isPending}
                     onClick={() => save.mutate(undefined, { onSuccess: () => notifyOk(t('common.saved')), onError: (e) => notifyError(e) })}
                     size="xs"

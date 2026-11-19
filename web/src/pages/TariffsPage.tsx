@@ -21,21 +21,7 @@ import {
     TextInput
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import {
-    PiCalendarDuotone,
-    PiArchive,
-    PiArrowCounterClockwise,
-    PiClockDuotone,
-    PiPencilSimple,
-    PiPlus,
-    PiPuzzlePieceDuotone,
-    PiSortAscending,
-    PiStackDuotone,
-    PiTagDuotone,
-    PiTextAa,
-    PiTrash
-} from 'react-icons/pi'
-import { TbChartLine, TbCirclesRelation, TbDevices } from 'react-icons/tb'
+import { IconArchive, IconCalendar, IconChartLine, IconCirclesRelation, IconClock, IconDevices, IconLetterCase, IconPencil, IconPlus, IconPuzzle, IconRotate, IconSortAscending, IconStack2, IconTag, IconTrash } from '@tabler/icons-react'
 import { useState } from 'react'
 
 import { api } from '@/api/client'
@@ -100,10 +86,10 @@ export function TariffsPage() {
                 description={t('tariffs.description')}
                 actions={
                     <>
-                        <Button leftSection={<PiPlus size={16} />} onClick={() => openAddonModal()} variant="default">
+                        <Button leftSection={<IconPlus size={16} />} onClick={() => openAddonModal()} variant="default">
                             {t('tariffs.addon')}
                         </Button>
-                        <Button leftSection={<PiPlus size={16} />} onClick={() => setDraft({ kind: 'base', active: true })} variant="filled">
+                        <Button leftSection={<IconPlus size={16} />} onClick={() => setDraft({ kind: 'base', active: true })} variant="filled">
                             {t('tariffs.tariff')}
                         </Button>
                     </>
@@ -138,7 +124,7 @@ export function TariffsPage() {
                             <div className={classes.addonHeader}>
                                 <Group gap="sm" miw={0} wrap="nowrap">
                                     <ThemeIcon color="grape" radius="md" size={34}>
-                                        <PiPuzzlePieceDuotone size={18} />
+                                        <IconPuzzle size={18} />
                                     </ThemeIcon>
                                     <Box miw={0}>
                                         <Group gap="xs">
@@ -159,18 +145,18 @@ export function TariffsPage() {
                                         <>
                                             <Tooltip label={t('common.edit')}>
                                                 <ActionIcon onClick={() => openAddonModal(a)} size="lg">
-                                                    <PiPencilSimple size={16} />
+                                                    <IconPencil size={16} />
                                                 </ActionIcon>
                                             </Tooltip>
                                             <Tooltip label={t('tariffs.archive')}>
                                                 <ActionIcon color="red" onClick={() => archiveAddon(a)} size="lg">
-                                                    <PiArchive size={16} />
+                                                    <IconArchive size={16} />
                                                 </ActionIcon>
                                             </Tooltip>
                                         </>
                                     )}
                                     <Button
-                                        leftSection={<PiPlus size={14} />}
+                                        leftSection={<IconPlus size={14} />}
                                         ml={4}
                                         onClick={() => setDraft({ kind: 'addon', addon_id: a.id, active: true, manage_rw: true })}
                                         size="xs"
@@ -209,7 +195,7 @@ export function TariffsPage() {
                                         <Group justify="space-between" wrap="nowrap">
                                             <Group gap="sm" miw={0} wrap="nowrap">
                                                 <ThemeIcon color="gray" radius="md" size={34}>
-                                                    <PiPuzzlePieceDuotone size={18} />
+                                                    <IconPuzzle size={18} />
                                                 </ThemeIcon>
                                                 <Text c="dimmed" fw={600}>
                                                     {a.name}
@@ -218,12 +204,12 @@ export function TariffsPage() {
                                             <Group gap={4} wrap="nowrap">
                                                 <Tooltip label={t('tariffs.restore')}>
                                                     <ActionIcon onClick={() => setAddonArchived(a, false)} size="lg">
-                                                        <PiArrowCounterClockwise size={16} />
+                                                        <IconRotate size={16} />
                                                     </ActionIcon>
                                                 </Tooltip>
                                                 <Tooltip label={t('common.delete')}>
                                                     <ActionIcon color="red" onClick={() => deleteAddon(a)} size="lg">
-                                                        <PiTrash size={16} />
+                                                        <IconTrash size={16} />
                                                     </ActionIcon>
                                                 </Tooltip>
                                             </Group>
@@ -248,7 +234,7 @@ export function TariffsPage() {
                 size="lg"
                 title={
                     <BaseOverlayHeader
-                        IconComponent={PiTagDuotone}
+                        IconComponent={IconTag}
                         subtitle={draft?.id ? draft.name : undefined}
                         title={draft?.id ? t('tariffs.tariff') : t('tariffs.new_tariff')}
                     />
@@ -319,17 +305,17 @@ function TariffCard({ tariff: tf, onEdit }: { tariff: Tariff; onEdit: () => void
                 </>
             }
             menu={[
-                { label: t('common.edit'), icon: PiPencilSimple, onClick: onEdit },
+                { label: t('common.edit'), icon: IconPencil, onClick: onEdit },
                 tf.active
-                    ? { label: t('tariffs.archive'), icon: PiArchive, color: 'red', onClick: archive }
-                    : { label: t('tariffs.restore'), icon: PiArrowCounterClockwise, onClick: () => setArchived(false) },
-                ...(tf.active ? [] : [{ label: t('common.delete'), icon: PiTrash, color: 'red', onClick: remove }])
+                    ? { label: t('tariffs.archive'), icon: IconArchive, color: 'red', onClick: archive }
+                    : { label: t('tariffs.restore'), icon: IconRotate, onClick: () => setArchived(false) },
+                ...(tf.active ? [] : [{ label: t('common.delete'), icon: IconTrash, color: 'red', onClick: remove }])
             ]}
             onClick={onEdit}
             params={
                 tf.manage_rw ? (
                     <>
-                        <EntityParam icon={TbChartLine} label={t('tariffs.traffic')}>
+                        <EntityParam icon={IconChartLine} label={t('tariffs.traffic')}>
                             {tf.traffic_limit_bytes ? fmtBytes(tf.traffic_limit_bytes) : '∞'}
                             <Text c="dimmed" component="span" inherit>
                                 {' · '}
@@ -337,11 +323,11 @@ function TariffCard({ tariff: tf, onEdit }: { tariff: Tariff; onEdit: () => void
                             </Text>
                         </EntityParam>
                         {tf.hwid_limit !== null && (
-                            <EntityParam icon={TbDevices} label="HWID">
+                            <EntityParam icon={IconDevices} label="HWID">
                                 {t('tariffs.devices', { count: tf.hwid_limit })}
                             </EntityParam>
                         )}
-                        <EntityParam icon={TbCirclesRelation} label={t('tariffs.squads_label')}>
+                        <EntityParam icon={IconCirclesRelation} label={t('tariffs.squads_label')}>
                             {t('tariffs.squads', { count: tf.squad_uuids.length })}
                         </EntityParam>
                     </>
@@ -364,7 +350,7 @@ function TariffCard({ tariff: tf, onEdit }: { tariff: Tariff; onEdit: () => void
                         </Badge>
                     ))}
                     {tf.included_addon_tariff_ids?.length > 0 && (
-                        <Badge color="grape" leftSection={<PiPuzzlePieceDuotone size={12} />}>
+                        <Badge color="grape" leftSection={<IconPuzzle size={12} />}>
                             {t('tariffs.plus_addons', { count: tf.included_addon_tariff_ids.length })}
                         </Badge>
                     )}
@@ -453,11 +439,11 @@ function TariffForm({ draft, addons, onDone }: { draft: Draft; addons: Addon[]; 
             )}
         >
             <Stack gap="md">
-                <FormSection icon={PiTagDuotone} title={t('tariffs.tariff')} description={t('tariffs.section_main')}>
+                <FormSection icon={IconTag} title={t('tariffs.tariff')} description={t('tariffs.section_main')}>
                     <SimpleGrid cols={{ base: 1, xs: 2 }}>
                         <Select
                             label={t('tariffs.kind')}
-                            leftSection={<PiStackDuotone size={16} />}
+                            leftSection={<IconStack2 size={16} />}
                             disabled={!!draft.id}
                             data={[
                                 { value: 'base', label: t('tariffs.kind_base') },
@@ -468,20 +454,20 @@ function TariffForm({ draft, addons, onDone }: { draft: Draft; addons: Addon[]; 
                         {form.values.kind === 'addon' && (
                             <Select
                                 label={t('tariffs.addon')}
-                                leftSection={<PiPuzzlePieceDuotone size={16} />}
+                                leftSection={<IconPuzzle size={16} />}
                                 disabled={!!draft.id}
                                 data={addons.map((a) => ({ value: String(a.id), label: a.name }))}
                                 {...form.getInputProps('addon_id')}
                             />
                         )}
                     </SimpleGrid>
-                    <TextInput label={t('tariffs.col_name')} leftSection={<PiTextAa size={16} />} required {...form.getInputProps('name')} />
+                    <TextInput label={t('tariffs.col_name')} leftSection={<IconLetterCase size={16} />} required {...form.getInputProps('name')} />
                     <Textarea label={t('tariffs.description_label')} autosize minRows={2} {...form.getInputProps('description')} />
                     {form.values.kind === 'base' && (
                         <MultiSelect
                             label={t('tariffs.included')}
                             description={t('tariffs.included_hint')}
-                            leftSection={<PiPuzzlePieceDuotone size={16} />}
+                            leftSection={<IconPuzzle size={16} />}
                             placeholder={addonTariffs.length ? t('tariffs.no_included') : t('tariffs.no_addon_tariffs')}
                             data={addonTariffs.map((t) => ({ value: String(t.id), label: `${t.addon_name} · ${t.name}` }))}
                             clearable
@@ -492,7 +478,7 @@ function TariffForm({ draft, addons, onDone }: { draft: Draft; addons: Addon[]; 
                         <Select
                             label={t('tariffs.current_subscribers')}
                             description={t('tariffs.subscribers_count', { count: draft.subscribers })}
-                            leftSection={<PiPuzzlePieceDuotone size={16} />}
+                            leftSection={<IconPuzzle size={16} />}
                             data={[
                                 { value: 'skip', label: t('tariffs.sync_skip') },
                                 { value: 'disable', label: t('tariffs.sync_disable') },
@@ -510,7 +496,7 @@ function TariffForm({ draft, addons, onDone }: { draft: Draft; addons: Addon[]; 
                             decimalScale={2}
                             {...form.getInputProps('monthly_price')}
                         />
-                        <NumberInput label={t('tariffs.sort_order')} leftSection={<PiSortAscending size={16} />} {...form.getInputProps('sort_order')} />
+                        <NumberInput label={t('tariffs.sort_order')} leftSection={<IconSortAscending size={16} />} {...form.getInputProps('sort_order')} />
                     </SimpleGrid>
                     {priceChanged && (
                         <Radio.Group label={t('tariffs.price_changes', { count: draft.subscribers })} {...form.getInputProps('price_change')}>
@@ -528,13 +514,13 @@ function TariffForm({ draft, addons, onDone }: { draft: Draft; addons: Addon[]; 
                 </FormSection>
 
                 <FormSection
-                    icon={PiCalendarDuotone}
+                    icon={IconCalendar}
                     color="teal"
                     title={t('tariffs.col_periods')}
                     description={t('tariffs.periods_hint')}
                     actions={
                         <Button
-                            leftSection={<PiPlus size={14} />}
+                            leftSection={<IconPlus size={14} />}
                             onClick={() => form.insertListItem('periods', { months: 3, days: 0, price: form.values.monthly_price * 3 })}
                             size="xs"
                             variant="default"
@@ -552,14 +538,14 @@ function TariffForm({ draft, addons, onDone }: { draft: Draft; addons: Addon[]; 
                         <Group key={i} wrap="nowrap" align="flex-end">
                             <NumberInput
                                 label={t('tariffs.months')}
-                                leftSection={<PiCalendarDuotone size={16} />}
+                                leftSection={<IconCalendar size={16} />}
                                 min={0}
                                 max={36}
                                 {...form.getInputProps(`periods.${i}.months`)}
                             />
                             <NumberInput
                                 label={t('tariffs.days')}
-                                leftSection={<PiClockDuotone size={16} />}
+                                leftSection={<IconClock size={16} />}
                                 min={0}
                                 max={365}
                                 {...form.getInputProps(`periods.${i}.days`)}
@@ -572,13 +558,13 @@ function TariffForm({ draft, addons, onDone }: { draft: Draft; addons: Addon[]; 
                                 {...form.getInputProps(`periods.${i}.price`)}
                             />
                             <ActionIcon color="red" variant="soft" size="input-sm" onClick={() => form.removeListItem('periods', i)}>
-                                <PiTrash size={16} />
+                                <IconTrash size={16} />
                             </ActionIcon>
                         </Group>
                     ))}
                 </FormSection>
 
-                <FormSection icon={TbChartLine} color="violet" title={t('tariffs.panel_section')} description={t('tariffs.panel_section_hint')}>
+                <FormSection icon={IconChartLine} color="violet" title={t('tariffs.panel_section')} description={t('tariffs.panel_section_hint')}>
                     <Switch
                         label={t('tariffs.manage_rw')}
                         description={t('tariffs.manage_rw_hint')}
@@ -590,7 +576,7 @@ function TariffForm({ draft, addons, onDone }: { draft: Draft; addons: Addon[]; 
                                 <NumberInput
                                     label={t('tariffs.traffic_limit')}
                                     description={t('tariffs.traffic_limit_hint')}
-                                    leftSection={<TbChartLine size={16} />}
+                                    leftSection={<IconChartLine size={16} />}
                                     min={0}
                                     decimalScale={2}
                                     {...form.getInputProps('traffic_gb')}
@@ -598,7 +584,7 @@ function TariffForm({ draft, addons, onDone }: { draft: Draft; addons: Addon[]; 
                                 <Select
                                     label={t('tariffs.traffic_reset')}
                                     description={t('tariffs.traffic_reset_hint')}
-                                    leftSection={<PiClockDuotone size={16} />}
+                                    leftSection={<IconClock size={16} />}
                                     data={STRATEGIES.map((value) => ({ value, label: strategyLabel(value) }))}
                                     {...form.getInputProps('traffic_strategy')}
                                 />
@@ -611,13 +597,13 @@ function TariffForm({ draft, addons, onDone }: { draft: Draft; addons: Addon[]; 
                             <NumberInput
                                 label={t('tariffs.hwid')}
                                 description={t('tariffs.hwid_hint')}
-                                leftSection={<TbDevices size={16} />}
+                                leftSection={<IconDevices size={16} />}
                                 min={0}
                                 {...form.getInputProps('hwid_limit')}
                             />
                             <MultiSelect
                                 label={t('tariffs.squads_label')}
-                                leftSection={<TbCirclesRelation size={16} />}
+                                leftSection={<IconCirclesRelation size={16} />}
                                 placeholder={squads.isPending ? t('common.loading') : t('tariffs.choose')}
                                 data={(squads.data ?? []).map((s) => ({ value: s.uuid, label: s.name, members: s.info.membersCount }))}
                                 renderOption={({ option }) => {

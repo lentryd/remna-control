@@ -1,7 +1,6 @@
 import type { MRT_ColumnDef } from '@kastov/mantine-react-table-open'
 import { Anchor, Badge, Button, Group, Menu, SegmentedControl } from '@mantine/core'
-import { PiLink, PiUserPlus, PiUsersThreeDuotone } from 'react-icons/pi'
-import { TbChevronDown } from 'react-icons/tb'
+import { IconChevronDown, IconLink, IconUserPlus, IconUsersGroup } from '@tabler/icons-react'
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
 
@@ -68,13 +67,13 @@ export function RwUsersPage() {
     return (
         <Page title={t('menu.panel_users')}>
             <PageHeader
-                icon={<PiUsersThreeDuotone size={24} />}
+                icon={<IconUsersGroup size={24} />}
                 title={t('menu.panel_users')}
                 description={t('panel_users.description')}
             />
             <DataTableCard
                 storageKey="panel-users"
-                icon={<PiUsersThreeDuotone size={24} />}
+                icon={<IconUsersGroup size={24} />}
                 title={t('panel_users.table_title')}
                 actions={
                     <SegmentedControl
@@ -109,9 +108,9 @@ function LinkMenu({ user }: { user: RwUserRow }) {
             <Menu.Target>
                 <Button
                     color="yellow"
-                    leftSection={<PiLink size={14} />}
+                    leftSection={<IconLink size={14} />}
                     onClick={(e) => e.stopPropagation()}
-                    rightSection={<TbChevronDown size={12} />}
+                    rightSection={<IconChevronDown size={12} />}
                     size="compact-sm"
                     variant="soft"
                 >
@@ -119,11 +118,11 @@ function LinkMenu({ user }: { user: RwUserRow }) {
                 </Button>
             </Menu.Target>
             <Menu.Dropdown onClick={(e) => e.stopPropagation()}>
-                <Menu.Item leftSection={<PiLink size={15} />} onClick={() => openSubscriptionForm({ rwUserId: user.id })}>
+                <Menu.Item leftSection={<IconLink size={15} />} onClick={() => openSubscriptionForm({ rwUserId: user.id })}>
                     {t('panel_users.to_customer')}
                 </Menu.Item>
                 <Menu.Item
-                    leftSection={<PiUserPlus size={15} />}
+                    leftSection={<IconUserPlus size={15} />}
                     onClick={() => openCustomerForm(undefined, (id) => openSubscriptionForm({ customerId: id, rwUserId: user.id }), { provision: false })}
                 >
                     {t('customers.new')}

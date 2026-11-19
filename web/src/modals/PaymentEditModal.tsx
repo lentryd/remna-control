@@ -2,7 +2,7 @@ import { Alert, Autocomplete, NumberInput, SimpleGrid, Stack, Text, TextInput } 
 import { DateInput } from '@mantine/dates'
 import { useForm } from '@mantine/form'
 import dayjs from 'dayjs'
-import { PiBank, PiCalendarDuotone, PiCoinsDuotone, PiCreditCardDuotone, PiInfo, PiNotePencil } from 'react-icons/pi'
+import { IconBuildingBank, IconCalendar, IconCoins, IconCreditCard, IconEdit, IconInfoCircle } from '@tabler/icons-react'
 
 import { api } from '@/api/client'
 import { useApiMutation } from '@/api/hooks'
@@ -20,7 +20,7 @@ export const paymentMethods = () => i18n.t('payment.methods', { returnObjects: t
 
 export function openPaymentEdit(p: Payment) {
     openModal(
-        { icon: PiCreditCardDuotone, color: 'teal', title: i18n.t('payment.title'), subtitle: `${p.customer_name} · ${fmtMoney(p.amount, 2)}` },
+        { icon: IconCreditCard, color: 'teal', title: i18n.t('payment.title'), subtitle: `${p.customer_name} · ${fmtMoney(p.amount, 2)}` },
         (close) => <PaymentEditForm onDone={close} payment={p} />,
         'lg'
     )
@@ -67,16 +67,16 @@ function PaymentEditForm({ payment, onDone }: { payment: Payment; onDone: () => 
                             data-autofocus
                             decimalScale={2}
                             label={t('common.amount_in', { currency: currencySymbol() })}
-                            leftSection={<PiCoinsDuotone size={16} />}
+                            leftSection={<IconCoins size={16} />}
                             min={0}
                             {...form.getInputProps('amount')}
                         />
-                        <DateInput label={t('customer.col_date')} leftSection={<PiCalendarDuotone size={16} />} valueFormat={dateLayout()} {...form.getInputProps('date')} />
-                        <Autocomplete data={methods} label={t('payment.method')} leftSection={<PiBank size={16} />} {...form.getInputProps('method')} />
-                        <TextInput label={t('payment.comment')} leftSection={<PiNotePencil size={16} />} {...form.getInputProps('note')} />
+                        <DateInput label={t('customer.col_date')} leftSection={<IconCalendar size={16} />} valueFormat={dateLayout()} {...form.getInputProps('date')} />
+                        <Autocomplete data={methods} label={t('payment.method')} leftSection={<IconBuildingBank size={16} />} {...form.getInputProps('method')} />
+                        <TextInput label={t('payment.comment')} leftSection={<IconEdit size={16} />} {...form.getInputProps('note')} />
                     </SimpleGrid>
                     {!payment.historical && (
-                        <Alert color="gray" icon={<PiInfo size={18} />}>
+                        <Alert color="gray" icon={<IconInfoCircle size={18} />}>
                             {t('payment.edit_effects')}
                         </Alert>
                     )}

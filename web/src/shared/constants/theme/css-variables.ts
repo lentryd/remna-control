@@ -46,7 +46,6 @@ export const cssVariablesResolver: CSSVariablesResolver = (theme) => {
             '--app-shadow-pop': '0 16px 40px -12px rgb(9 9 11 / 0.18), 0 4px 10px -4px rgb(9 9 11 / 0.08)',
             '--app-overlay': 'rgb(9 9 11 / 0.35)',
             '--app-sidebar-bg': '#fbfbfb',
-            '--app-glow': 'rgb(121 88 248 / 0.10)',
             // chart series (validated for CVD and contrast on the light surface)
             '--chart-income': '#7958f8',
             '--chart-expense': '#e8590c',
@@ -79,7 +78,6 @@ export const cssVariablesResolver: CSSVariablesResolver = (theme) => {
             '--app-shadow-pop': '0 24px 48px -12px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(255 255 255 / 0.05)',
             '--app-overlay': 'rgb(0 0 0 / 0.6)',
             '--app-sidebar-bg': '#0c0c0e',
-            '--app-glow': 'rgb(131 99 249 / 0.18)',
             // chart series (validated for CVD and contrast on the dark surface)
             '--chart-income': '#8363f9',
             '--chart-expense': '#e8590c',

@@ -7,14 +7,11 @@ import {
     IconCalendarPlus,
     IconChartBar,
     IconChartDonut3,
-    IconChartLine,
     IconClockExclamation,
-    IconCoins,
     IconCreditCard,
     IconGauge,
     IconReceipt2,
     IconUserPlus,
-    IconWallet,
     IconWifiOff
 } from '@tabler/icons-react'
 import dayjs from 'dayjs'
@@ -81,22 +78,20 @@ export function DashboardPage() {
     if (isPending) return <LoadingScreen height="60vh" />
     if (error || !data) return <Alert color="red">{error?.message}</Alert>
 
-    const today = dayjs().format('dddd, D MMMM')
+    const period = dayjs().format('MMMM YYYY')
     const cards = [
         {
             title: t('dashboard.mrr'),
             value: fmtMoney(data.mrr),
             hint: t('dashboard.mrr_hint', { customers: data.active_customers, subs: data.active_subs, addons: data.active_addons }),
-            icon: IconCoins,
-            color: 'brand'
+            tone: undefined
         },
-        { title: t('dashboard.expenses_month'), value: fmtMoney(data.planned_expenses), hint: t('dashboard.expenses_hint'), icon: IconReceipt2, color: 'orange' },
+        { title: t('dashboard.expenses_month'), value: fmtMoney(data.planned_expenses), hint: t('dashboard.expenses_hint'), tone: undefined },
         {
             title: t('dashboard.profit_month'),
             value: fmtMoney(data.profit),
             hint: t('dashboard.profit_hint'),
-            icon: IconChartLine,
-            color: data.profit >= 0 ? 'teal' : 'red'
+            tone: data.profit >= 0 ? undefined : 'red'
         },
         {
             title: t('dashboard.cash'),
@@ -106,8 +101,7 @@ export function DashboardPage() {
                 expenses: fmtMoney(data.expenses_month),
                 refunds: fmtMoney(data.refunds_month)
             }),
-            icon: IconWallet,
-            color: 'blue'
+            tone: undefined
         }
     ]
 
@@ -128,7 +122,7 @@ export function DashboardPage() {
                         </Button>
                     </>
                 }
-                description={today.charAt(0).toUpperCase() + today.slice(1)}
+                description={period.charAt(0).toUpperCase() + period.slice(1)}
                 icon={null}
                 title={t('menu.home')}
             />
@@ -141,7 +135,7 @@ export function DashboardPage() {
             <SimpleGrid cols={{ base: 1, xs: 2, xl: 4 }} mb="lg" spacing="md">
                 {cards.map((c, i) => (
                     <div key={c.title} {...rise(i)}>
-                        <StatCard color={c.color} hint={c.hint} icon={c.icon} title={c.title} value={c.value} />
+                        <StatCard hint={c.hint} title={c.title} tone={c.tone} value={c.value} />
                     </div>
                 ))}
             </SimpleGrid>
@@ -439,7 +433,7 @@ function TrafficStatsBlock({ stats, items }: { stats: Dashboard['traffic_stats']
                 <RingProgress
                     label={
                         <Stack align="center" gap={0}>
-                            <Text className="num" fw={650} fz={28} lh={1.1} style={{ letterSpacing: '-0.03em' }}>
+                            <Text className="num" fw={600} fz={28} lh={1.1} style={{ letterSpacing: '-0.03em' }}>
                                 {total}
                             </Text>
                             <Text c="dimmed" size="xs">

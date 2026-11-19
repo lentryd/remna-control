@@ -2,7 +2,7 @@
 // and widgets/dashboard/nodes/node-status-badge.
 import { Group, type SelectProps, Text, Tooltip } from '@mantine/core'
 import ReactCountryFlag from 'react-country-flag'
-import { HiServer } from 'react-icons/hi'
+import { IconServer } from '@tabler/icons-react'
 
 import { useNodes } from '@/api/hooks'
 import type { RwNode } from '@/api/types'
@@ -11,7 +11,7 @@ import { SearchSelect } from '../forms/search-select'
 import { useTranslation } from 'react-i18next'
 
 export function CountryFlag({ code, size = '1.1em' }: { code?: string | null; size?: string }) {
-    if (!code || code === 'XX') return <HiServer size={14} />
+    if (!code || code === 'XX') return <IconServer size={14} />
     return <ReactCountryFlag countryCode={code} style={{ fontSize: size, borderRadius: '2px' }} />
 }
 
@@ -51,7 +51,7 @@ export function NodeSelect(props: Omit<SelectProps, 'data'>) {
     return (
         <SearchSelect
             data={nodes.map((n) => ({ value: n.uuid, label: n.name }))}
-            leftSection={selected ? <CountryFlag code={selected.countryCode} /> : <HiServer size={16} />}
+            leftSection={selected ? <CountryFlag code={selected.countryCode} /> : <IconServer size={16} />}
             renderOption={({ option, checked }) => {
                 const n = nodes.find((x) => x.uuid === option.value)
                 return (

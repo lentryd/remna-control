@@ -8,16 +8,14 @@
     font-size: var(--mantine-font-size-sm);
     font-weight: 500;
     line-height: 1.35;
-    padding-top: 5px;
     min-width: 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    white-space: nowrap;
     overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .value {
-    margin-top: 6px;
+    margin-top: 8px;
     font-size: 1.75rem;
     font-weight: 600;
     line-height: 1.15;
@@ -34,7 +32,7 @@
 }
 
 .subtitle {
-    margin-top: 6px;
+    margin-top: 8px;
     color: var(--app-text-muted);
     font-size: var(--mantine-font-size-xs);
     line-height: 1.45;

@@ -2,7 +2,7 @@
 import { UnstyledButton } from '@mantine/core'
 import clsx from 'clsx'
 import { MouseEvent } from 'react'
-import { TbCheck, TbMinus } from 'react-icons/tb'
+import { IconCheck, IconMinus } from '@tabler/icons-react'
 
 import classes from '../api-token-card.module.css'
 import { KindState } from './scopes.utils'
@@ -32,8 +32,8 @@ export const KindPill = (props: IProps) => {
             data-readonly={readOnly || undefined}
             onClick={readOnly ? undefined : handleClick}
         >
-            {state === 'on' && <TbCheck size={12} />}
-            {state === 'partial' && <TbMinus size={12} />}
+            {state === 'on' && <IconCheck size={12} />}
+            {state === 'partial' && <IconMinus size={12} />}
             {label}
         </UnstyledButton>
     )
