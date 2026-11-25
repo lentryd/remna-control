@@ -87,6 +87,7 @@ var (
 		{Name: "period_end", Type: field.TypeTime},
 		{Name: "period_days", Type: field.TypeInt},
 		{Name: "archived", Type: field.TypeBool, Default: false},
+		{Name: "external_squad_uuid", Type: field.TypeString, Nullable: true},
 		{Name: "archived_at", Type: field.TypeTime, Nullable: true},
 		{Name: "customer_id", Type: field.TypeInt},
 		{Name: "tariff_id", Type: field.TypeInt},
@@ -99,13 +100,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "companies_customers_customer",
-				Columns:    []*schema.Column{CompaniesColumns[11]},
+				Columns:    []*schema.Column{CompaniesColumns[12]},
 				RefColumns: []*schema.Column{CustomersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "companies_tariffs_tariff",
-				Columns:    []*schema.Column{CompaniesColumns[12]},
+				Columns:    []*schema.Column{CompaniesColumns[13]},
 				RefColumns: []*schema.Column{TariffsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -394,6 +395,7 @@ var (
 		{Name: "traffic_strategy", Type: field.TypeString},
 		{Name: "hwid_limit", Type: field.TypeInt, Nullable: true},
 		{Name: "squad_uuids", Type: field.TypeJSON, Nullable: true},
+		{Name: "external_squad_uuid", Type: field.TypeString, Nullable: true},
 		{Name: "overrides", Type: field.TypeJSON, Nullable: true},
 		{Name: "member_id", Type: field.TypeInt},
 		{Name: "tariff_id", Type: field.TypeInt},
@@ -406,13 +408,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "member_segments_company_members_segments",
-				Columns:    []*schema.Column{MemberSegmentsColumns[9]},
+				Columns:    []*schema.Column{MemberSegmentsColumns[10]},
 				RefColumns: []*schema.Column{CompanyMembersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "member_segments_tariffs_tariff",
-				Columns:    []*schema.Column{MemberSegmentsColumns[10]},
+				Columns:    []*schema.Column{MemberSegmentsColumns[11]},
 				RefColumns: []*schema.Column{TariffsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -421,12 +423,12 @@ var (
 			{
 				Name:    "membersegment_member_id_from_date",
 				Unique:  false,
-				Columns: []*schema.Column{MemberSegmentsColumns[9], MemberSegmentsColumns[1]},
+				Columns: []*schema.Column{MemberSegmentsColumns[10], MemberSegmentsColumns[1]},
 			},
 			{
 				Name:    "membersegment_member_id",
 				Unique:  true,
-				Columns: []*schema.Column{MemberSegmentsColumns[9]},
+				Columns: []*schema.Column{MemberSegmentsColumns[10]},
 				Annotation: &entsql.IndexAnnotation{
 					Where: "to_date IS NULL",
 				},
@@ -505,6 +507,7 @@ var (
 		{Name: "telegram_id", Type: field.TypeInt64, Nullable: true},
 		{Name: "subscription_url", Type: field.TypeString, Nullable: true},
 		{Name: "squad_uuids", Type: field.TypeJSON, Nullable: true},
+		{Name: "external_squad_uuid", Type: field.TypeString, Nullable: true},
 		{Name: "deleted", Type: field.TypeBool, Default: false},
 		{Name: "synced_at", Type: field.TypeTime},
 	}
@@ -657,6 +660,7 @@ var (
 		{Name: "traffic_strategy", Type: field.TypeString, Default: "NO_RESET"},
 		{Name: "hwid_limit", Type: field.TypeInt, Nullable: true},
 		{Name: "squad_uuids", Type: field.TypeJSON, Nullable: true},
+		{Name: "external_squad_uuid", Type: field.TypeString, Nullable: true},
 		{Name: "addon_id", Type: field.TypeInt, Nullable: true},
 	}
 	// TariffsTable holds the schema information for the "tariffs" table.
@@ -667,7 +671,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "tariffs_addons_tariffs",
-				Columns:    []*schema.Column{TariffsColumns[14]},
+				Columns:    []*schema.Column{TariffsColumns[15]},
 				RefColumns: []*schema.Column{AddonsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

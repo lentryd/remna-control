@@ -176,6 +176,9 @@
             "not_found": "Company not found",
             "panel_user_busy": "This panel user already belongs to a customer or another company",
             "username_taken": "This username is already taken"
+        },
+        "external_squad": {
+            "unknown": "The panel has no external squad {{uuid}}"
         }
     },
     "format": {
@@ -407,7 +410,9 @@
         "per_month": "/ mo",
         "traffic": "Traffic",
         "no_tariffs_yet": "No tariffs yet",
-        "overridden_hint": "Subscribers with their own price: it differs from the tariff price. Company employees are included."
+        "overridden_hint": "Subscribers with their own price: it differs from the tariff price. Company employees are included.",
+        "external_squad_label": "External squad",
+        "external_squad_hint": "Sets the subscription page and related settings. Empty leaves the panel alone: removing it later does not reset it for current subscribers."
     },
     "expense_items": {
         "archive": "Archive",
@@ -1152,7 +1157,10 @@
         "node_online": "online",
         "node_offline": "offline",
         "users_online_one": "{{count}} user online",
-        "users_online_other": "{{count}} users online"
+        "users_online_other": "{{count}} users online",
+        "external_squad": "External squad",
+        "no_external_squads": "No external squads",
+        "external_squad_missing": "Not in the panel"
     },
     "card": {
         "auto_on": "Extended from payments automatically",
@@ -1342,6 +1350,10 @@
         "until_now": "until now",
         "follows_tariff_short": "as tariff",
         "settings_general": "General",
-        "settings_general_hint": "Name, report day and notes. A new report day applies from the next period."
+        "settings_general_hint": "Name, report day and notes. A new report day applies from the next period.",
+        "external_squad_label": "External squad",
+        "external_squad_hint": "Overrides the tariff's external squad for the company's employees",
+        "external_squad_inherit": "As in the tariff",
+        "external_squad_none": "No external squad"
     }
 }

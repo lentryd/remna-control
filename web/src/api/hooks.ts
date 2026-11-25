@@ -21,6 +21,7 @@ import type {
     ReferralNode,
     RwNode,
     RwUserRow,
+    ExternalSquad,
     Squad,
     Subscription,
     Tariff,
@@ -38,6 +39,7 @@ export const qk = {
     addons: ['addons'],
     rwUsers: ['rw-users'],
     squads: ['squads'],
+    externalSquads: ['external-squads'],
     nodes: ['nodes'],
     expenses: ['expenses'],
     providers: ['expenses', 'providers'],
@@ -89,6 +91,8 @@ export const useAddons = () => useQuery({ queryKey: qk.addons, queryFn: () => ap
 export const useRwUsers = () => useQuery({ queryKey: qk.rwUsers, queryFn: () => api.get<RwUserRow[]>('rw/users') })
 export const useSquads = () =>
     useQuery({ queryKey: qk.squads, queryFn: () => api.get<Squad[]>('rw/squads'), staleTime: 300_000 })
+export const useExternalSquads = () =>
+    useQuery({ queryKey: qk.externalSquads, queryFn: () => api.get<ExternalSquad[]>('rw/external-squads'), staleTime: 300_000 })
 export const useInfra = () =>
     useQuery({ queryKey: ['rw', 'infra'], queryFn: () => api.get<Infra>('rw/infra'), staleTime: 300_000 })
 export const useNodes = () =>

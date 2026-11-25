@@ -55,6 +55,42 @@ func (s *Service) CreateCompany(ctx context.Context, name, notes string, tariffI
 	return c, nil
 }
 
+// UpdateSettings saves the company settings, the external squad included, in
+// one transaction and then hands the squad to the employees who follow it.
+// Nothing is saved when any part is invalid.
+func (s *Service) UpdateSettings(ctx context.Context, id int, name, notes string, reportDay int, externalSquad *string) error {
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return apperr.New("company.name_required", "name is required")
+	}
+	if err := checkReportDay(reportDay); err != nil {
+		return err
+	}
+	c, err := s.loadCompany(ctx, id, false)
+	if err != nil {
+		return err
+	}
+	ext := blankToNil(externalSquad)
+	err = store.WithTx(ctx, s.db, func(tx *ent.Tx) error {
+		upd := tx.Company.UpdateOneID(c.ID).SetName(name).SetNotes(notes).SetReportDay(reportDay)
+		if ext != nil {
+			upd.SetExternalSquadUUID(*ext)
+		} else {
+			upd.ClearExternalSquadUUID()
+		}
+		if err := upd.Exec(ctx); err != nil {
+			return err
+		}
+		return tx.Customer.UpdateOneID(c.CustomerID).SetName(name).Exec(ctx)
+	})
+	audit.Log(ctx, s.db, "company.update", "company", id, map[string]any{"name": name, "report_day": reportDay, "squad": ext}, err)
+	if err != nil {
+		return err
+	}
+	c.ExternalSquadUUID = ext
+	return s.propagateExternalSquad(ctx, c)
+}
+
 // UpdateCompany renames the company and sets the report day. The open
 // period keeps its end: a new report day applies from the next period.
 func (s *Service) UpdateCompany(ctx context.Context, id int, name, notes string, reportDay int) error {
@@ -77,6 +113,62 @@ func (s *Service) UpdateCompany(ctx context.Context, id int, name, notes string,
 	})
 	audit.Log(ctx, s.db, "company.update", "company", id, map[string]any{"name": name, "report_day": reportDay}, err)
 	return err
+}
+
+// SetExternalSquad sets the company's external squad (nil follows the
+// tariff). Employees who don't set their own get it: their open segment is
+// updated in place, since the squad doesn't change the price, and the panel
+// is pushed; a failed push is left to the drift job.
+func (s *Service) SetExternalSquad(ctx context.Context, id int, uuid *string) error {
+	uuid = blankToNil(uuid)
+	c, err := s.loadCompany(ctx, id, false)
+	if err != nil {
+		return err
+	}
+	upd := s.db.Company.UpdateOneID(c.ID)
+	if uuid != nil {
+		upd.SetExternalSquadUUID(*uuid)
+		c.ExternalSquadUUID = uuid
+	} else {
+		upd.ClearExternalSquadUUID()
+		c.ExternalSquadUUID = nil
+	}
+	if err := upd.Exec(ctx); err != nil {
+		audit.Log(ctx, s.db, "company.set_external_squad", "company", id, map[string]any{"squad": uuid}, err)
+		return err
+	}
+	if err := s.propagateExternalSquad(ctx, c); err != nil {
+		return err
+	}
+	audit.Log(ctx, s.db, "company.set_external_squad", "company", id, map[string]any{"squad": uuid}, nil)
+	return nil
+}
+
+// propagateExternalSquad brings the open segments of c's employees, and
+// their panel users, in line with the company's saved squad.
+func (s *Service) propagateExternalSquad(ctx context.Context, c *ent.Company) error {
+	segs, err := s.openSegments(ctx, func(q *ent.MemberSegmentQuery) {
+		q.Where(membersegment.HasMemberWith(companymember.CompanyID(c.ID)))
+	})
+	if err != nil {
+		return err
+	}
+	for _, seg := range segs {
+		t, err := s.baseTariff(ctx, seg.TariffID)
+		if err != nil {
+			return err
+		}
+		cur := segmentValues(seg)
+		v := Resolve(t, c, cur, seg.Overrides)
+		if sameStr(v.ExternalSquad, cur.ExternalSquad) {
+			continue
+		}
+		if err := s.setSegmentSquad(ctx, seg.ID, v.ExternalSquad); err != nil {
+			return err
+		}
+		s.pushQuietly(ctx, seg.Edges.Member, pushValues(cur, v))
+	}
+	return nil
 }
 
 // moveSegment ends the member's open segment today and opens one on tariff t
@@ -142,13 +234,13 @@ func (s *Service) SetTariff(ctx context.Context, id, tariffID int) error {
 			continue
 		}
 		cur := segmentValues(seg)
-		v := Resolve(t, cur, seg.Overrides)
+		v := Resolve(t, c, cur, seg.Overrides)
 		if err := s.moveSegment(ctx, seg, t, v); errors.Is(err, errStale) {
 			continue // removed meanwhile: nothing left to move
 		} else if err != nil {
 			return err
 		}
-		s.pushQuietly(ctx, m, v)
+		s.pushQuietly(ctx, m, pushValues(cur, v))
 	}
 	audit.Log(ctx, s.db, "company.set_tariff", "company", id, map[string]any{"tariff": t.ID}, nil)
 	return nil
@@ -166,10 +258,26 @@ func (s *Service) TariffUpdated(ctx context.Context, tariffID int) error {
 	if err != nil {
 		return err
 	}
+	companies := map[int]*ent.Company{}
 	for _, seg := range segs {
+		cid := seg.Edges.Member.CompanyID
+		if companies[cid] == nil {
+			if companies[cid], err = s.db.Company.Get(ctx, cid); err != nil {
+				return err
+			}
+		}
 		cur := segmentValues(seg)
-		v := Resolve(t, cur, seg.Overrides)
+		v := Resolve(t, companies[cid], cur, seg.Overrides)
 		if sameValues(v, cur) {
+			continue
+		}
+		// The squad has no price: when it is all that changed, the open
+		// segment is edited in place instead of split.
+		if withSquad := cur; sameValues(func() Values { withSquad.ExternalSquad = v.ExternalSquad; return withSquad }(), v) {
+			if err := s.setSegmentSquad(ctx, seg.ID, v.ExternalSquad); err != nil {
+				return err
+			}
+			s.pushQuietly(ctx, seg.Edges.Member, pushValues(cur, v))
 			continue
 		}
 		if err := s.moveSegment(ctx, seg, t, v); errors.Is(err, errStale) {
@@ -180,10 +288,21 @@ func (s *Service) TariffUpdated(ctx context.Context, tariffID int) error {
 		pv, pc := v, cur
 		pv.Price, pc.Price = 0, 0
 		if !sameValues(pv, pc) {
-			s.pushQuietly(ctx, seg.Edges.Member, v)
+			s.pushQuietly(ctx, seg.Edges.Member, pushValues(cur, v))
 		}
 	}
 	return nil
+}
+
+// setSegmentSquad rewrites the external squad of one segment in place.
+func (s *Service) setSegmentSquad(ctx context.Context, segID int, squad *string) error {
+	u := s.db.MemberSegment.UpdateOneID(segID)
+	if squad != nil {
+		u.SetExternalSquadUUID(*squad)
+	} else {
+		u.ClearExternalSquadUUID()
+	}
+	return u.Exec(ctx)
 }
 
 // pushQuietly pushes member parameters to the panel; a failure is logged and

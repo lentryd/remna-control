@@ -277,7 +277,7 @@ func TestSetOverridesPanelFailureChangesNothing(t *testing.T) {
 func TestResolveInheritsUnlisted(t *testing.T) {
 	f := setup(t)
 	cur := Values{Price: 35000, TrafficLimitBytes: 999, TrafficStrategy: "DAY", Squads: []string{"x"}}
-	got := Resolve(f.tariff, cur, []string{"price"})
+	got := Resolve(f.tariff, nil, cur, []string{"price"})
 	if got.Price != 35000 {
 		t.Errorf("price = %d, the override must be kept", got.Price)
 	}

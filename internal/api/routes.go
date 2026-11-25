@@ -106,6 +106,7 @@ func RegisterRoutes(app *fiber.App, deps *Deps) {
 
 	a.Get("/rw/users", h.ListRwUsers)
 	a.Get("/rw/squads", h.ListSquads)
+	a.Get("/rw/external-squads", h.ListExternalSquads)
 	a.Get("/rw/nodes", h.ListNodes)
 	a.Get("/rw/infra", h.ListInfra)
 	a.Get("/rw/sync", h.SyncStatus)
@@ -227,12 +228,13 @@ func registerPublic(v1 fiber.Router, h *handlers.Handlers) {
 		"expenses:item_close_period": h.ClosePeriod,
 		"expenses:traffic_sync":      h.SyncTraffic,
 
-		"remnawave:users":       h.ListRwUsers,
-		"remnawave:squads":      h.ListSquads,
-		"remnawave:nodes":       h.ListNodes,
-		"remnawave:infra":       h.ListInfra,
-		"remnawave:sync_status": h.SyncStatus,
-		"remnawave:sync":        h.SyncNow,
+		"remnawave:users":           h.ListRwUsers,
+		"remnawave:squads":          h.ListSquads,
+		"remnawave:external_squads": h.ListExternalSquads,
+		"remnawave:nodes":           h.ListNodes,
+		"remnawave:infra":           h.ListInfra,
+		"remnawave:sync_status":     h.SyncStatus,
+		"remnawave:sync":            h.SyncNow,
 
 		"stats:dashboard": h.Dashboard,
 		"stats:fx_rate":   h.FxRate,

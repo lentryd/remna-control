@@ -359,6 +359,26 @@ func (_u *RwUserUpdate) ClearSquadUuids() *RwUserUpdate {
 	return _u
 }
 
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (_u *RwUserUpdate) SetExternalSquadUUID(v string) *RwUserUpdate {
+	_u.mutation.SetExternalSquadUUID(v)
+	return _u
+}
+
+// SetNillableExternalSquadUUID sets the "external_squad_uuid" field if the given value is not nil.
+func (_u *RwUserUpdate) SetNillableExternalSquadUUID(v *string) *RwUserUpdate {
+	if v != nil {
+		_u.SetExternalSquadUUID(*v)
+	}
+	return _u
+}
+
+// ClearExternalSquadUUID clears the value of the "external_squad_uuid" field.
+func (_u *RwUserUpdate) ClearExternalSquadUUID() *RwUserUpdate {
+	_u.mutation.ClearExternalSquadUUID()
+	return _u
+}
+
 // SetDeleted sets the "deleted" field.
 func (_u *RwUserUpdate) SetDeleted(v bool) *RwUserUpdate {
 	_u.mutation.SetDeleted(v)
@@ -581,6 +601,12 @@ func (_u *RwUserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.SquadUuidsCleared() {
 		_spec.ClearField(rwuser.FieldSquadUuids, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.ExternalSquadUUID(); ok {
+		_spec.SetField(rwuser.FieldExternalSquadUUID, field.TypeString, value)
+	}
+	if _u.mutation.ExternalSquadUUIDCleared() {
+		_spec.ClearField(rwuser.FieldExternalSquadUUID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Deleted(); ok {
 		_spec.SetField(rwuser.FieldDeleted, field.TypeBool, value)
@@ -994,6 +1020,26 @@ func (_u *RwUserUpdateOne) ClearSquadUuids() *RwUserUpdateOne {
 	return _u
 }
 
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (_u *RwUserUpdateOne) SetExternalSquadUUID(v string) *RwUserUpdateOne {
+	_u.mutation.SetExternalSquadUUID(v)
+	return _u
+}
+
+// SetNillableExternalSquadUUID sets the "external_squad_uuid" field if the given value is not nil.
+func (_u *RwUserUpdateOne) SetNillableExternalSquadUUID(v *string) *RwUserUpdateOne {
+	if v != nil {
+		_u.SetExternalSquadUUID(*v)
+	}
+	return _u
+}
+
+// ClearExternalSquadUUID clears the value of the "external_squad_uuid" field.
+func (_u *RwUserUpdateOne) ClearExternalSquadUUID() *RwUserUpdateOne {
+	_u.mutation.ClearExternalSquadUUID()
+	return _u
+}
+
 // SetDeleted sets the "deleted" field.
 func (_u *RwUserUpdateOne) SetDeleted(v bool) *RwUserUpdateOne {
 	_u.mutation.SetDeleted(v)
@@ -1246,6 +1292,12 @@ func (_u *RwUserUpdateOne) sqlSave(ctx context.Context) (_node *RwUser, err erro
 	}
 	if _u.mutation.SquadUuidsCleared() {
 		_spec.ClearField(rwuser.FieldSquadUuids, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.ExternalSquadUUID(); ok {
+		_spec.SetField(rwuser.FieldExternalSquadUUID, field.TypeString, value)
+	}
+	if _u.mutation.ExternalSquadUUIDCleared() {
+		_spec.ClearField(rwuser.FieldExternalSquadUUID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Deleted(); ok {
 		_spec.SetField(rwuser.FieldDeleted, field.TypeBool, value)

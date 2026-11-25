@@ -55,6 +55,7 @@ import { openMemberModal } from '@/modals/MemberModal'
 import { openStatementModal } from '@/modals/StatementModal'
 import { EntityAdd, EntityGrid } from '@shared/ui/entity-card'
 import { FormColumns, FormSection } from '@shared/ui/forms/form-section'
+import { ExternalSquadSelect } from '@shared/ui/infra/squad'
 import { LoadingScreen } from '@shared/ui/loading-screen'
 import { Page } from '@shared/ui/page'
 import { StatStrip } from '@shared/ui/stat-strip'
@@ -503,19 +504,31 @@ function TokensTab({ company }: { company: Company }) {
 function SettingsTab({ company }: { company: Company }) {
     const { t } = useTranslation()
     const form = useForm({
-        initialValues: { name: company.name, notes: company.notes, report_day: company.report_day as number | string },
+        initialValues: {
+            name: company.name,
+            notes: company.notes,
+            report_day: company.report_day as number | string,
+            external_squad_uuid: company.external_squad_uuid
+        },
         validate: {
             name: (v) => (v.trim() ? null : t('tariffs.name_required')),
             report_day: (v) => (Number(v) >= 1 && Number(v) <= 28 ? null : t('companies.report_day_hint'))
         }
     })
     useEffect(() => {
-        form.setValues({ name: company.name, notes: company.notes, report_day: company.report_day })
-        form.resetDirty({ name: company.name, notes: company.notes, report_day: company.report_day })
+        const values = { name: company.name, notes: company.notes, report_day: company.report_day, external_squad_uuid: company.external_squad_uuid }
+        form.setValues(values)
+        form.resetDirty(values)
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [company.name, company.notes, company.report_day])
+    }, [company.name, company.notes, company.report_day, company.external_squad_uuid])
     const save = useApiMutation((v: typeof form.values) =>
-        api.put(`companies/${company.id}`, { name: v.name.trim(), notes: v.notes, tariff_id: company.tariff_id, report_day: Number(v.report_day) })
+        api.put(`companies/${company.id}`, {
+            name: v.name.trim(),
+            notes: v.notes,
+            tariff_id: company.tariff_id,
+            report_day: Number(v.report_day),
+            external_squad_uuid: v.external_squad_uuid
+        })
     )
     const archive = useApiMutation(() => api.post<{ protected_left_enabled: string[] }>(`companies/${company.id}/archive`))
 
@@ -569,6 +582,12 @@ function SettingsTab({ company }: { company: Company }) {
                                 max={28}
                                 min={1}
                                 {...form.getInputProps('report_day')}
+                            />
+                            <ExternalSquadSelect
+                                description={t('companies.external_squad_hint')}
+                                label={t('companies.external_squad_label')}
+                                placeholder={t('companies.external_squad_inherit')}
+                                {...form.getInputProps('external_squad_uuid')}
                             />
                             <Textarea autosize label={t('expense_items.notes')} minRows={3} {...form.getInputProps('notes')} />
                             <Group justify="flex-end">

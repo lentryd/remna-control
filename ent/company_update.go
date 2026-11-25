@@ -184,6 +184,26 @@ func (_u *CompanyUpdate) SetNillableArchived(v *bool) *CompanyUpdate {
 	return _u
 }
 
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (_u *CompanyUpdate) SetExternalSquadUUID(v string) *CompanyUpdate {
+	_u.mutation.SetExternalSquadUUID(v)
+	return _u
+}
+
+// SetNillableExternalSquadUUID sets the "external_squad_uuid" field if the given value is not nil.
+func (_u *CompanyUpdate) SetNillableExternalSquadUUID(v *string) *CompanyUpdate {
+	if v != nil {
+		_u.SetExternalSquadUUID(*v)
+	}
+	return _u
+}
+
+// ClearExternalSquadUUID clears the value of the "external_squad_uuid" field.
+func (_u *CompanyUpdate) ClearExternalSquadUUID() *CompanyUpdate {
+	_u.mutation.ClearExternalSquadUUID()
+	return _u
+}
+
 // SetArchivedAt sets the "archived_at" field.
 func (_u *CompanyUpdate) SetArchivedAt(v time.Time) *CompanyUpdate {
 	_u.mutation.SetArchivedAt(v)
@@ -409,6 +429,12 @@ func (_u *CompanyUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.Archived(); ok {
 		_spec.SetField(company.FieldArchived, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.ExternalSquadUUID(); ok {
+		_spec.SetField(company.FieldExternalSquadUUID, field.TypeString, value)
+	}
+	if _u.mutation.ExternalSquadUUIDCleared() {
+		_spec.ClearField(company.FieldExternalSquadUUID, field.TypeString)
 	}
 	if value, ok := _u.mutation.ArchivedAt(); ok {
 		_spec.SetField(company.FieldArchivedAt, field.TypeTime, value)
@@ -736,6 +762,26 @@ func (_u *CompanyUpdateOne) SetNillableArchived(v *bool) *CompanyUpdateOne {
 	return _u
 }
 
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (_u *CompanyUpdateOne) SetExternalSquadUUID(v string) *CompanyUpdateOne {
+	_u.mutation.SetExternalSquadUUID(v)
+	return _u
+}
+
+// SetNillableExternalSquadUUID sets the "external_squad_uuid" field if the given value is not nil.
+func (_u *CompanyUpdateOne) SetNillableExternalSquadUUID(v *string) *CompanyUpdateOne {
+	if v != nil {
+		_u.SetExternalSquadUUID(*v)
+	}
+	return _u
+}
+
+// ClearExternalSquadUUID clears the value of the "external_squad_uuid" field.
+func (_u *CompanyUpdateOne) ClearExternalSquadUUID() *CompanyUpdateOne {
+	_u.mutation.ClearExternalSquadUUID()
+	return _u
+}
+
 // SetArchivedAt sets the "archived_at" field.
 func (_u *CompanyUpdateOne) SetArchivedAt(v time.Time) *CompanyUpdateOne {
 	_u.mutation.SetArchivedAt(v)
@@ -991,6 +1037,12 @@ func (_u *CompanyUpdateOne) sqlSave(ctx context.Context) (_node *Company, err er
 	}
 	if value, ok := _u.mutation.Archived(); ok {
 		_spec.SetField(company.FieldArchived, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.ExternalSquadUUID(); ok {
+		_spec.SetField(company.FieldExternalSquadUUID, field.TypeString, value)
+	}
+	if _u.mutation.ExternalSquadUUIDCleared() {
+		_spec.ClearField(company.FieldExternalSquadUUID, field.TypeString)
 	}
 	if value, ok := _u.mutation.ArchivedAt(); ok {
 		_spec.SetField(company.FieldArchivedAt, field.TypeTime, value)

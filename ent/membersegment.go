@@ -38,6 +38,8 @@ type MemberSegment struct {
 	HwidLimit *int `json:"hwid_limit,omitempty"`
 	// SquadUuids holds the value of the "squad_uuids" field.
 	SquadUuids []string `json:"squad_uuids,omitempty"`
+	// ExternalSquadUUID holds the value of the "external_squad_uuid" field.
+	ExternalSquadUUID *string `json:"external_squad_uuid,omitempty"`
 	// Overrides holds the value of the "overrides" field.
 	Overrides []string `json:"overrides,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -88,7 +90,7 @@ func (*MemberSegment) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case membersegment.FieldID, membersegment.FieldMemberID, membersegment.FieldTariffID, membersegment.FieldPrice, membersegment.FieldTrafficLimitBytes, membersegment.FieldHwidLimit:
 			values[i] = new(sql.NullInt64)
-		case membersegment.FieldTrafficStrategy:
+		case membersegment.FieldTrafficStrategy, membersegment.FieldExternalSquadUUID:
 			values[i] = new(sql.NullString)
 		case membersegment.FieldFromDate, membersegment.FieldToDate:
 			values[i] = new(sql.NullTime)
@@ -170,6 +172,13 @@ func (_m *MemberSegment) assignValues(columns []string, values []any) error {
 				if err := json.Unmarshal(*value, &_m.SquadUuids); err != nil {
 					return fmt.Errorf("unmarshal field squad_uuids: %w", err)
 				}
+			}
+		case membersegment.FieldExternalSquadUUID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field external_squad_uuid", values[i])
+			} else if value.Valid {
+				_m.ExternalSquadUUID = new(string)
+				*_m.ExternalSquadUUID = value.String
 			}
 		case membersegment.FieldOverrides:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -255,6 +264,11 @@ func (_m *MemberSegment) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("squad_uuids=")
 	builder.WriteString(fmt.Sprintf("%v", _m.SquadUuids))
+	builder.WriteString(", ")
+	if v := _m.ExternalSquadUUID; v != nil {
+		builder.WriteString("external_squad_uuid=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
 	builder.WriteString("overrides=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Overrides))

@@ -34,6 +34,7 @@ func (RwUser) Fields() []ent.Field {
 		field.Int64("telegram_id").Optional().Nillable(),
 		field.String("subscription_url").Optional(),
 		field.Strings("squad_uuids").Optional(),
+		field.String("external_squad_uuid").Optional(),
 		field.Bool("deleted").Default(false),
 		field.Time("synced_at").Default(time.Now),
 	}

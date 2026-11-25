@@ -41,6 +41,8 @@ type Company struct {
 	PeriodDays int `json:"period_days,omitempty"`
 	// Archived holds the value of the "archived" field.
 	Archived bool `json:"archived,omitempty"`
+	// ExternalSquadUUID holds the value of the "external_squad_uuid" field.
+	ExternalSquadUUID *string `json:"external_squad_uuid,omitempty"`
 	// ArchivedAt holds the value of the "archived_at" field.
 	ArchivedAt *time.Time `json:"archived_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -113,7 +115,7 @@ func (*Company) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case company.FieldID, company.FieldCustomerID, company.FieldTariffID, company.FieldReportDay, company.FieldPeriodDays:
 			values[i] = new(sql.NullInt64)
-		case company.FieldName, company.FieldNotes:
+		case company.FieldName, company.FieldNotes, company.FieldExternalSquadUUID:
 			values[i] = new(sql.NullString)
 		case company.FieldCreatedAt, company.FieldUpdatedAt, company.FieldPeriodStart, company.FieldPeriodEnd, company.FieldArchivedAt:
 			values[i] = new(sql.NullTime)
@@ -203,6 +205,13 @@ func (_m *Company) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field archived", values[i])
 			} else if value.Valid {
 				_m.Archived = value.Bool
+			}
+		case company.FieldExternalSquadUUID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field external_squad_uuid", values[i])
+			} else if value.Valid {
+				_m.ExternalSquadUUID = new(string)
+				*_m.ExternalSquadUUID = value.String
 			}
 		case company.FieldArchivedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -299,6 +308,11 @@ func (_m *Company) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("archived=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Archived))
+	builder.WriteString(", ")
+	if v := _m.ExternalSquadUUID; v != nil {
+		builder.WriteString("external_squad_uuid=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
 	if v := _m.ArchivedAt; v != nil {
 		builder.WriteString("archived_at=")

@@ -23,42 +23,46 @@ import (
 
 // CompanyView is a company with its balance and open-period figures.
 type CompanyView struct {
-	ID           int       `json:"id"`
-	Name         string    `json:"name"`
-	Notes        string    `json:"notes"`
-	CustomerID   int       `json:"customer_id"` // the billing account: payments and history live there
-	TariffID     int       `json:"tariff_id"`
-	TariffName   string    `json:"tariff_name"`
-	ReportDay    int       `json:"report_day"`
-	PeriodStart  time.Time `json:"period_start"`
-	PeriodEnd    time.Time `json:"period_end"` // the next report date
-	Archived     bool      `json:"archived"`
-	MembersCount int       `json:"members_count"` // active employees
-	ProtectedCnt int       `json:"protected_count"`
-	Balance      float64   `json:"balance"`
-	Accrued      float64   `json:"accrued"`  // the open period so far
-	Forecast     float64   `json:"forecast"` // the open period if nothing changes
-	CreatedAt    time.Time `json:"created_at"`
+	ID         int    `json:"id"`
+	Name       string `json:"name"`
+	Notes      string `json:"notes"`
+	CustomerID int    `json:"customer_id"` // the billing account: payments and history live there
+	TariffID   int    `json:"tariff_id"`
+	TariffName string `json:"tariff_name"`
+	// ExternalSquadUUID overrides the tariff's external squad; null follows the tariff.
+	ExternalSquadUUID *string   `json:"external_squad_uuid"`
+	ReportDay         int       `json:"report_day"`
+	PeriodStart       time.Time `json:"period_start"`
+	PeriodEnd         time.Time `json:"period_end"` // the next report date
+	Archived          bool      `json:"archived"`
+	MembersCount      int       `json:"members_count"` // active employees
+	ProtectedCnt      int       `json:"protected_count"`
+	Balance           float64   `json:"balance"`
+	Accrued           float64   `json:"accrued"`  // the open period so far
+	Forecast          float64   `json:"forecast"` // the open period if nothing changes
+	CreatedAt         time.Time `json:"created_at"`
 }
 
 // MemberView is an employee: who they are, what they are billed on now and
 // how the panel sees them.
 type MemberView struct {
-	ID                int           `json:"id"`
-	Username          string        `json:"username"`
-	Label             string        `json:"label"`
-	Active            bool          `json:"active"`
-	Protected         bool          `json:"protected"`
-	TariffPinned      bool          `json:"tariff_pinned"`
-	AddedAt           time.Time     `json:"added_at"`
-	RemovedAt         *time.Time    `json:"removed_at"`
-	TariffID          int           `json:"tariff_id"`
-	TariffName        string        `json:"tariff_name"`
-	Price             float64       `json:"price"` // per month
-	TrafficLimitBytes int64         `json:"traffic_limit_bytes"`
-	TrafficStrategy   string        `json:"traffic_strategy"`
-	HwidLimit         *int          `json:"hwid_limit"`
-	SquadUUIDs        []string      `json:"squad_uuids"`
+	ID                int        `json:"id"`
+	Username          string     `json:"username"`
+	Label             string     `json:"label"`
+	Active            bool       `json:"active"`
+	Protected         bool       `json:"protected"`
+	TariffPinned      bool       `json:"tariff_pinned"`
+	AddedAt           time.Time  `json:"added_at"`
+	RemovedAt         *time.Time `json:"removed_at"`
+	TariffID          int        `json:"tariff_id"`
+	TariffName        string     `json:"tariff_name"`
+	Price             float64    `json:"price"` // per month
+	TrafficLimitBytes int64      `json:"traffic_limit_bytes"`
+	TrafficStrategy   string     `json:"traffic_strategy"`
+	HwidLimit         *int       `json:"hwid_limit"`
+	SquadUUIDs        []string   `json:"squad_uuids"`
+	// ExternalSquadUUID: null = none set, "" = explicitly none for this employee.
+	ExternalSquadUUID *string       `json:"external_squad_uuid"`
 	Overrides         []string      `json:"overrides"` // fields set for this employee, the rest follow the tariff
 	PanelStatus       string        `json:"panel_status"`
 	PanelDeleted      bool          `json:"panel_deleted"` // gone from the panel behind our back
@@ -80,6 +84,7 @@ type SegmentView struct {
 	TrafficStrategy   string     `json:"traffic_strategy"`
 	HwidLimit         *int       `json:"hwid_limit"`
 	SquadUUIDs        []string   `json:"squad_uuids"`
+	ExternalSquadUUID *string    `json:"external_squad_uuid"`
 	Overrides         []string   `json:"overrides"`
 }
 
@@ -143,7 +148,7 @@ func (h *Handlers) loadCompanyRow(ctx context.Context, id int) (*ent.Company, er
 func (h *Handlers) companyView(ctx context.Context, co *ent.Company, balances map[int]int64) (CompanyView, error) {
 	v := CompanyView{
 		ID: co.ID, Name: co.Name, Notes: co.Notes, CustomerID: co.CustomerID, TariffID: co.TariffID,
-		ReportDay: co.ReportDay, PeriodStart: co.PeriodStart, PeriodEnd: co.PeriodEnd, Archived: co.Archived,
+		ExternalSquadUUID: co.ExternalSquadUUID, ReportDay: co.ReportDay, PeriodStart: co.PeriodStart, PeriodEnd: co.PeriodEnd, Archived: co.Archived,
 		Balance: money.ToMajor(balances[co.CustomerID]), CreatedAt: co.CreatedAt,
 	}
 	if t := co.Edges.Tariff; t != nil {
@@ -217,6 +222,8 @@ type companyInput struct {
 	Notes     string `json:"notes"`
 	TariffID  int    `json:"tariff_id"`
 	ReportDay int    `json:"report_day"`
+	// ExternalSquadUUID: null or blank follows the tariff.
+	ExternalSquadUUID *string `json:"external_squad_uuid"`
 }
 
 func (h *Handlers) CreateCompany(c *fiber.Ctx) error {
@@ -224,9 +231,17 @@ func (h *Handlers) CreateCompany(c *fiber.Ctx) error {
 	if err := bind(c, &in); err != nil {
 		return err
 	}
+	if err := h.checkExternalSquad(c.UserContext(), in.ExternalSquadUUID); err != nil {
+		return err
+	}
 	co, err := h.Company.CreateCompany(c.UserContext(), in.Name, in.Notes, in.TariffID, in.ReportDay)
 	if err != nil {
 		return err
+	}
+	if in.ExternalSquadUUID != nil {
+		if err := h.Company.SetExternalSquad(c.UserContext(), co.ID, in.ExternalSquadUUID); err != nil {
+			return err
+		}
 	}
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"id": co.ID, "customer_id": co.CustomerID})
 }
@@ -240,7 +255,10 @@ func (h *Handlers) UpdateCompany(c *fiber.Ctx) error {
 	if err := bind(c, &in); err != nil {
 		return err
 	}
-	if err := h.Company.UpdateCompany(c.UserContext(), id, in.Name, in.Notes, in.ReportDay); err != nil {
+	if err := h.checkExternalSquad(c.UserContext(), in.ExternalSquadUUID); err != nil {
+		return err
+	}
+	if err := h.Company.UpdateSettings(c.UserContext(), id, in.Name, in.Notes, in.ReportDay, in.ExternalSquadUUID); err != nil {
 		return err
 	}
 	return c.SendStatus(fiber.StatusNoContent)
@@ -307,7 +325,7 @@ func (h *Handlers) memberViews(ctx context.Context, companyID int, memberID *int
 		sv := SegmentView{
 			ID: s.ID, From: s.FromDate, To: s.ToDate, TariffID: s.TariffID, Price: money.ToMajor(s.Price),
 			TrafficLimitBytes: s.TrafficLimitBytes, TrafficStrategy: s.TrafficStrategy, HwidLimit: s.HwidLimit,
-			SquadUUIDs: nonNil(s.SquadUuids), Overrides: nonNil(s.Overrides),
+			SquadUUIDs: nonNil(s.SquadUuids), ExternalSquadUUID: s.ExternalSquadUUID, Overrides: nonNil(s.Overrides),
 		}
 		if t := s.Edges.Tariff; t != nil {
 			sv.TariffName = t.Name
@@ -328,6 +346,7 @@ func (h *Handlers) memberViews(ctx context.Context, companyID int, memberID *int
 			v.TariffID, v.Price = s.TariffID, money.ToMajor(s.Price)
 			v.TrafficLimitBytes, v.TrafficStrategy, v.HwidLimit = s.TrafficLimitBytes, s.TrafficStrategy, s.HwidLimit
 			v.SquadUUIDs, v.Overrides = nonNil(s.SquadUuids), nonNil(s.Overrides)
+			v.ExternalSquadUUID = s.ExternalSquadUUID
 			if t := s.Edges.Tariff; t != nil {
 				v.TariffName = t.Name
 			}
@@ -476,14 +495,18 @@ func (h *Handlers) SetMemberOverrides(c *fiber.Ctx) error {
 		TrafficStrategy   *string  `json:"traffic_strategy"`
 		HwidLimit         *int     `json:"hwid_limit"`
 		SquadUUIDs        []string `json:"squad_uuids"`
+		ExternalSquadUUID *string  `json:"external_squad_uuid"`
 		Reset             []string `json:"reset"`
 	}
 	if err := bindStrict(c, &in); err != nil {
 		return err
 	}
+	if err := h.checkExternalSquad(c.UserContext(), in.ExternalSquadUUID); err != nil {
+		return err
+	}
 	o := companysvc.Overrides{
 		TrafficLimitBytes: in.TrafficLimitBytes, TrafficStrategy: in.TrafficStrategy,
-		HwidLimit: in.HwidLimit, Squads: in.SquadUUIDs, Reset: in.Reset,
+		HwidLimit: in.HwidLimit, Squads: in.SquadUUIDs, ExternalSquad: in.ExternalSquadUUID, Reset: in.Reset,
 	}
 	if in.Price != nil {
 		p := money.FromMajor(*in.Price)

@@ -47,6 +47,8 @@ type Tariff struct {
 	HwidLimit *int `json:"hwid_limit,omitempty"`
 	// SquadUuids holds the value of the "squad_uuids" field.
 	SquadUuids []string `json:"squad_uuids,omitempty"`
+	// ExternalSquadUUID holds the value of the "external_squad_uuid" field.
+	ExternalSquadUUID *string `json:"external_squad_uuid,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TariffQuery when eager-loading is set.
 	Edges        TariffEdges `json:"edges"`
@@ -139,7 +141,7 @@ func (*Tariff) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case tariff.FieldID, tariff.FieldAddonID, tariff.FieldMonthlyPrice, tariff.FieldSortOrder, tariff.FieldTrafficLimitBytes, tariff.FieldHwidLimit:
 			values[i] = new(sql.NullInt64)
-		case tariff.FieldKind, tariff.FieldName, tariff.FieldDescription, tariff.FieldTrafficStrategy:
+		case tariff.FieldKind, tariff.FieldName, tariff.FieldDescription, tariff.FieldTrafficStrategy, tariff.FieldExternalSquadUUID:
 			values[i] = new(sql.NullString)
 		case tariff.FieldCreatedAt, tariff.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -252,6 +254,13 @@ func (_m *Tariff) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field squad_uuids: %w", err)
 				}
 			}
+		case tariff.FieldExternalSquadUUID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field external_squad_uuid", values[i])
+			} else if value.Valid {
+				_m.ExternalSquadUUID = new(string)
+				*_m.ExternalSquadUUID = value.String
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -363,6 +372,11 @@ func (_m *Tariff) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("squad_uuids=")
 	builder.WriteString(fmt.Sprintf("%v", _m.SquadUuids))
+	builder.WriteString(", ")
+	if v := _m.ExternalSquadUUID; v != nil {
+		builder.WriteString("external_squad_uuid=")
+		builder.WriteString(*v)
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

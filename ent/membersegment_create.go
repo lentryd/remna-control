@@ -94,6 +94,20 @@ func (_c *MemberSegmentCreate) SetSquadUuids(v []string) *MemberSegmentCreate {
 	return _c
 }
 
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (_c *MemberSegmentCreate) SetExternalSquadUUID(v string) *MemberSegmentCreate {
+	_c.mutation.SetExternalSquadUUID(v)
+	return _c
+}
+
+// SetNillableExternalSquadUUID sets the "external_squad_uuid" field if the given value is not nil.
+func (_c *MemberSegmentCreate) SetNillableExternalSquadUUID(v *string) *MemberSegmentCreate {
+	if v != nil {
+		_c.SetExternalSquadUUID(*v)
+	}
+	return _c
+}
+
 // SetOverrides sets the "overrides" field.
 func (_c *MemberSegmentCreate) SetOverrides(v []string) *MemberSegmentCreate {
 	_c.mutation.SetOverrides(v)
@@ -222,6 +236,10 @@ func (_c *MemberSegmentCreate) createSpec() (*MemberSegment, *sqlgraph.CreateSpe
 	if value, ok := _c.mutation.SquadUuids(); ok {
 		_spec.SetField(membersegment.FieldSquadUuids, field.TypeJSON, value)
 		_node.SquadUuids = value
+	}
+	if value, ok := _c.mutation.ExternalSquadUUID(); ok {
+		_spec.SetField(membersegment.FieldExternalSquadUUID, field.TypeString, value)
+		_node.ExternalSquadUUID = &value
 	}
 	if value, ok := _c.mutation.Overrides(); ok {
 		_spec.SetField(membersegment.FieldOverrides, field.TypeJSON, value)
@@ -457,6 +475,24 @@ func (u *MemberSegmentUpsert) ClearSquadUuids() *MemberSegmentUpsert {
 	return u
 }
 
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (u *MemberSegmentUpsert) SetExternalSquadUUID(v string) *MemberSegmentUpsert {
+	u.Set(membersegment.FieldExternalSquadUUID, v)
+	return u
+}
+
+// UpdateExternalSquadUUID sets the "external_squad_uuid" field to the value that was provided on create.
+func (u *MemberSegmentUpsert) UpdateExternalSquadUUID() *MemberSegmentUpsert {
+	u.SetExcluded(membersegment.FieldExternalSquadUUID)
+	return u
+}
+
+// ClearExternalSquadUUID clears the value of the "external_squad_uuid" field.
+func (u *MemberSegmentUpsert) ClearExternalSquadUUID() *MemberSegmentUpsert {
+	u.SetNull(membersegment.FieldExternalSquadUUID)
+	return u
+}
+
 // SetOverrides sets the "overrides" field.
 func (u *MemberSegmentUpsert) SetOverrides(v []string) *MemberSegmentUpsert {
 	u.Set(membersegment.FieldOverrides, v)
@@ -680,6 +716,27 @@ func (u *MemberSegmentUpsertOne) UpdateSquadUuids() *MemberSegmentUpsertOne {
 func (u *MemberSegmentUpsertOne) ClearSquadUuids() *MemberSegmentUpsertOne {
 	return u.Update(func(s *MemberSegmentUpsert) {
 		s.ClearSquadUuids()
+	})
+}
+
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (u *MemberSegmentUpsertOne) SetExternalSquadUUID(v string) *MemberSegmentUpsertOne {
+	return u.Update(func(s *MemberSegmentUpsert) {
+		s.SetExternalSquadUUID(v)
+	})
+}
+
+// UpdateExternalSquadUUID sets the "external_squad_uuid" field to the value that was provided on create.
+func (u *MemberSegmentUpsertOne) UpdateExternalSquadUUID() *MemberSegmentUpsertOne {
+	return u.Update(func(s *MemberSegmentUpsert) {
+		s.UpdateExternalSquadUUID()
+	})
+}
+
+// ClearExternalSquadUUID clears the value of the "external_squad_uuid" field.
+func (u *MemberSegmentUpsertOne) ClearExternalSquadUUID() *MemberSegmentUpsertOne {
+	return u.Update(func(s *MemberSegmentUpsert) {
+		s.ClearExternalSquadUUID()
 	})
 }
 
@@ -1072,6 +1129,27 @@ func (u *MemberSegmentUpsertBulk) UpdateSquadUuids() *MemberSegmentUpsertBulk {
 func (u *MemberSegmentUpsertBulk) ClearSquadUuids() *MemberSegmentUpsertBulk {
 	return u.Update(func(s *MemberSegmentUpsert) {
 		s.ClearSquadUuids()
+	})
+}
+
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (u *MemberSegmentUpsertBulk) SetExternalSquadUUID(v string) *MemberSegmentUpsertBulk {
+	return u.Update(func(s *MemberSegmentUpsert) {
+		s.SetExternalSquadUUID(v)
+	})
+}
+
+// UpdateExternalSquadUUID sets the "external_squad_uuid" field to the value that was provided on create.
+func (u *MemberSegmentUpsertBulk) UpdateExternalSquadUUID() *MemberSegmentUpsertBulk {
+	return u.Update(func(s *MemberSegmentUpsert) {
+		s.UpdateExternalSquadUUID()
+	})
+}
+
+// ClearExternalSquadUUID clears the value of the "external_squad_uuid" field.
+func (u *MemberSegmentUpsertBulk) ClearExternalSquadUUID() *MemberSegmentUpsertBulk {
+	return u.Update(func(s *MemberSegmentUpsert) {
+		s.ClearExternalSquadUUID()
 	})
 }
 

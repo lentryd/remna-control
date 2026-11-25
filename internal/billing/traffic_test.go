@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"remna-control/ent"
+	"remna-control/internal/remnawave"
 )
 
 func TestAddMonths_ClampsWithoutDrift(t *testing.T) {
@@ -201,5 +202,70 @@ func TestResetAnchors(t *testing.T) {
 	sub.Edges.RwUser.ExpireAt = &forever
 	if SubscriptionResetAnchor(sub) != nil {
 		t.Fatal("unlimited sub must be nil")
+	}
+}
+
+func strp(s string) *string { return &s }
+
+func TestDesiredParamsExternalSquad(t *testing.T) {
+	with := &ent.Tariff{ExternalSquadUUID: strp("e1")}
+	if p := DesiredParams(with, "", nil); p.ExternalSquad == nil || *p.ExternalSquad != "e1" {
+		t.Errorf("tariff with squad: %v", p.ExternalSquad)
+	}
+	if p := DesiredParams(&ent.Tariff{}, "", nil); p.ExternalSquad != nil {
+		t.Errorf("tariff without squad must not manage it, got %q", *p.ExternalSquad)
+	}
+}
+
+func TestApplyExternalSquad(t *testing.T) {
+	var set remnawave.UpdateUserRequest
+	PanelParams{ExternalSquad: strp("e1")}.Apply(&set)
+	if set.ExternalSquadUUID == nil || *set.ExternalSquadUUID != "e1" || set.ClearExternalSquad {
+		t.Errorf("set: %+v", set)
+	}
+	var clr remnawave.UpdateUserRequest
+	PanelParams{ExternalSquad: strp("")}.Apply(&clr)
+	if clr.ExternalSquadUUID != nil || !clr.ClearExternalSquad {
+		t.Errorf("clear: %+v", clr)
+	}
+	var none remnawave.UpdateUserRequest
+	PanelParams{}.Apply(&none)
+	if none.ExternalSquadUUID != nil || none.ClearExternalSquad {
+		t.Errorf("unset must leave the panel alone: %+v", none)
+	}
+}
+
+func TestDiffersExternalSquad(t *testing.T) {
+	u := &ent.RwUser{ExternalSquadUUID: "e1"}
+	cases := []struct {
+		name string
+		want *string
+		diff bool
+	}{
+		{"unset not compared", nil, false},
+		{"same", strp("e1"), false},
+		{"other", strp("e2"), true},
+		{"clear while set", strp(""), true},
+	}
+	for _, c := range cases {
+		if got := (PanelParams{ExternalSquad: c.want}).Differs(u); got != c.diff {
+			t.Errorf("%s: Differs = %v, want %v", c.name, got, c.diff)
+		}
+	}
+	if (PanelParams{ExternalSquad: strp("")}).Differs(&ent.RwUser{}) {
+		t.Error("clear while already empty must not differ")
+	}
+}
+
+func TestCreateRequestExternalSquad(t *testing.T) {
+	to := time.Now().Add(time.Hour)
+	tr := &ent.Tariff{Name: "t", SquadUuids: []string{"s"}, ExternalSquadUUID: strp("e1")}
+	req, err := createRequest(tr, "NO_RESET", "u", to, "")
+	if err != nil || req.ExternalSquadUUID == nil || *req.ExternalSquadUUID != "e1" {
+		t.Errorf("with squad: %+v %v", req, err)
+	}
+	tr.ExternalSquadUUID = nil
+	if req, _ = createRequest(tr, "NO_RESET", "u", to, ""); req.ExternalSquadUUID != nil {
+		t.Errorf("without squad: %q", *req.ExternalSquadUUID)
 	}
 }

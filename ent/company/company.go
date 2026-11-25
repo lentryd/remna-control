@@ -36,6 +36,8 @@ const (
 	FieldPeriodDays = "period_days"
 	// FieldArchived holds the string denoting the archived field in the database.
 	FieldArchived = "archived"
+	// FieldExternalSquadUUID holds the string denoting the external_squad_uuid field in the database.
+	FieldExternalSquadUUID = "external_squad_uuid"
 	// FieldArchivedAt holds the string denoting the archived_at field in the database.
 	FieldArchivedAt = "archived_at"
 	// EdgeCustomer holds the string denoting the customer edge name in mutations.
@@ -92,6 +94,7 @@ var Columns = []string{
 	FieldPeriodEnd,
 	FieldPeriodDays,
 	FieldArchived,
+	FieldExternalSquadUUID,
 	FieldArchivedAt,
 }
 
@@ -183,6 +186,11 @@ func ByPeriodDays(opts ...sql.OrderTermOption) OrderOption {
 // ByArchived orders the results by the archived field.
 func ByArchived(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldArchived, opts...).ToFunc()
+}
+
+// ByExternalSquadUUID orders the results by the external_squad_uuid field.
+func ByExternalSquadUUID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldExternalSquadUUID, opts...).ToFunc()
 }
 
 // ByArchivedAt orders the results by the archived_at field.

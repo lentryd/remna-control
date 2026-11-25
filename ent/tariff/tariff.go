@@ -43,6 +43,8 @@ const (
 	FieldHwidLimit = "hwid_limit"
 	// FieldSquadUuids holds the string denoting the squad_uuids field in the database.
 	FieldSquadUuids = "squad_uuids"
+	// FieldExternalSquadUUID holds the string denoting the external_squad_uuid field in the database.
+	FieldExternalSquadUUID = "external_squad_uuid"
 	// EdgeAddon holds the string denoting the addon edge name in mutations.
 	EdgeAddon = "addon"
 	// EdgePeriods holds the string denoting the periods edge name in mutations.
@@ -108,6 +110,7 @@ var Columns = []string{
 	FieldTrafficStrategy,
 	FieldHwidLimit,
 	FieldSquadUuids,
+	FieldExternalSquadUUID,
 }
 
 var (
@@ -246,6 +249,11 @@ func ByTrafficStrategy(opts ...sql.OrderTermOption) OrderOption {
 // ByHwidLimit orders the results by the hwid_limit field.
 func ByHwidLimit(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldHwidLimit, opts...).ToFunc()
+}
+
+// ByExternalSquadUUID orders the results by the external_squad_uuid field.
+func ByExternalSquadUUID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldExternalSquadUUID, opts...).ToFunc()
 }
 
 // ByAddonField orders the results by addon field.

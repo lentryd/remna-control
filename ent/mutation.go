@@ -2968,35 +2968,36 @@ func (m *AuditLogMutation) ResetEdge(name string) error {
 // CompanyMutation represents an operation that mutates the Company nodes in the graph.
 type CompanyMutation struct {
 	config
-	op                Op
-	typ               string
-	id                *int
-	created_at        *time.Time
-	updated_at        *time.Time
-	name              *string
-	notes             *string
-	report_day        *int
-	addreport_day     *int
-	period_start      *time.Time
-	period_end        *time.Time
-	period_days       *int
-	addperiod_days    *int
-	archived          *bool
-	archived_at       *time.Time
-	clearedFields     map[string]struct{}
-	customer          *int
-	clearedcustomer   bool
-	tariff            *int
-	clearedtariff     bool
-	members           map[int]struct{}
-	removedmembers    map[int]struct{}
-	clearedmembers    bool
-	statements        map[int]struct{}
-	removedstatements map[int]struct{}
-	clearedstatements bool
-	done              bool
-	oldValue          func(context.Context) (*Company, error)
-	predicates        []predicate.Company
+	op                  Op
+	typ                 string
+	id                  *int
+	created_at          *time.Time
+	updated_at          *time.Time
+	name                *string
+	notes               *string
+	report_day          *int
+	addreport_day       *int
+	period_start        *time.Time
+	period_end          *time.Time
+	period_days         *int
+	addperiod_days      *int
+	archived            *bool
+	external_squad_uuid *string
+	archived_at         *time.Time
+	clearedFields       map[string]struct{}
+	customer            *int
+	clearedcustomer     bool
+	tariff              *int
+	clearedtariff       bool
+	members             map[int]struct{}
+	removedmembers      map[int]struct{}
+	clearedmembers      bool
+	statements          map[int]struct{}
+	removedstatements   map[int]struct{}
+	clearedstatements   bool
+	done                bool
+	oldValue            func(context.Context) (*Company, error)
+	predicates          []predicate.Company
 }
 
 var _ ent.Mutation = (*CompanyMutation)(nil)
@@ -3546,6 +3547,55 @@ func (m *CompanyMutation) ResetArchived() {
 	m.archived = nil
 }
 
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (m *CompanyMutation) SetExternalSquadUUID(s string) {
+	m.external_squad_uuid = &s
+}
+
+// ExternalSquadUUID returns the value of the "external_squad_uuid" field in the mutation.
+func (m *CompanyMutation) ExternalSquadUUID() (r string, exists bool) {
+	v := m.external_squad_uuid
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldExternalSquadUUID returns the old "external_squad_uuid" field's value of the Company entity.
+// If the Company object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CompanyMutation) OldExternalSquadUUID(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldExternalSquadUUID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldExternalSquadUUID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldExternalSquadUUID: %w", err)
+	}
+	return oldValue.ExternalSquadUUID, nil
+}
+
+// ClearExternalSquadUUID clears the value of the "external_squad_uuid" field.
+func (m *CompanyMutation) ClearExternalSquadUUID() {
+	m.external_squad_uuid = nil
+	m.clearedFields[company.FieldExternalSquadUUID] = struct{}{}
+}
+
+// ExternalSquadUUIDCleared returns if the "external_squad_uuid" field was cleared in this mutation.
+func (m *CompanyMutation) ExternalSquadUUIDCleared() bool {
+	_, ok := m.clearedFields[company.FieldExternalSquadUUID]
+	return ok
+}
+
+// ResetExternalSquadUUID resets all changes to the "external_squad_uuid" field.
+func (m *CompanyMutation) ResetExternalSquadUUID() {
+	m.external_squad_uuid = nil
+	delete(m.clearedFields, company.FieldExternalSquadUUID)
+}
+
 // SetArchivedAt sets the "archived_at" field.
 func (m *CompanyMutation) SetArchivedAt(t time.Time) {
 	m.archived_at = &t
@@ -3791,7 +3841,7 @@ func (m *CompanyMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CompanyMutation) Fields() []string {
-	fields := make([]string, 0, 12)
+	fields := make([]string, 0, 13)
 	if m.created_at != nil {
 		fields = append(fields, company.FieldCreatedAt)
 	}
@@ -3824,6 +3874,9 @@ func (m *CompanyMutation) Fields() []string {
 	}
 	if m.archived != nil {
 		fields = append(fields, company.FieldArchived)
+	}
+	if m.external_squad_uuid != nil {
+		fields = append(fields, company.FieldExternalSquadUUID)
 	}
 	if m.archived_at != nil {
 		fields = append(fields, company.FieldArchivedAt)
@@ -3858,6 +3911,8 @@ func (m *CompanyMutation) Field(name string) (ent.Value, bool) {
 		return m.PeriodDays()
 	case company.FieldArchived:
 		return m.Archived()
+	case company.FieldExternalSquadUUID:
+		return m.ExternalSquadUUID()
 	case company.FieldArchivedAt:
 		return m.ArchivedAt()
 	}
@@ -3891,6 +3946,8 @@ func (m *CompanyMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldPeriodDays(ctx)
 	case company.FieldArchived:
 		return m.OldArchived(ctx)
+	case company.FieldExternalSquadUUID:
+		return m.OldExternalSquadUUID(ctx)
 	case company.FieldArchivedAt:
 		return m.OldArchivedAt(ctx)
 	}
@@ -3979,6 +4036,13 @@ func (m *CompanyMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetArchived(v)
 		return nil
+	case company.FieldExternalSquadUUID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExternalSquadUUID(v)
+		return nil
 	case company.FieldArchivedAt:
 		v, ok := value.(time.Time)
 		if !ok {
@@ -4046,6 +4110,9 @@ func (m *CompanyMutation) ClearedFields() []string {
 	if m.FieldCleared(company.FieldNotes) {
 		fields = append(fields, company.FieldNotes)
 	}
+	if m.FieldCleared(company.FieldExternalSquadUUID) {
+		fields = append(fields, company.FieldExternalSquadUUID)
+	}
 	if m.FieldCleared(company.FieldArchivedAt) {
 		fields = append(fields, company.FieldArchivedAt)
 	}
@@ -4065,6 +4132,9 @@ func (m *CompanyMutation) ClearField(name string) error {
 	switch name {
 	case company.FieldNotes:
 		m.ClearNotes()
+		return nil
+	case company.FieldExternalSquadUUID:
+		m.ClearExternalSquadUUID()
 		return nil
 	case company.FieldArchivedAt:
 		m.ClearArchivedAt()
@@ -4109,6 +4179,9 @@ func (m *CompanyMutation) ResetField(name string) error {
 		return nil
 	case company.FieldArchived:
 		m.ResetArchived()
+		return nil
+	case company.FieldExternalSquadUUID:
+		m.ResetExternalSquadUUID()
 		return nil
 	case company.FieldArchivedAt:
 		m.ResetArchivedAt()
@@ -16008,6 +16081,7 @@ type MemberSegmentMutation struct {
 	addhwid_limit          *int
 	squad_uuids            *[]string
 	appendsquad_uuids      []string
+	external_squad_uuid    *string
 	overrides              *[]string
 	appendoverrides        []string
 	clearedFields          map[string]struct{}
@@ -16558,6 +16632,55 @@ func (m *MemberSegmentMutation) ResetSquadUuids() {
 	delete(m.clearedFields, membersegment.FieldSquadUuids)
 }
 
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (m *MemberSegmentMutation) SetExternalSquadUUID(s string) {
+	m.external_squad_uuid = &s
+}
+
+// ExternalSquadUUID returns the value of the "external_squad_uuid" field in the mutation.
+func (m *MemberSegmentMutation) ExternalSquadUUID() (r string, exists bool) {
+	v := m.external_squad_uuid
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldExternalSquadUUID returns the old "external_squad_uuid" field's value of the MemberSegment entity.
+// If the MemberSegment object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MemberSegmentMutation) OldExternalSquadUUID(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldExternalSquadUUID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldExternalSquadUUID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldExternalSquadUUID: %w", err)
+	}
+	return oldValue.ExternalSquadUUID, nil
+}
+
+// ClearExternalSquadUUID clears the value of the "external_squad_uuid" field.
+func (m *MemberSegmentMutation) ClearExternalSquadUUID() {
+	m.external_squad_uuid = nil
+	m.clearedFields[membersegment.FieldExternalSquadUUID] = struct{}{}
+}
+
+// ExternalSquadUUIDCleared returns if the "external_squad_uuid" field was cleared in this mutation.
+func (m *MemberSegmentMutation) ExternalSquadUUIDCleared() bool {
+	_, ok := m.clearedFields[membersegment.FieldExternalSquadUUID]
+	return ok
+}
+
+// ResetExternalSquadUUID resets all changes to the "external_squad_uuid" field.
+func (m *MemberSegmentMutation) ResetExternalSquadUUID() {
+	m.external_squad_uuid = nil
+	delete(m.clearedFields, membersegment.FieldExternalSquadUUID)
+}
+
 // SetOverrides sets the "overrides" field.
 func (m *MemberSegmentMutation) SetOverrides(s []string) {
 	m.overrides = &s
@@ -16711,7 +16834,7 @@ func (m *MemberSegmentMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *MemberSegmentMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 11)
 	if m.member != nil {
 		fields = append(fields, membersegment.FieldMemberID)
 	}
@@ -16738,6 +16861,9 @@ func (m *MemberSegmentMutation) Fields() []string {
 	}
 	if m.squad_uuids != nil {
 		fields = append(fields, membersegment.FieldSquadUuids)
+	}
+	if m.external_squad_uuid != nil {
+		fields = append(fields, membersegment.FieldExternalSquadUUID)
 	}
 	if m.overrides != nil {
 		fields = append(fields, membersegment.FieldOverrides)
@@ -16768,6 +16894,8 @@ func (m *MemberSegmentMutation) Field(name string) (ent.Value, bool) {
 		return m.HwidLimit()
 	case membersegment.FieldSquadUuids:
 		return m.SquadUuids()
+	case membersegment.FieldExternalSquadUUID:
+		return m.ExternalSquadUUID()
 	case membersegment.FieldOverrides:
 		return m.Overrides()
 	}
@@ -16797,6 +16925,8 @@ func (m *MemberSegmentMutation) OldField(ctx context.Context, name string) (ent.
 		return m.OldHwidLimit(ctx)
 	case membersegment.FieldSquadUuids:
 		return m.OldSquadUuids(ctx)
+	case membersegment.FieldExternalSquadUUID:
+		return m.OldExternalSquadUUID(ctx)
 	case membersegment.FieldOverrides:
 		return m.OldOverrides(ctx)
 	}
@@ -16870,6 +17000,13 @@ func (m *MemberSegmentMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetSquadUuids(v)
+		return nil
+	case membersegment.FieldExternalSquadUUID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExternalSquadUUID(v)
 		return nil
 	case membersegment.FieldOverrides:
 		v, ok := value.([]string)
@@ -16956,6 +17093,9 @@ func (m *MemberSegmentMutation) ClearedFields() []string {
 	if m.FieldCleared(membersegment.FieldSquadUuids) {
 		fields = append(fields, membersegment.FieldSquadUuids)
 	}
+	if m.FieldCleared(membersegment.FieldExternalSquadUUID) {
+		fields = append(fields, membersegment.FieldExternalSquadUUID)
+	}
 	if m.FieldCleared(membersegment.FieldOverrides) {
 		fields = append(fields, membersegment.FieldOverrides)
 	}
@@ -16981,6 +17121,9 @@ func (m *MemberSegmentMutation) ClearField(name string) error {
 		return nil
 	case membersegment.FieldSquadUuids:
 		m.ClearSquadUuids()
+		return nil
+	case membersegment.FieldExternalSquadUUID:
+		m.ClearExternalSquadUUID()
 		return nil
 	case membersegment.FieldOverrides:
 		m.ClearOverrides()
@@ -17019,6 +17162,9 @@ func (m *MemberSegmentMutation) ResetField(name string) error {
 		return nil
 	case membersegment.FieldSquadUuids:
 		m.ResetSquadUuids()
+		return nil
+	case membersegment.FieldExternalSquadUUID:
+		m.ResetExternalSquadUUID()
 		return nil
 	case membersegment.FieldOverrides:
 		m.ResetOverrides()
@@ -19013,6 +19159,7 @@ type RwUserMutation struct {
 	subscription_url          *string
 	squad_uuids               *[]string
 	appendsquad_uuids         []string
+	external_squad_uuid       *string
 	deleted                   *bool
 	synced_at                 *time.Time
 	clearedFields             map[string]struct{}
@@ -19972,6 +20119,55 @@ func (m *RwUserMutation) ResetSquadUuids() {
 	delete(m.clearedFields, rwuser.FieldSquadUuids)
 }
 
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (m *RwUserMutation) SetExternalSquadUUID(s string) {
+	m.external_squad_uuid = &s
+}
+
+// ExternalSquadUUID returns the value of the "external_squad_uuid" field in the mutation.
+func (m *RwUserMutation) ExternalSquadUUID() (r string, exists bool) {
+	v := m.external_squad_uuid
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldExternalSquadUUID returns the old "external_squad_uuid" field's value of the RwUser entity.
+// If the RwUser object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RwUserMutation) OldExternalSquadUUID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldExternalSquadUUID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldExternalSquadUUID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldExternalSquadUUID: %w", err)
+	}
+	return oldValue.ExternalSquadUUID, nil
+}
+
+// ClearExternalSquadUUID clears the value of the "external_squad_uuid" field.
+func (m *RwUserMutation) ClearExternalSquadUUID() {
+	m.external_squad_uuid = nil
+	m.clearedFields[rwuser.FieldExternalSquadUUID] = struct{}{}
+}
+
+// ExternalSquadUUIDCleared returns if the "external_squad_uuid" field was cleared in this mutation.
+func (m *RwUserMutation) ExternalSquadUUIDCleared() bool {
+	_, ok := m.clearedFields[rwuser.FieldExternalSquadUUID]
+	return ok
+}
+
+// ResetExternalSquadUUID resets all changes to the "external_squad_uuid" field.
+func (m *RwUserMutation) ResetExternalSquadUUID() {
+	m.external_squad_uuid = nil
+	delete(m.clearedFields, rwuser.FieldExternalSquadUUID)
+}
+
 // SetDeleted sets the "deleted" field.
 func (m *RwUserMutation) SetDeleted(b bool) {
 	m.deleted = &b
@@ -20156,7 +20352,7 @@ func (m *RwUserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *RwUserMutation) Fields() []string {
-	fields := make([]string, 0, 18)
+	fields := make([]string, 0, 19)
 	if m.username != nil {
 		fields = append(fields, rwuser.FieldUsername)
 	}
@@ -20205,6 +20401,9 @@ func (m *RwUserMutation) Fields() []string {
 	if m.squad_uuids != nil {
 		fields = append(fields, rwuser.FieldSquadUuids)
 	}
+	if m.external_squad_uuid != nil {
+		fields = append(fields, rwuser.FieldExternalSquadUUID)
+	}
 	if m.deleted != nil {
 		fields = append(fields, rwuser.FieldDeleted)
 	}
@@ -20251,6 +20450,8 @@ func (m *RwUserMutation) Field(name string) (ent.Value, bool) {
 		return m.SubscriptionURL()
 	case rwuser.FieldSquadUuids:
 		return m.SquadUuids()
+	case rwuser.FieldExternalSquadUUID:
+		return m.ExternalSquadUUID()
 	case rwuser.FieldDeleted:
 		return m.Deleted()
 	case rwuser.FieldSyncedAt:
@@ -20296,6 +20497,8 @@ func (m *RwUserMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldSubscriptionURL(ctx)
 	case rwuser.FieldSquadUuids:
 		return m.OldSquadUuids(ctx)
+	case rwuser.FieldExternalSquadUUID:
+		return m.OldExternalSquadUUID(ctx)
 	case rwuser.FieldDeleted:
 		return m.OldDeleted(ctx)
 	case rwuser.FieldSyncedAt:
@@ -20420,6 +20623,13 @@ func (m *RwUserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetSquadUuids(v)
+		return nil
+	case rwuser.FieldExternalSquadUUID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExternalSquadUUID(v)
 		return nil
 	case rwuser.FieldDeleted:
 		v, ok := value.(bool)
@@ -20555,6 +20765,9 @@ func (m *RwUserMutation) ClearedFields() []string {
 	if m.FieldCleared(rwuser.FieldSquadUuids) {
 		fields = append(fields, rwuser.FieldSquadUuids)
 	}
+	if m.FieldCleared(rwuser.FieldExternalSquadUUID) {
+		fields = append(fields, rwuser.FieldExternalSquadUUID)
+	}
 	return fields
 }
 
@@ -20607,6 +20820,9 @@ func (m *RwUserMutation) ClearField(name string) error {
 		return nil
 	case rwuser.FieldSquadUuids:
 		m.ClearSquadUuids()
+		return nil
+	case rwuser.FieldExternalSquadUUID:
+		m.ClearExternalSquadUUID()
 		return nil
 	}
 	return fmt.Errorf("unknown RwUser nullable field %s", name)
@@ -20663,6 +20879,9 @@ func (m *RwUserMutation) ResetField(name string) error {
 		return nil
 	case rwuser.FieldSquadUuids:
 		m.ResetSquadUuids()
+		return nil
+	case rwuser.FieldExternalSquadUUID:
+		m.ResetExternalSquadUUID()
 		return nil
 	case rwuser.FieldDeleted:
 		m.ResetDeleted()
@@ -24617,6 +24836,7 @@ type TariffMutation struct {
 	addhwid_limit              *int
 	squad_uuids                *[]string
 	appendsquad_uuids          []string
+	external_squad_uuid        *string
 	clearedFields              map[string]struct{}
 	addon                      *int
 	clearedaddon               bool
@@ -25391,6 +25611,55 @@ func (m *TariffMutation) ResetSquadUuids() {
 	delete(m.clearedFields, tariff.FieldSquadUuids)
 }
 
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (m *TariffMutation) SetExternalSquadUUID(s string) {
+	m.external_squad_uuid = &s
+}
+
+// ExternalSquadUUID returns the value of the "external_squad_uuid" field in the mutation.
+func (m *TariffMutation) ExternalSquadUUID() (r string, exists bool) {
+	v := m.external_squad_uuid
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldExternalSquadUUID returns the old "external_squad_uuid" field's value of the Tariff entity.
+// If the Tariff object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TariffMutation) OldExternalSquadUUID(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldExternalSquadUUID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldExternalSquadUUID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldExternalSquadUUID: %w", err)
+	}
+	return oldValue.ExternalSquadUUID, nil
+}
+
+// ClearExternalSquadUUID clears the value of the "external_squad_uuid" field.
+func (m *TariffMutation) ClearExternalSquadUUID() {
+	m.external_squad_uuid = nil
+	m.clearedFields[tariff.FieldExternalSquadUUID] = struct{}{}
+}
+
+// ExternalSquadUUIDCleared returns if the "external_squad_uuid" field was cleared in this mutation.
+func (m *TariffMutation) ExternalSquadUUIDCleared() bool {
+	_, ok := m.clearedFields[tariff.FieldExternalSquadUUID]
+	return ok
+}
+
+// ResetExternalSquadUUID resets all changes to the "external_squad_uuid" field.
+func (m *TariffMutation) ResetExternalSquadUUID() {
+	m.external_squad_uuid = nil
+	delete(m.clearedFields, tariff.FieldExternalSquadUUID)
+}
+
 // ClearAddon clears the "addon" edge to the Addon entity.
 func (m *TariffMutation) ClearAddon() {
 	m.clearedaddon = true
@@ -25722,7 +25991,7 @@ func (m *TariffMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TariffMutation) Fields() []string {
-	fields := make([]string, 0, 14)
+	fields := make([]string, 0, 15)
 	if m.created_at != nil {
 		fields = append(fields, tariff.FieldCreatedAt)
 	}
@@ -25765,6 +26034,9 @@ func (m *TariffMutation) Fields() []string {
 	if m.squad_uuids != nil {
 		fields = append(fields, tariff.FieldSquadUuids)
 	}
+	if m.external_squad_uuid != nil {
+		fields = append(fields, tariff.FieldExternalSquadUUID)
+	}
 	return fields
 }
 
@@ -25801,6 +26073,8 @@ func (m *TariffMutation) Field(name string) (ent.Value, bool) {
 		return m.HwidLimit()
 	case tariff.FieldSquadUuids:
 		return m.SquadUuids()
+	case tariff.FieldExternalSquadUUID:
+		return m.ExternalSquadUUID()
 	}
 	return nil, false
 }
@@ -25838,6 +26112,8 @@ func (m *TariffMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldHwidLimit(ctx)
 	case tariff.FieldSquadUuids:
 		return m.OldSquadUuids(ctx)
+	case tariff.FieldExternalSquadUUID:
+		return m.OldExternalSquadUUID(ctx)
 	}
 	return nil, fmt.Errorf("unknown Tariff field %s", name)
 }
@@ -25945,6 +26221,13 @@ func (m *TariffMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetSquadUuids(v)
 		return nil
+	case tariff.FieldExternalSquadUUID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExternalSquadUUID(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Tariff field %s", name)
 }
@@ -26038,6 +26321,9 @@ func (m *TariffMutation) ClearedFields() []string {
 	if m.FieldCleared(tariff.FieldSquadUuids) {
 		fields = append(fields, tariff.FieldSquadUuids)
 	}
+	if m.FieldCleared(tariff.FieldExternalSquadUUID) {
+		fields = append(fields, tariff.FieldExternalSquadUUID)
+	}
 	return fields
 }
 
@@ -26063,6 +26349,9 @@ func (m *TariffMutation) ClearField(name string) error {
 		return nil
 	case tariff.FieldSquadUuids:
 		m.ClearSquadUuids()
+		return nil
+	case tariff.FieldExternalSquadUUID:
+		m.ClearExternalSquadUUID()
 		return nil
 	}
 	return fmt.Errorf("unknown Tariff nullable field %s", name)
@@ -26113,6 +26402,9 @@ func (m *TariffMutation) ResetField(name string) error {
 		return nil
 	case tariff.FieldSquadUuids:
 		m.ResetSquadUuids()
+		return nil
+	case tariff.FieldExternalSquadUUID:
+		m.ResetExternalSquadUUID()
 		return nil
 	}
 	return fmt.Errorf("unknown Tariff field %s", name)

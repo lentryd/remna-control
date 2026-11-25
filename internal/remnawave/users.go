@@ -46,6 +46,7 @@ type User struct {
 	SubscriptionURL      string      `json:"subscriptionUrl"`
 	CreatedAt            time.Time   `json:"createdAt"`
 	ActiveInternalSquads []Squad     `json:"activeInternalSquads"`
+	ExternalSquadUUID    *string     `json:"externalSquadUuid"`
 	UserTraffic          UserTraffic `json:"userTraffic"`
 }
 
@@ -77,6 +78,7 @@ type CreateUserRequest struct {
 	TelegramID           *int64    `json:"telegramId,omitempty"`
 	HwidDeviceLimit      *int      `json:"hwidDeviceLimit,omitempty"`
 	ActiveInternalSquads []string  `json:"activeInternalSquads,omitempty"`
+	ExternalSquadUUID    *string   `json:"externalSquadUuid,omitempty"`
 }
 
 // UpdateUserRequest is UpdateUserCommand.RequestBodySchema: id identifies
@@ -90,21 +92,39 @@ type UpdateUserRequest struct {
 	Description          *string    `json:"description,omitempty"`
 	HwidDeviceLimit      *int       `json:"hwidDeviceLimit,omitempty"`
 	ActiveInternalSquads []string   `json:"activeInternalSquads,omitempty"`
+	ExternalSquadUUID    *string    `json:"externalSquadUuid,omitempty"`
 	TelegramID           *int64     `json:"telegramId,omitempty"`
 	// ClearTelegramID sends telegramId: null (omitempty can't express it).
 	ClearTelegramID bool `json:"-"`
+	// ClearExternalSquad sends externalSquadUuid: null.
+	ClearExternalSquad bool `json:"-"`
 }
 
-// MarshalJSON adds an explicit telegramId null when ClearTelegramID is set.
+// MarshalJSON adds explicit nulls for telegramId and externalSquadUuid when
+// the matching Clear flag is set and the field itself is not.
 func (r UpdateUserRequest) MarshalJSON() ([]byte, error) {
 	type plain UpdateUserRequest
-	if !r.ClearTelegramID || r.TelegramID != nil {
-		return json.Marshal(plain(r))
+	clearTG := r.ClearTelegramID && r.TelegramID == nil
+	clearSq := r.ClearExternalSquad && r.ExternalSquadUUID == nil
+	switch {
+	case clearTG && clearSq:
+		return json.Marshal(struct {
+			plain
+			TelegramID        *int64  `json:"telegramId"`
+			ExternalSquadUUID *string `json:"externalSquadUuid"`
+		}{plain: plain(r)})
+	case clearTG:
+		return json.Marshal(struct {
+			plain
+			TelegramID *int64 `json:"telegramId"`
+		}{plain: plain(r)})
+	case clearSq:
+		return json.Marshal(struct {
+			plain
+			ExternalSquadUUID *string `json:"externalSquadUuid"`
+		}{plain: plain(r)})
 	}
-	return json.Marshal(struct {
-		plain
-		TelegramID *int64 `json:"telegramId"`
-	}{plain: plain(r)})
+	return json.Marshal(plain(r))
 }
 
 type streamPage struct {

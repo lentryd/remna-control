@@ -46,6 +46,8 @@ const (
 	FieldSubscriptionURL = "subscription_url"
 	// FieldSquadUuids holds the string denoting the squad_uuids field in the database.
 	FieldSquadUuids = "squad_uuids"
+	// FieldExternalSquadUUID holds the string denoting the external_squad_uuid field in the database.
+	FieldExternalSquadUUID = "external_squad_uuid"
 	// FieldDeleted holds the string denoting the deleted field in the database.
 	FieldDeleted = "deleted"
 	// FieldSyncedAt holds the string denoting the synced_at field in the database.
@@ -91,6 +93,7 @@ var Columns = []string{
 	FieldTelegramID,
 	FieldSubscriptionURL,
 	FieldSquadUuids,
+	FieldExternalSquadUUID,
 	FieldDeleted,
 	FieldSyncedAt,
 }
@@ -197,6 +200,11 @@ func ByTelegramID(opts ...sql.OrderTermOption) OrderOption {
 // BySubscriptionURL orders the results by the subscription_url field.
 func BySubscriptionURL(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSubscriptionURL, opts...).ToFunc()
+}
+
+// ByExternalSquadUUID orders the results by the external_squad_uuid field.
+func ByExternalSquadUUID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldExternalSquadUUID, opts...).ToFunc()
 }
 
 // ByDeleted orders the results by the deleted field.

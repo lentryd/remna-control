@@ -17,7 +17,8 @@ export const FIELD_LABEL = {
     traffic_limit: 'tariffs.traffic_limit',
     traffic_strategy: 'tariffs.traffic_reset',
     hwid_limit: 'tariffs.hwid',
-    squads: 'tariffs.squads_label'
+    squads: 'tariffs.squads_label',
+    external_squad: 'companies.external_squad_label'
 } as const
 
 // OverrideBadges lists which fields are set for this member alone.

@@ -130,6 +130,11 @@ func SubscriptionURL(v string) predicate.RwUser {
 	return predicate.RwUser(sql.FieldEQ(FieldSubscriptionURL, v))
 }
 
+// ExternalSquadUUID applies equality check predicate on the "external_squad_uuid" field. It's identical to ExternalSquadUUIDEQ.
+func ExternalSquadUUID(v string) predicate.RwUser {
+	return predicate.RwUser(sql.FieldEQ(FieldExternalSquadUUID, v))
+}
+
 // Deleted applies equality check predicate on the "deleted" field. It's identical to DeletedEQ.
 func Deleted(v bool) predicate.RwUser {
 	return predicate.RwUser(sql.FieldEQ(FieldDeleted, v))
@@ -1043,6 +1048,81 @@ func SquadUuidsIsNil() predicate.RwUser {
 // SquadUuidsNotNil applies the NotNil predicate on the "squad_uuids" field.
 func SquadUuidsNotNil() predicate.RwUser {
 	return predicate.RwUser(sql.FieldNotNull(FieldSquadUuids))
+}
+
+// ExternalSquadUUIDEQ applies the EQ predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDEQ(v string) predicate.RwUser {
+	return predicate.RwUser(sql.FieldEQ(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDNEQ applies the NEQ predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDNEQ(v string) predicate.RwUser {
+	return predicate.RwUser(sql.FieldNEQ(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDIn applies the In predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDIn(vs ...string) predicate.RwUser {
+	return predicate.RwUser(sql.FieldIn(FieldExternalSquadUUID, vs...))
+}
+
+// ExternalSquadUUIDNotIn applies the NotIn predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDNotIn(vs ...string) predicate.RwUser {
+	return predicate.RwUser(sql.FieldNotIn(FieldExternalSquadUUID, vs...))
+}
+
+// ExternalSquadUUIDGT applies the GT predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDGT(v string) predicate.RwUser {
+	return predicate.RwUser(sql.FieldGT(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDGTE applies the GTE predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDGTE(v string) predicate.RwUser {
+	return predicate.RwUser(sql.FieldGTE(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDLT applies the LT predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDLT(v string) predicate.RwUser {
+	return predicate.RwUser(sql.FieldLT(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDLTE applies the LTE predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDLTE(v string) predicate.RwUser {
+	return predicate.RwUser(sql.FieldLTE(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDContains applies the Contains predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDContains(v string) predicate.RwUser {
+	return predicate.RwUser(sql.FieldContains(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDHasPrefix applies the HasPrefix predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDHasPrefix(v string) predicate.RwUser {
+	return predicate.RwUser(sql.FieldHasPrefix(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDHasSuffix applies the HasSuffix predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDHasSuffix(v string) predicate.RwUser {
+	return predicate.RwUser(sql.FieldHasSuffix(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDIsNil applies the IsNil predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDIsNil() predicate.RwUser {
+	return predicate.RwUser(sql.FieldIsNull(FieldExternalSquadUUID))
+}
+
+// ExternalSquadUUIDNotNil applies the NotNil predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDNotNil() predicate.RwUser {
+	return predicate.RwUser(sql.FieldNotNull(FieldExternalSquadUUID))
+}
+
+// ExternalSquadUUIDEqualFold applies the EqualFold predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDEqualFold(v string) predicate.RwUser {
+	return predicate.RwUser(sql.FieldEqualFold(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDContainsFold applies the ContainsFold predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDContainsFold(v string) predicate.RwUser {
+	return predicate.RwUser(sql.FieldContainsFold(FieldExternalSquadUUID, v))
 }
 
 // DeletedEQ applies the EQ predicate on the "deleted" field.

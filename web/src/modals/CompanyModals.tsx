@@ -27,6 +27,7 @@ import i18n from '@/app/i18n/i18n'
 import { fmtMoney, GB, STRATEGIES, strategyLabel } from '@/components/format'
 import { errorText, notifyError, notifyOk } from '@/components/notify'
 import { FormFooter, FormSection } from '@shared/ui/forms/form-section'
+import { ExternalSquadSelect, useExternalSquadName } from '@shared/ui/infra/squad'
 import { BaseOverlayHeader } from '@shared/ui/overlays/base-overlay-header'
 
 import { openModal } from './open'
@@ -249,10 +250,15 @@ function OverridesForm({ company, member, onDone }: { company: Company; member: 
             o_hwid: has('hwid_limit'),
             hwid_limit: (member.hwid_limit ?? '') as number | string,
             o_squads: has('squads'),
-            squad_uuids: member.squad_uuids
+            squad_uuids: member.squad_uuids,
+            o_external_squad: has('external_squad'),
+            // null with the switch on means explicitly none
+            external_squad_uuid: (member.external_squad_uuid || null) as string | null
         }
     })
     const tariff = tariffs.data?.find((x) => String(x.id) === form.values.tariff_id)
+    const externalSquadName = useExternalSquadName()
+    const inheritedExternal = company.external_squad_uuid ?? tariff?.external_squad_uuid ?? null
     const m = useApiMutation((v: typeof form.values) => {
         const reset: MemberOverrideField[] = []
         const body: Record<string, unknown> = { tariff_id: Number(v.tariff_id) }
@@ -262,12 +268,13 @@ function OverridesForm({ company, member, onDone }: { company: Company; member: 
         field(v.o_strategy, 'traffic_strategy', () => (body.traffic_strategy = v.traffic_strategy))
         field(v.o_hwid, 'hwid_limit', () => (body.hwid_limit = Number(v.hwid_limit || 0)))
         field(v.o_squads, 'squads', () => (body.squad_uuids = v.squad_uuids))
+        field(v.o_external_squad, 'external_squad', () => (body.external_squad_uuid = v.external_squad_uuid ?? ''))
         body.reset = reset
         return api.put(`companies/${company.id}/members/${member.id}/override`, body)
     })
 
     // one overridable field: a switch, and the input while it is on; off shows the tariff's value
-    const row = (on: 'o_price' | 'o_traffic' | 'o_strategy' | 'o_hwid' | 'o_squads', label: string, tariffValue: string, input: React.ReactNode) => (
+    const row = (on: 'o_price' | 'o_traffic' | 'o_strategy' | 'o_hwid' | 'o_squads' | 'o_external_squad', label: string, tariffValue: string, input: React.ReactNode) => (
         <Stack gap={6}>
             <Group justify="space-between" wrap="nowrap">
                 <Switch checked={form.values[on]} label={label} onChange={(e) => form.setFieldValue(on, e.currentTarget.checked)} />
@@ -331,6 +338,12 @@ function OverridesForm({ company, member, onDone }: { company: Company; member: 
                             searchable
                             {...form.getInputProps('squad_uuids')}
                         />
+                    )}
+                    {row(
+                        'o_external_squad',
+                        t('companies.external_squad_label'),
+                        inheritedExternal ? externalSquadName(inheritedExternal) : '—',
+                        <ExternalSquadSelect placeholder={t('companies.external_squad_none')} {...form.getInputProps('external_squad_uuid')} />
                     )}
                 </FormSection>
                 <Text c="dimmed" size="xs">

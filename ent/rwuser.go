@@ -52,6 +52,8 @@ type RwUser struct {
 	SubscriptionURL string `json:"subscription_url,omitempty"`
 	// SquadUuids holds the value of the "squad_uuids" field.
 	SquadUuids []string `json:"squad_uuids,omitempty"`
+	// ExternalSquadUUID holds the value of the "external_squad_uuid" field.
+	ExternalSquadUUID string `json:"external_squad_uuid,omitempty"`
 	// Deleted holds the value of the "deleted" field.
 	Deleted bool `json:"deleted,omitempty"`
 	// SyncedAt holds the value of the "synced_at" field.
@@ -106,7 +108,7 @@ func (*RwUser) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case rwuser.FieldID, rwuser.FieldUsedTrafficBytes, rwuser.FieldTrafficLimitBytes, rwuser.FieldHwidDeviceLimit, rwuser.FieldTelegramID:
 			values[i] = new(sql.NullInt64)
-		case rwuser.FieldUsername, rwuser.FieldShortUUID, rwuser.FieldStatus, rwuser.FieldTrafficLimitStrategy, rwuser.FieldDescription, rwuser.FieldTag, rwuser.FieldSubscriptionURL:
+		case rwuser.FieldUsername, rwuser.FieldShortUUID, rwuser.FieldStatus, rwuser.FieldTrafficLimitStrategy, rwuser.FieldDescription, rwuser.FieldTag, rwuser.FieldSubscriptionURL, rwuser.FieldExternalSquadUUID:
 			values[i] = new(sql.NullString)
 		case rwuser.FieldExpireAt, rwuser.FieldLastTrafficResetAt, rwuser.FieldPanelCreatedAt, rwuser.FieldOnlineAt, rwuser.FieldSyncedAt:
 			values[i] = new(sql.NullTime)
@@ -235,6 +237,12 @@ func (_m *RwUser) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field squad_uuids: %w", err)
 				}
 			}
+		case rwuser.FieldExternalSquadUUID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field external_squad_uuid", values[i])
+			} else if value.Valid {
+				_m.ExternalSquadUUID = value.String
+			}
 		case rwuser.FieldDeleted:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted", values[i])
@@ -352,6 +360,9 @@ func (_m *RwUser) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("squad_uuids=")
 	builder.WriteString(fmt.Sprintf("%v", _m.SquadUuids))
+	builder.WriteString(", ")
+	builder.WriteString("external_squad_uuid=")
+	builder.WriteString(_m.ExternalSquadUUID)
 	builder.WriteString(", ")
 	builder.WriteString("deleted=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Deleted))

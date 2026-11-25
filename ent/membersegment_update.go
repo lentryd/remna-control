@@ -194,6 +194,26 @@ func (_u *MemberSegmentUpdate) ClearSquadUuids() *MemberSegmentUpdate {
 	return _u
 }
 
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (_u *MemberSegmentUpdate) SetExternalSquadUUID(v string) *MemberSegmentUpdate {
+	_u.mutation.SetExternalSquadUUID(v)
+	return _u
+}
+
+// SetNillableExternalSquadUUID sets the "external_squad_uuid" field if the given value is not nil.
+func (_u *MemberSegmentUpdate) SetNillableExternalSquadUUID(v *string) *MemberSegmentUpdate {
+	if v != nil {
+		_u.SetExternalSquadUUID(*v)
+	}
+	return _u
+}
+
+// ClearExternalSquadUUID clears the value of the "external_squad_uuid" field.
+func (_u *MemberSegmentUpdate) ClearExternalSquadUUID() *MemberSegmentUpdate {
+	_u.mutation.ClearExternalSquadUUID()
+	return _u
+}
+
 // SetOverrides sets the "overrides" field.
 func (_u *MemberSegmentUpdate) SetOverrides(v []string) *MemberSegmentUpdate {
 	_u.mutation.SetOverrides(v)
@@ -332,6 +352,12 @@ func (_u *MemberSegmentUpdate) sqlSave(ctx context.Context) (_node int, err erro
 	}
 	if _u.mutation.SquadUuidsCleared() {
 		_spec.ClearField(membersegment.FieldSquadUuids, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.ExternalSquadUUID(); ok {
+		_spec.SetField(membersegment.FieldExternalSquadUUID, field.TypeString, value)
+	}
+	if _u.mutation.ExternalSquadUUIDCleared() {
+		_spec.ClearField(membersegment.FieldExternalSquadUUID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Overrides(); ok {
 		_spec.SetField(membersegment.FieldOverrides, field.TypeJSON, value)
@@ -585,6 +611,26 @@ func (_u *MemberSegmentUpdateOne) ClearSquadUuids() *MemberSegmentUpdateOne {
 	return _u
 }
 
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (_u *MemberSegmentUpdateOne) SetExternalSquadUUID(v string) *MemberSegmentUpdateOne {
+	_u.mutation.SetExternalSquadUUID(v)
+	return _u
+}
+
+// SetNillableExternalSquadUUID sets the "external_squad_uuid" field if the given value is not nil.
+func (_u *MemberSegmentUpdateOne) SetNillableExternalSquadUUID(v *string) *MemberSegmentUpdateOne {
+	if v != nil {
+		_u.SetExternalSquadUUID(*v)
+	}
+	return _u
+}
+
+// ClearExternalSquadUUID clears the value of the "external_squad_uuid" field.
+func (_u *MemberSegmentUpdateOne) ClearExternalSquadUUID() *MemberSegmentUpdateOne {
+	_u.mutation.ClearExternalSquadUUID()
+	return _u
+}
+
 // SetOverrides sets the "overrides" field.
 func (_u *MemberSegmentUpdateOne) SetOverrides(v []string) *MemberSegmentUpdateOne {
 	_u.mutation.SetOverrides(v)
@@ -753,6 +799,12 @@ func (_u *MemberSegmentUpdateOne) sqlSave(ctx context.Context) (_node *MemberSeg
 	}
 	if _u.mutation.SquadUuidsCleared() {
 		_spec.ClearField(membersegment.FieldSquadUuids, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.ExternalSquadUUID(); ok {
+		_spec.SetField(membersegment.FieldExternalSquadUUID, field.TypeString, value)
+	}
+	if _u.mutation.ExternalSquadUUIDCleared() {
+		_spec.ClearField(membersegment.FieldExternalSquadUUID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Overrides(); ok {
 		_spec.SetField(membersegment.FieldOverrides, field.TypeJSON, value)

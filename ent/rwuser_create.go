@@ -232,6 +232,20 @@ func (_c *RwUserCreate) SetSquadUuids(v []string) *RwUserCreate {
 	return _c
 }
 
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (_c *RwUserCreate) SetExternalSquadUUID(v string) *RwUserCreate {
+	_c.mutation.SetExternalSquadUUID(v)
+	return _c
+}
+
+// SetNillableExternalSquadUUID sets the "external_squad_uuid" field if the given value is not nil.
+func (_c *RwUserCreate) SetNillableExternalSquadUUID(v *string) *RwUserCreate {
+	if v != nil {
+		_c.SetExternalSquadUUID(*v)
+	}
+	return _c
+}
+
 // SetDeleted sets the "deleted" field.
 func (_c *RwUserCreate) SetDeleted(v bool) *RwUserCreate {
 	_c.mutation.SetDeleted(v)
@@ -470,6 +484,10 @@ func (_c *RwUserCreate) createSpec() (*RwUser, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.SquadUuids(); ok {
 		_spec.SetField(rwuser.FieldSquadUuids, field.TypeJSON, value)
 		_node.SquadUuids = value
+	}
+	if value, ok := _c.mutation.ExternalSquadUUID(); ok {
+		_spec.SetField(rwuser.FieldExternalSquadUUID, field.TypeString, value)
+		_node.ExternalSquadUUID = value
 	}
 	if value, ok := _c.mutation.Deleted(); ok {
 		_spec.SetField(rwuser.FieldDeleted, field.TypeBool, value)
@@ -854,6 +872,24 @@ func (u *RwUserUpsert) UpdateSquadUuids() *RwUserUpsert {
 // ClearSquadUuids clears the value of the "squad_uuids" field.
 func (u *RwUserUpsert) ClearSquadUuids() *RwUserUpsert {
 	u.SetNull(rwuser.FieldSquadUuids)
+	return u
+}
+
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (u *RwUserUpsert) SetExternalSquadUUID(v string) *RwUserUpsert {
+	u.Set(rwuser.FieldExternalSquadUUID, v)
+	return u
+}
+
+// UpdateExternalSquadUUID sets the "external_squad_uuid" field to the value that was provided on create.
+func (u *RwUserUpsert) UpdateExternalSquadUUID() *RwUserUpsert {
+	u.SetExcluded(rwuser.FieldExternalSquadUUID)
+	return u
+}
+
+// ClearExternalSquadUUID clears the value of the "external_squad_uuid" field.
+func (u *RwUserUpsert) ClearExternalSquadUUID() *RwUserUpsert {
+	u.SetNull(rwuser.FieldExternalSquadUUID)
 	return u
 }
 
@@ -1269,6 +1305,27 @@ func (u *RwUserUpsertOne) UpdateSquadUuids() *RwUserUpsertOne {
 func (u *RwUserUpsertOne) ClearSquadUuids() *RwUserUpsertOne {
 	return u.Update(func(s *RwUserUpsert) {
 		s.ClearSquadUuids()
+	})
+}
+
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (u *RwUserUpsertOne) SetExternalSquadUUID(v string) *RwUserUpsertOne {
+	return u.Update(func(s *RwUserUpsert) {
+		s.SetExternalSquadUUID(v)
+	})
+}
+
+// UpdateExternalSquadUUID sets the "external_squad_uuid" field to the value that was provided on create.
+func (u *RwUserUpsertOne) UpdateExternalSquadUUID() *RwUserUpsertOne {
+	return u.Update(func(s *RwUserUpsert) {
+		s.UpdateExternalSquadUUID()
+	})
+}
+
+// ClearExternalSquadUUID clears the value of the "external_squad_uuid" field.
+func (u *RwUserUpsertOne) ClearExternalSquadUUID() *RwUserUpsertOne {
+	return u.Update(func(s *RwUserUpsert) {
+		s.ClearExternalSquadUUID()
 	})
 }
 
@@ -1854,6 +1911,27 @@ func (u *RwUserUpsertBulk) UpdateSquadUuids() *RwUserUpsertBulk {
 func (u *RwUserUpsertBulk) ClearSquadUuids() *RwUserUpsertBulk {
 	return u.Update(func(s *RwUserUpsert) {
 		s.ClearSquadUuids()
+	})
+}
+
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (u *RwUserUpsertBulk) SetExternalSquadUUID(v string) *RwUserUpsertBulk {
+	return u.Update(func(s *RwUserUpsert) {
+		s.SetExternalSquadUUID(v)
+	})
+}
+
+// UpdateExternalSquadUUID sets the "external_squad_uuid" field to the value that was provided on create.
+func (u *RwUserUpsertBulk) UpdateExternalSquadUUID() *RwUserUpsertBulk {
+	return u.Update(func(s *RwUserUpsert) {
+		s.UpdateExternalSquadUUID()
+	})
+}
+
+// ClearExternalSquadUUID clears the value of the "external_squad_uuid" field.
+func (u *RwUserUpsertBulk) ClearExternalSquadUUID() *RwUserUpsertBulk {
+	return u.Update(func(s *RwUserUpsert) {
+		s.ClearExternalSquadUUID()
 	})
 }
 

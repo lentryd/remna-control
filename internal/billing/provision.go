@@ -43,6 +43,7 @@ func createRequest(t *ent.Tariff, strategy, username string, expireAt time.Time,
 		TrafficLimitStrategy: PanelStrategy(strategy, &expireAt),
 		HwidDeviceLimit:      t.HwidLimit,
 		ActiveInternalSquads: t.SquadUuids,
+		ExternalSquadUUID:    t.ExternalSquadUUID,
 		Description:          description,
 	}, nil
 }

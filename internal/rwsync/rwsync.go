@@ -220,6 +220,7 @@ func Upsert(ctx context.Context, db *ent.Client, u *remnawave.User) error {
 		SetNillableTelegramID(u.TelegramID).
 		SetSubscriptionURL(u.SubscriptionURL).
 		SetSquadUuids(u.SquadUUIDs()).
+		SetExternalSquadUUID(deref(u.ExternalSquadUUID)).
 		SetDeleted(false).
 		SetSyncedAt(time.Now())
 	err := q.OnConflictColumns(rwuser.FieldID).

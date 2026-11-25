@@ -108,6 +108,8 @@ type PanelParams struct {
 	Strategy          string
 	HwidLimit         *int
 	Squads            []string
+	// ExternalSquad: nil leaves the panel alone, "" clears it, else a uuid.
+	ExternalSquad *string
 }
 
 // DesiredParams is what the panel user should have under tariff t.
@@ -117,6 +119,7 @@ func DesiredParams(t *ent.Tariff, strategy string, expireAt *time.Time) PanelPar
 		Strategy:          PanelStrategy(strategy, expireAt),
 		HwidLimit:         t.HwidLimit,
 		Squads:            t.SquadUuids,
+		ExternalSquad:     t.ExternalSquadUUID,
 	}
 }
 
@@ -132,6 +135,19 @@ func (p PanelParams) Apply(upd *remnawave.UpdateUserRequest) {
 	if len(p.Squads) > 0 {
 		upd.ActiveInternalSquads = p.Squads
 	}
+	SetExternalSquad(upd, p.ExternalSquad)
+}
+
+// SetExternalSquad puts an external squad into a panel update: nil leaves
+// it alone, "" clears it, anything else sets that squad.
+func SetExternalSquad(upd *remnawave.UpdateUserRequest, v *string) {
+	switch {
+	case v == nil:
+	case *v == "":
+		upd.ClearExternalSquad = true
+	default:
+		upd.ExternalSquadUUID = v
+	}
 }
 
 // Differs reports whether the cached panel user deviates from the params.
@@ -141,6 +157,9 @@ func (p PanelParams) Differs(u *ent.RwUser) bool {
 		return true
 	}
 	if p.HwidLimit != nil && (u.HwidDeviceLimit == nil || *u.HwidDeviceLimit != *p.HwidLimit) {
+		return true
+	}
+	if p.ExternalSquad != nil && u.ExternalSquadUUID != *p.ExternalSquad {
 		return true
 	}
 	return len(p.Squads) > 0 && squadsDiffer(u.SquadUuids, p.Squads)

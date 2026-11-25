@@ -33,6 +33,9 @@ func (Tariff) Fields() []ent.Field {
 		field.String("traffic_strategy").Default("NO_RESET"),
 		field.Int("hwid_limit").Optional().Nillable(),
 		field.Strings("squad_uuids").Optional(),
+		// ExternalSquadUUID is the Remnawave external squad (subscription page
+		// and related settings); nil leaves the panel value alone.
+		field.String("external_squad_uuid").Optional().Nillable(),
 	}
 }
 

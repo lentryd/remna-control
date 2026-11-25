@@ -112,6 +112,7 @@ var ScopeCatalog = []ScopeResource{
 	{Resource: "remnawave", Endpoints: []ScopeEndpoint{
 		{Key: "remnawave:users", Method: "GET", Path: "/api/v1/rw/users", Description: "Remnawave users", Kind: "read"},
 		{Key: "remnawave:squads", Method: "GET", Path: "/api/v1/rw/squads", Description: "Squads", Kind: "read"},
+		{Key: "remnawave:external_squads", Method: "GET", Path: "/api/v1/rw/external-squads", Description: "External squads", Kind: "read"},
 		{Key: "remnawave:nodes", Method: "GET", Path: "/api/v1/rw/nodes", Description: "Nodes", Kind: "read"},
 		{Key: "remnawave:infra", Method: "GET", Path: "/api/v1/rw/infra", Description: "Infrastructure", Kind: "read"},
 		{Key: "remnawave:sync_status", Method: "GET", Path: "/api/v1/rw/sync", Description: "Sync status", Kind: "read"},

@@ -3,6 +3,7 @@ package company
 import (
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
@@ -46,7 +47,8 @@ func (p *fakePanel) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		p.next++
 		p.creates++
 		u := &remnawave.User{ID: p.next, Username: req.Username, Status: req.Status, ExpireAt: req.ExpireAt,
-			TrafficLimitStrategy: req.TrafficLimitStrategy, HwidDeviceLimit: req.HwidDeviceLimit}
+			TrafficLimitStrategy: req.TrafficLimitStrategy, HwidDeviceLimit: req.HwidDeviceLimit,
+			ExternalSquadUUID: req.ExternalSquadUUID}
 		if req.TrafficLimitBytes != nil {
 			u.TrafficLimitBytes = *req.TrafficLimitBytes
 		}
@@ -65,8 +67,18 @@ func (p *fakePanel) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		var req remnawave.UpdateUserRequest
-		_ = json.NewDecoder(r.Body).Decode(&req)
+		raw, _ := io.ReadAll(r.Body)
+		_ = json.Unmarshal(raw, &req)
+		var keys map[string]json.RawMessage
+		_ = json.Unmarshal(raw, &keys)
 		u := p.users[req.ID]
+		if v, ok := keys["externalSquadUuid"]; ok {
+			if string(v) == "null" {
+				u.ExternalSquadUUID = nil
+			} else {
+				u.ExternalSquadUUID = req.ExternalSquadUUID
+			}
+		}
 		if req.ExpireAt != nil {
 			u.ExpireAt = *req.ExpireAt
 		}

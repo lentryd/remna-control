@@ -190,6 +190,20 @@ func (_c *TariffCreate) SetSquadUuids(v []string) *TariffCreate {
 	return _c
 }
 
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (_c *TariffCreate) SetExternalSquadUUID(v string) *TariffCreate {
+	_c.mutation.SetExternalSquadUUID(v)
+	return _c
+}
+
+// SetNillableExternalSquadUUID sets the "external_squad_uuid" field if the given value is not nil.
+func (_c *TariffCreate) SetNillableExternalSquadUUID(v *string) *TariffCreate {
+	if v != nil {
+		_c.SetExternalSquadUUID(*v)
+	}
+	return _c
+}
+
 // SetAddon sets the "addon" edge to the Addon entity.
 func (_c *TariffCreate) SetAddon(v *Addon) *TariffCreate {
 	return _c.SetAddonID(v.ID)
@@ -460,6 +474,10 @@ func (_c *TariffCreate) createSpec() (*Tariff, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.SquadUuids(); ok {
 		_spec.SetField(tariff.FieldSquadUuids, field.TypeJSON, value)
 		_node.SquadUuids = value
+	}
+	if value, ok := _c.mutation.ExternalSquadUUID(); ok {
+		_spec.SetField(tariff.FieldExternalSquadUUID, field.TypeString, value)
+		_node.ExternalSquadUUID = &value
 	}
 	if nodes := _c.mutation.AddonIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -814,6 +832,24 @@ func (u *TariffUpsert) ClearSquadUuids() *TariffUpsert {
 	return u
 }
 
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (u *TariffUpsert) SetExternalSquadUUID(v string) *TariffUpsert {
+	u.Set(tariff.FieldExternalSquadUUID, v)
+	return u
+}
+
+// UpdateExternalSquadUUID sets the "external_squad_uuid" field to the value that was provided on create.
+func (u *TariffUpsert) UpdateExternalSquadUUID() *TariffUpsert {
+	u.SetExcluded(tariff.FieldExternalSquadUUID)
+	return u
+}
+
+// ClearExternalSquadUUID clears the value of the "external_squad_uuid" field.
+func (u *TariffUpsert) ClearExternalSquadUUID() *TariffUpsert {
+	u.SetNull(tariff.FieldExternalSquadUUID)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create.
 // Using this option is equivalent to using:
 //
@@ -1094,6 +1130,27 @@ func (u *TariffUpsertOne) UpdateSquadUuids() *TariffUpsertOne {
 func (u *TariffUpsertOne) ClearSquadUuids() *TariffUpsertOne {
 	return u.Update(func(s *TariffUpsert) {
 		s.ClearSquadUuids()
+	})
+}
+
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (u *TariffUpsertOne) SetExternalSquadUUID(v string) *TariffUpsertOne {
+	return u.Update(func(s *TariffUpsert) {
+		s.SetExternalSquadUUID(v)
+	})
+}
+
+// UpdateExternalSquadUUID sets the "external_squad_uuid" field to the value that was provided on create.
+func (u *TariffUpsertOne) UpdateExternalSquadUUID() *TariffUpsertOne {
+	return u.Update(func(s *TariffUpsert) {
+		s.UpdateExternalSquadUUID()
+	})
+}
+
+// ClearExternalSquadUUID clears the value of the "external_squad_uuid" field.
+func (u *TariffUpsertOne) ClearExternalSquadUUID() *TariffUpsertOne {
+	return u.Update(func(s *TariffUpsert) {
+		s.ClearExternalSquadUUID()
 	})
 }
 
@@ -1543,6 +1600,27 @@ func (u *TariffUpsertBulk) UpdateSquadUuids() *TariffUpsertBulk {
 func (u *TariffUpsertBulk) ClearSquadUuids() *TariffUpsertBulk {
 	return u.Update(func(s *TariffUpsert) {
 		s.ClearSquadUuids()
+	})
+}
+
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (u *TariffUpsertBulk) SetExternalSquadUUID(v string) *TariffUpsertBulk {
+	return u.Update(func(s *TariffUpsert) {
+		s.SetExternalSquadUUID(v)
+	})
+}
+
+// UpdateExternalSquadUUID sets the "external_squad_uuid" field to the value that was provided on create.
+func (u *TariffUpsertBulk) UpdateExternalSquadUUID() *TariffUpsertBulk {
+	return u.Update(func(s *TariffUpsert) {
+		s.UpdateExternalSquadUUID()
+	})
+}
+
+// ClearExternalSquadUUID clears the value of the "external_squad_uuid" field.
+func (u *TariffUpsertBulk) ClearExternalSquadUUID() *TariffUpsertBulk {
+	return u.Update(func(s *TariffUpsert) {
+		s.ClearExternalSquadUUID()
 	})
 }
 

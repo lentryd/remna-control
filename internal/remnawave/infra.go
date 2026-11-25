@@ -11,6 +11,7 @@ import (
 const (
 	pathAuthLogin       = "/api/auth/login"
 	pathInternalSquads  = "/api/internal-squads"
+	pathExternalSquads  = "/api/external-squads"
 	pathNodes           = "/api/nodes"
 	pathStatsNodes      = "/api/bandwidth-stats/nodes"
 	pathStatsNodesUsage = "/api/bandwidth-stats/nodes/usage"
@@ -54,6 +55,24 @@ func (c *Client) InternalSquads(ctx context.Context) ([]InternalSquad, error) {
 		return nil, fmt.Errorf("list internal squads: %w", err)
 	}
 	return out.InternalSquads, nil
+}
+
+type ExternalSquad struct {
+	UUID string `json:"uuid"`
+	Name string `json:"name"`
+	Info struct {
+		MembersCount int `json:"membersCount"`
+	} `json:"info"`
+}
+
+func (c *Client) ExternalSquads(ctx context.Context) ([]ExternalSquad, error) {
+	out, err := call[struct {
+		ExternalSquads []ExternalSquad `json:"externalSquads"`
+	}](ctx, c, http.MethodGet, pathExternalSquads, nil, nil)
+	if err != nil {
+		return nil, fmt.Errorf("list external squads: %w", err)
+	}
+	return out.ExternalSquads, nil
 }
 
 type Node struct {

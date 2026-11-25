@@ -56,7 +56,7 @@ func TestStaleSegmentCannotBeMovedAfterRemoval(t *testing.T) {
 		t.Fatal(err)
 	}
 	// SetOverrides read the segment before the removal landed.
-	err := f.svc.moveSegment(f.ctx, stale, f.tariff, ValuesOf(f.tariff2))
+	err := f.svc.moveSegment(f.ctx, stale, f.tariff, ValuesOf(f.tariff2, nil))
 	if !errors.Is(err, errStale) {
 		t.Fatalf("moveSegment on a closed member = %v, want errStale", err)
 	}

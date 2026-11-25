@@ -115,6 +115,11 @@ func HwidLimit(v int) predicate.Tariff {
 	return predicate.Tariff(sql.FieldEQ(FieldHwidLimit, v))
 }
 
+// ExternalSquadUUID applies equality check predicate on the "external_squad_uuid" field. It's identical to ExternalSquadUUIDEQ.
+func ExternalSquadUUID(v string) predicate.Tariff {
+	return predicate.Tariff(sql.FieldEQ(FieldExternalSquadUUID, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Tariff {
 	return predicate.Tariff(sql.FieldEQ(FieldCreatedAt, v))
@@ -648,6 +653,81 @@ func SquadUuidsIsNil() predicate.Tariff {
 // SquadUuidsNotNil applies the NotNil predicate on the "squad_uuids" field.
 func SquadUuidsNotNil() predicate.Tariff {
 	return predicate.Tariff(sql.FieldNotNull(FieldSquadUuids))
+}
+
+// ExternalSquadUUIDEQ applies the EQ predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDEQ(v string) predicate.Tariff {
+	return predicate.Tariff(sql.FieldEQ(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDNEQ applies the NEQ predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDNEQ(v string) predicate.Tariff {
+	return predicate.Tariff(sql.FieldNEQ(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDIn applies the In predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDIn(vs ...string) predicate.Tariff {
+	return predicate.Tariff(sql.FieldIn(FieldExternalSquadUUID, vs...))
+}
+
+// ExternalSquadUUIDNotIn applies the NotIn predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDNotIn(vs ...string) predicate.Tariff {
+	return predicate.Tariff(sql.FieldNotIn(FieldExternalSquadUUID, vs...))
+}
+
+// ExternalSquadUUIDGT applies the GT predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDGT(v string) predicate.Tariff {
+	return predicate.Tariff(sql.FieldGT(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDGTE applies the GTE predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDGTE(v string) predicate.Tariff {
+	return predicate.Tariff(sql.FieldGTE(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDLT applies the LT predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDLT(v string) predicate.Tariff {
+	return predicate.Tariff(sql.FieldLT(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDLTE applies the LTE predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDLTE(v string) predicate.Tariff {
+	return predicate.Tariff(sql.FieldLTE(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDContains applies the Contains predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDContains(v string) predicate.Tariff {
+	return predicate.Tariff(sql.FieldContains(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDHasPrefix applies the HasPrefix predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDHasPrefix(v string) predicate.Tariff {
+	return predicate.Tariff(sql.FieldHasPrefix(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDHasSuffix applies the HasSuffix predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDHasSuffix(v string) predicate.Tariff {
+	return predicate.Tariff(sql.FieldHasSuffix(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDIsNil applies the IsNil predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDIsNil() predicate.Tariff {
+	return predicate.Tariff(sql.FieldIsNull(FieldExternalSquadUUID))
+}
+
+// ExternalSquadUUIDNotNil applies the NotNil predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDNotNil() predicate.Tariff {
+	return predicate.Tariff(sql.FieldNotNull(FieldExternalSquadUUID))
+}
+
+// ExternalSquadUUIDEqualFold applies the EqualFold predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDEqualFold(v string) predicate.Tariff {
+	return predicate.Tariff(sql.FieldEqualFold(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDContainsFold applies the ContainsFold predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDContainsFold(v string) predicate.Tariff {
+	return predicate.Tariff(sql.FieldContainsFold(FieldExternalSquadUUID, v))
 }
 
 // HasAddon applies the HasEdge predicate on the "addon" edge.

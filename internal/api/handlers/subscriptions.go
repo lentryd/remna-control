@@ -466,6 +466,14 @@ func (h *Handlers) ListSquads(c *fiber.Ctx) error {
 	return c.JSON(squads)
 }
 
+func (h *Handlers) ListExternalSquads(c *fiber.Ctx) error {
+	squads, err := h.RW.ExternalSquads(c.UserContext())
+	if err != nil {
+		return badRequest(err)
+	}
+	return c.JSON(squads)
+}
+
 func (h *Handlers) ListNodes(c *fiber.Ctx) error {
 	nodes, err := h.RW.Nodes(c.UserContext())
 	if err != nil {

@@ -34,6 +34,8 @@ func (Company) Fields() []ent.Field {
 		// is billed as its share of it.
 		field.Int("period_days").Positive(),
 		field.Bool("archived").Default(false),
+		// ExternalSquadUUID overrides the tariff's external squad; nil follows the tariff.
+		field.String("external_squad_uuid").Optional().Nillable(),
 		field.Time("archived_at").Optional().Nillable(),
 	}
 }
@@ -98,8 +100,10 @@ func (MemberSegment) Fields() []ent.Field {
 		field.String("traffic_strategy"),
 		field.Int("hwid_limit").Optional().Nillable(),
 		field.Strings("squad_uuids").Optional(),
+		// ExternalSquadUUID: nil follows company/tariff, "" is explicitly none.
+		field.String("external_squad_uuid").Optional().Nillable(),
 		// Overrides lists the fields set explicitly for the member: price,
-		// traffic_limit, traffic_strategy, hwid_limit, squads. The rest
+		// traffic_limit, traffic_strategy, hwid_limit, squads, external_squad. The rest
 		// follow the tariff.
 		field.Strings("overrides").Optional(),
 	}

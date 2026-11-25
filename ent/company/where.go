@@ -110,6 +110,11 @@ func Archived(v bool) predicate.Company {
 	return predicate.Company(sql.FieldEQ(FieldArchived, v))
 }
 
+// ExternalSquadUUID applies equality check predicate on the "external_squad_uuid" field. It's identical to ExternalSquadUUIDEQ.
+func ExternalSquadUUID(v string) predicate.Company {
+	return predicate.Company(sql.FieldEQ(FieldExternalSquadUUID, v))
+}
+
 // ArchivedAt applies equality check predicate on the "archived_at" field. It's identical to ArchivedAtEQ.
 func ArchivedAt(v time.Time) predicate.Company {
 	return predicate.Company(sql.FieldEQ(FieldArchivedAt, v))
@@ -543,6 +548,81 @@ func ArchivedEQ(v bool) predicate.Company {
 // ArchivedNEQ applies the NEQ predicate on the "archived" field.
 func ArchivedNEQ(v bool) predicate.Company {
 	return predicate.Company(sql.FieldNEQ(FieldArchived, v))
+}
+
+// ExternalSquadUUIDEQ applies the EQ predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDEQ(v string) predicate.Company {
+	return predicate.Company(sql.FieldEQ(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDNEQ applies the NEQ predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDNEQ(v string) predicate.Company {
+	return predicate.Company(sql.FieldNEQ(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDIn applies the In predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDIn(vs ...string) predicate.Company {
+	return predicate.Company(sql.FieldIn(FieldExternalSquadUUID, vs...))
+}
+
+// ExternalSquadUUIDNotIn applies the NotIn predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDNotIn(vs ...string) predicate.Company {
+	return predicate.Company(sql.FieldNotIn(FieldExternalSquadUUID, vs...))
+}
+
+// ExternalSquadUUIDGT applies the GT predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDGT(v string) predicate.Company {
+	return predicate.Company(sql.FieldGT(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDGTE applies the GTE predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDGTE(v string) predicate.Company {
+	return predicate.Company(sql.FieldGTE(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDLT applies the LT predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDLT(v string) predicate.Company {
+	return predicate.Company(sql.FieldLT(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDLTE applies the LTE predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDLTE(v string) predicate.Company {
+	return predicate.Company(sql.FieldLTE(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDContains applies the Contains predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDContains(v string) predicate.Company {
+	return predicate.Company(sql.FieldContains(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDHasPrefix applies the HasPrefix predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDHasPrefix(v string) predicate.Company {
+	return predicate.Company(sql.FieldHasPrefix(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDHasSuffix applies the HasSuffix predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDHasSuffix(v string) predicate.Company {
+	return predicate.Company(sql.FieldHasSuffix(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDIsNil applies the IsNil predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDIsNil() predicate.Company {
+	return predicate.Company(sql.FieldIsNull(FieldExternalSquadUUID))
+}
+
+// ExternalSquadUUIDNotNil applies the NotNil predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDNotNil() predicate.Company {
+	return predicate.Company(sql.FieldNotNull(FieldExternalSquadUUID))
+}
+
+// ExternalSquadUUIDEqualFold applies the EqualFold predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDEqualFold(v string) predicate.Company {
+	return predicate.Company(sql.FieldEqualFold(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDContainsFold applies the ContainsFold predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDContainsFold(v string) predicate.Company {
+	return predicate.Company(sql.FieldContainsFold(FieldExternalSquadUUID, v))
 }
 
 // ArchivedAtEQ applies the EQ predicate on the "archived_at" field.

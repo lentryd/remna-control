@@ -257,6 +257,26 @@ func (_u *TariffUpdate) ClearSquadUuids() *TariffUpdate {
 	return _u
 }
 
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (_u *TariffUpdate) SetExternalSquadUUID(v string) *TariffUpdate {
+	_u.mutation.SetExternalSquadUUID(v)
+	return _u
+}
+
+// SetNillableExternalSquadUUID sets the "external_squad_uuid" field if the given value is not nil.
+func (_u *TariffUpdate) SetNillableExternalSquadUUID(v *string) *TariffUpdate {
+	if v != nil {
+		_u.SetExternalSquadUUID(*v)
+	}
+	return _u
+}
+
+// ClearExternalSquadUUID clears the value of the "external_squad_uuid" field.
+func (_u *TariffUpdate) ClearExternalSquadUUID() *TariffUpdate {
+	_u.mutation.ClearExternalSquadUUID()
+	return _u
+}
+
 // SetAddon sets the "addon" edge to the Addon entity.
 func (_u *TariffUpdate) SetAddon(v *Addon) *TariffUpdate {
 	return _u.SetAddonID(v.ID)
@@ -582,6 +602,12 @@ func (_u *TariffUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.SquadUuidsCleared() {
 		_spec.ClearField(tariff.FieldSquadUuids, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.ExternalSquadUUID(); ok {
+		_spec.SetField(tariff.FieldExternalSquadUUID, field.TypeString, value)
+	}
+	if _u.mutation.ExternalSquadUUIDCleared() {
+		_spec.ClearField(tariff.FieldExternalSquadUUID, field.TypeString)
 	}
 	if _u.mutation.AddonCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1081,6 +1107,26 @@ func (_u *TariffUpdateOne) ClearSquadUuids() *TariffUpdateOne {
 	return _u
 }
 
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (_u *TariffUpdateOne) SetExternalSquadUUID(v string) *TariffUpdateOne {
+	_u.mutation.SetExternalSquadUUID(v)
+	return _u
+}
+
+// SetNillableExternalSquadUUID sets the "external_squad_uuid" field if the given value is not nil.
+func (_u *TariffUpdateOne) SetNillableExternalSquadUUID(v *string) *TariffUpdateOne {
+	if v != nil {
+		_u.SetExternalSquadUUID(*v)
+	}
+	return _u
+}
+
+// ClearExternalSquadUUID clears the value of the "external_squad_uuid" field.
+func (_u *TariffUpdateOne) ClearExternalSquadUUID() *TariffUpdateOne {
+	_u.mutation.ClearExternalSquadUUID()
+	return _u
+}
+
 // SetAddon sets the "addon" edge to the Addon entity.
 func (_u *TariffUpdateOne) SetAddon(v *Addon) *TariffUpdateOne {
 	return _u.SetAddonID(v.ID)
@@ -1436,6 +1482,12 @@ func (_u *TariffUpdateOne) sqlSave(ctx context.Context) (_node *Tariff, err erro
 	}
 	if _u.mutation.SquadUuidsCleared() {
 		_spec.ClearField(tariff.FieldSquadUuids, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.ExternalSquadUUID(); ok {
+		_spec.SetField(tariff.FieldExternalSquadUUID, field.TypeString, value)
+	}
+	if _u.mutation.ExternalSquadUUIDCleared() {
+		_spec.ClearField(tariff.FieldExternalSquadUUID, field.TypeString)
 	}
 	if _u.mutation.AddonCleared() {
 		edge := &sqlgraph.EdgeSpec{

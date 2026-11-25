@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log/slog"
 	"slices"
+	"strings"
 	"time"
 
 	"remna-control/ent"
@@ -105,13 +106,15 @@ func (s *Service) validateOverrides(o Overrides) error {
 // panel user and refreshes the cache row.
 func (s *Service) pushParams(ctx context.Context, rwUserID int, v Values) error {
 	limit := v.TrafficLimitBytes
-	u, err := s.rw.UpdateUser(ctx, remnawave.UpdateUserRequest{
+	upd := remnawave.UpdateUserRequest{
 		ID:                   rwUserID,
 		TrafficLimitBytes:    &limit,
 		TrafficLimitStrategy: panelStrategy(v),
 		HwidDeviceLimit:      v.HwidLimit,
 		ActiveInternalSquads: v.Squads,
-	})
+	}
+	billing.SetExternalSquad(&upd, v.ExternalSquad)
+	u, err := s.rw.UpdateUser(ctx, upd)
 	if err != nil {
 		return err
 	}
@@ -145,11 +148,13 @@ func (s *Service) panelUserFor(ctx context.Context, c *ent.Company, username, la
 		}
 		// Make the adopted user usable: active and without a term.
 		limit, expiry := v.TrafficLimitBytes, unlimitedExpiry
-		adopted, err := s.rw.UpdateUser(ctx, remnawave.UpdateUserRequest{
+		upd := remnawave.UpdateUserRequest{
 			ID: u.ID, Status: remnawave.StatusActive, ExpireAt: &expiry,
 			TrafficLimitBytes: &limit, TrafficLimitStrategy: panelStrategy(v),
 			HwidDeviceLimit: v.HwidLimit, ActiveInternalSquads: v.Squads,
-		})
+		}
+		billing.SetExternalSquad(&upd, v.ExternalSquad)
+		adopted, err := s.rw.UpdateUser(ctx, upd)
 		if err != nil {
 			return nil, err
 		}
@@ -172,6 +177,7 @@ func (s *Service) panelUserFor(ctx context.Context, c *ent.Company, username, la
 		TrafficLimitStrategy: panelStrategy(v),
 		HwidDeviceLimit:      v.HwidLimit,
 		ActiveInternalSquads: v.Squads,
+		ExternalSquadUUID:    createSquad(v.ExternalSquad),
 		Description:          descriptionOf(c.Name, label),
 	})
 	audit.Log(ctx, s.db, "rw.create_user", "company", c.ID, map[string]any{"username": username}, err)
@@ -188,7 +194,7 @@ func createSegment(ctx context.Context, tx *ent.Tx, memberID int, from time.Time
 	return tx.MemberSegment.Create().
 		SetMemberID(memberID).SetFromDate(from).SetTariffID(tariffID).
 		SetPrice(v.Price).SetTrafficLimitBytes(v.TrafficLimitBytes).SetTrafficStrategy(v.TrafficStrategy).
-		SetNillableHwidLimit(v.HwidLimit).SetSquadUuids(v.Squads).SetOverrides(overrides).
+		SetNillableHwidLimit(v.HwidLimit).SetSquadUuids(v.Squads).SetNillableExternalSquadUUID(v.ExternalSquad).SetOverrides(overrides).
 		Exec(ctx)
 }
 
@@ -230,12 +236,18 @@ func (s *Service) AddMember(ctx context.Context, companyID int, username, label 
 	if err != nil {
 		return nil, false, err
 	}
-	v := ValuesOf(t)
+	v := ValuesOf(t, c)
 
 	var u *remnawave.User
 	if reinstate && m.RwUserID != nil {
 		if u, err = s.rw.EnableUser(ctx, *m.RwUserID); err == nil {
-			err = s.pushParams(ctx, u.ID, v)
+			// Compare with what the member had last, so a squad that no
+			// longer resolves is cleared rather than left behind.
+			pv := v
+			if last, lerr := s.db.MemberSegment.Query().Where(membersegment.MemberID(m.ID)).Order(ent.Desc(membersegment.FieldID)).First(ctx); lerr == nil {
+				pv = pushValues(segmentValues(last), v)
+			}
+			err = s.pushParams(ctx, u.ID, pv)
 		}
 	} else {
 		u, err = s.panelUserFor(ctx, c, username, label, v)
@@ -326,6 +338,10 @@ func (s *Service) SetOverrides(ctx context.Context, companyID, memberID int, tar
 	if err := s.validateOverrides(o); err != nil {
 		return err
 	}
+	if o.ExternalSquad != nil {
+		trimmed := strings.TrimSpace(*o.ExternalSquad)
+		o.ExternalSquad = &trimmed // blank stays "": explicitly none
+	}
 	c, err := s.loadCompany(ctx, companyID, false)
 	if err != nil {
 		return err
@@ -351,7 +367,7 @@ func (s *Service) SetOverrides(ctx context.Context, companyID, memberID int, tar
 		return err
 	}
 	cur := segmentValues(seg)
-	v, overrides := apply(t, cur, seg.Overrides, o)
+	v, overrides := apply(t, c, cur, seg.Overrides, o)
 
 	oldOverrides := slices.Sorted(slices.Values(seg.Overrides))
 	if t.ID == seg.TariffID && sameValues(v, cur) && slices.Equal(overrides, oldOverrides) {
@@ -364,7 +380,7 @@ func (s *Service) SetOverrides(ctx context.Context, companyID, memberID int, tar
 	pv, pc := v, cur
 	pv.Price, pc.Price = 0, 0
 	if m.RwUserID != nil && !sameValues(pv, pc) {
-		if err := s.pushParams(ctx, *m.RwUserID, v); err != nil {
+		if err := s.pushParams(ctx, *m.RwUserID, pushValues(cur, v)); err != nil {
 			audit.Log(ctx, s.db, "company.member_update", "company", companyID, map[string]any{"username": m.Username}, err)
 			return err
 		}
@@ -427,4 +443,13 @@ func stillOpen(ctx context.Context, tx *ent.Tx, segmentID int) error {
 		return errStale
 	}
 	return nil
+}
+
+// createSquad is the external squad for a create request: an explicit
+// "none" is simply no squad.
+func createSquad(p *string) *string {
+	if p == nil || *p == "" {
+		return nil
+	}
+	return p
 }

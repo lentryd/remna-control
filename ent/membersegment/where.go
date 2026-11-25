@@ -95,6 +95,11 @@ func HwidLimit(v int) predicate.MemberSegment {
 	return predicate.MemberSegment(sql.FieldEQ(FieldHwidLimit, v))
 }
 
+// ExternalSquadUUID applies equality check predicate on the "external_squad_uuid" field. It's identical to ExternalSquadUUIDEQ.
+func ExternalSquadUUID(v string) predicate.MemberSegment {
+	return predicate.MemberSegment(sql.FieldEQ(FieldExternalSquadUUID, v))
+}
+
 // MemberIDEQ applies the EQ predicate on the "member_id" field.
 func MemberIDEQ(v int) predicate.MemberSegment {
 	return predicate.MemberSegment(sql.FieldEQ(FieldMemberID, v))
@@ -428,6 +433,81 @@ func SquadUuidsIsNil() predicate.MemberSegment {
 // SquadUuidsNotNil applies the NotNil predicate on the "squad_uuids" field.
 func SquadUuidsNotNil() predicate.MemberSegment {
 	return predicate.MemberSegment(sql.FieldNotNull(FieldSquadUuids))
+}
+
+// ExternalSquadUUIDEQ applies the EQ predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDEQ(v string) predicate.MemberSegment {
+	return predicate.MemberSegment(sql.FieldEQ(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDNEQ applies the NEQ predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDNEQ(v string) predicate.MemberSegment {
+	return predicate.MemberSegment(sql.FieldNEQ(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDIn applies the In predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDIn(vs ...string) predicate.MemberSegment {
+	return predicate.MemberSegment(sql.FieldIn(FieldExternalSquadUUID, vs...))
+}
+
+// ExternalSquadUUIDNotIn applies the NotIn predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDNotIn(vs ...string) predicate.MemberSegment {
+	return predicate.MemberSegment(sql.FieldNotIn(FieldExternalSquadUUID, vs...))
+}
+
+// ExternalSquadUUIDGT applies the GT predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDGT(v string) predicate.MemberSegment {
+	return predicate.MemberSegment(sql.FieldGT(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDGTE applies the GTE predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDGTE(v string) predicate.MemberSegment {
+	return predicate.MemberSegment(sql.FieldGTE(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDLT applies the LT predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDLT(v string) predicate.MemberSegment {
+	return predicate.MemberSegment(sql.FieldLT(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDLTE applies the LTE predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDLTE(v string) predicate.MemberSegment {
+	return predicate.MemberSegment(sql.FieldLTE(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDContains applies the Contains predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDContains(v string) predicate.MemberSegment {
+	return predicate.MemberSegment(sql.FieldContains(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDHasPrefix applies the HasPrefix predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDHasPrefix(v string) predicate.MemberSegment {
+	return predicate.MemberSegment(sql.FieldHasPrefix(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDHasSuffix applies the HasSuffix predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDHasSuffix(v string) predicate.MemberSegment {
+	return predicate.MemberSegment(sql.FieldHasSuffix(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDIsNil applies the IsNil predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDIsNil() predicate.MemberSegment {
+	return predicate.MemberSegment(sql.FieldIsNull(FieldExternalSquadUUID))
+}
+
+// ExternalSquadUUIDNotNil applies the NotNil predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDNotNil() predicate.MemberSegment {
+	return predicate.MemberSegment(sql.FieldNotNull(FieldExternalSquadUUID))
+}
+
+// ExternalSquadUUIDEqualFold applies the EqualFold predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDEqualFold(v string) predicate.MemberSegment {
+	return predicate.MemberSegment(sql.FieldEqualFold(FieldExternalSquadUUID, v))
+}
+
+// ExternalSquadUUIDContainsFold applies the ContainsFold predicate on the "external_squad_uuid" field.
+func ExternalSquadUUIDContainsFold(v string) predicate.MemberSegment {
+	return predicate.MemberSegment(sql.FieldContainsFold(FieldExternalSquadUUID, v))
 }
 
 // OverridesIsNil applies the IsNil predicate on the "overrides" field.

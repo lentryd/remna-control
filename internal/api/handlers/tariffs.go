@@ -1,6 +1,10 @@
 package handlers
 
 import (
+	"context"
+	"log/slog"
+	"strings"
+
 	"github.com/gofiber/fiber/v2"
 
 	"remna-control/ent"
@@ -37,6 +41,7 @@ type TariffView struct {
 	TrafficStrategy   string       `json:"traffic_strategy"`
 	HwidLimit         *int         `json:"hwid_limit"`
 	SquadUUIDs        []string     `json:"squad_uuids"`
+	ExternalSquadUUID *string      `json:"external_squad_uuid"`
 	Periods           []PeriodView `json:"periods"`
 	// IncludedAddonTariffIDs (base tariffs) are add-on tariffs that come
 	// free with it.
@@ -108,7 +113,7 @@ func (h *Handlers) ListTariffs(c *fiber.Ctx) error {
 			ID: t.ID, Kind: t.Kind.String(), AddonID: t.AddonID, Name: t.Name, Description: t.Description,
 			MonthlyPrice: money.ToMajor(t.MonthlyPrice), Active: t.Active, SortOrder: t.SortOrder,
 			ManageRw: t.ManageRw, TrafficLimitBytes: t.TrafficLimitBytes, TrafficStrategy: t.TrafficStrategy,
-			HwidLimit: t.HwidLimit, SquadUUIDs: t.SquadUuids, Periods: []PeriodView{},
+			HwidLimit: t.HwidLimit, SquadUUIDs: t.SquadUuids, ExternalSquadUUID: t.ExternalSquadUUID, Periods: []PeriodView{},
 			IncludedAddonTariffIDs: []int{},
 		}
 		for _, inc := range t.Edges.IncludedAddons {
@@ -144,6 +149,7 @@ type tariffInput struct {
 	TrafficStrategy   string       `json:"traffic_strategy"`
 	HwidLimit         *int         `json:"hwid_limit"`
 	SquadUUIDs        []string     `json:"squad_uuids"`
+	ExternalSquadUUID *string      `json:"external_squad_uuid"`
 	Periods           []PeriodView `json:"periods"`
 	// IncludedAddonTariffIDs: add-on tariffs included in a base tariff.
 	IncludedAddonTariffIDs []int `json:"included_addon_tariff_ids"`
@@ -167,6 +173,7 @@ func (in *tariffInput) validate() error {
 	if in.TrafficStrategy == "" {
 		in.TrafficStrategy = "NO_RESET"
 	}
+	in.ExternalSquadUUID = blankToNil(in.ExternalSquadUUID)
 	return nil
 }
 
@@ -178,6 +185,9 @@ func (h *Handlers) CreateTariff(c *fiber.Ctx) error {
 	if err := in.validate(); err != nil {
 		return err
 	}
+	if err := h.checkExternalSquad(c.UserContext(), in.ExternalSquadUUID); err != nil {
+		return err
+	}
 	ctx := c.UserContext()
 	var id int
 	err := store.WithTx(ctx, h.DB, func(tx *ent.Tx) error {
@@ -186,6 +196,7 @@ func (h *Handlers) CreateTariff(c *fiber.Ctx) error {
 			SetMonthlyPrice(money.FromMajor(in.MonthlyPrice)).SetActive(in.Active).SetSortOrder(in.SortOrder).
 			SetManageRw(in.ManageRw).SetTrafficLimitBytes(in.TrafficLimitBytes).SetTrafficStrategy(in.TrafficStrategy).
 			SetNillableHwidLimit(in.HwidLimit).SetSquadUuids(in.SquadUUIDs).
+			SetNillableExternalSquadUUID(in.ExternalSquadUUID).
 			Save(ctx)
 		if err != nil {
 			return err
@@ -255,6 +266,9 @@ func (h *Handlers) UpdateTariff(c *fiber.Ctx) error {
 	if err := in.validate(); err != nil {
 		return err
 	}
+	if err := h.checkExternalSquad(c.UserContext(), in.ExternalSquadUUID); err != nil {
+		return err
+	}
 	ctx := c.UserContext()
 	old, err := h.DB.Tariff.Get(ctx, id)
 	if err != nil {
@@ -279,6 +293,11 @@ func (h *Handlers) UpdateTariff(c *fiber.Ctx) error {
 			SetActive(in.Active).SetSortOrder(in.SortOrder).SetManageRw(in.ManageRw).
 			SetTrafficLimitBytes(in.TrafficLimitBytes).SetTrafficStrategy(in.TrafficStrategy).
 			SetSquadUuids(in.SquadUUIDs)
+		if in.ExternalSquadUUID != nil {
+			q.SetExternalSquadUUID(*in.ExternalSquadUUID)
+		} else {
+			q.ClearExternalSquadUUID()
+		}
 		if in.HwidLimit != nil {
 			q.SetHwidLimit(*in.HwidLimit)
 		} else {
@@ -370,4 +389,38 @@ func (h *Handlers) DeleteTariff(c *fiber.Ctx) error {
 		return badRequest(err)
 	}
 	return c.SendStatus(fiber.StatusNoContent)
+}
+
+// blankToNil turns an empty or blank string pointer into nil.
+func blankToNil(p *string) *string {
+	if p == nil {
+		return nil
+	}
+	v := strings.TrimSpace(*p)
+	if v == "" {
+		return nil
+	}
+	return &v
+}
+
+// checkExternalSquad rejects a uuid the panel doesn't know: it would make
+// every later push for the tariff or company fail. A panel that can't be
+// asked (down, or the token lacks external-squads:read) doesn't block the
+// edit.
+func (h *Handlers) checkExternalSquad(ctx context.Context, uuid *string) error {
+	uuid = blankToNil(uuid)
+	if uuid == nil || h.RW == nil {
+		return nil
+	}
+	squads, err := h.RW.ExternalSquads(ctx)
+	if err != nil {
+		slog.Warn("external squad not checked: the panel list is unavailable", "error", err)
+		return nil
+	}
+	for _, s := range squads {
+		if s.UUID == *uuid {
+			return nil
+		}
+	}
+	return apperr.Status(400, "external_squad.unknown", "the panel has no external squad {{uuid}}", "uuid", *uuid)
 }

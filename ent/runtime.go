@@ -415,11 +415,11 @@ func init() {
 	// rwuser.DefaultTrafficLimitBytes holds the default value on creation for the traffic_limit_bytes field.
 	rwuser.DefaultTrafficLimitBytes = rwuserDescTrafficLimitBytes.Default.(int64)
 	// rwuserDescDeleted is the schema descriptor for deleted field.
-	rwuserDescDeleted := rwuserFields[17].Descriptor()
+	rwuserDescDeleted := rwuserFields[18].Descriptor()
 	// rwuser.DefaultDeleted holds the default value on creation for the deleted field.
 	rwuser.DefaultDeleted = rwuserDescDeleted.Default.(bool)
 	// rwuserDescSyncedAt is the schema descriptor for synced_at field.
-	rwuserDescSyncedAt := rwuserFields[18].Descriptor()
+	rwuserDescSyncedAt := rwuserFields[19].Descriptor()
 	// rwuser.DefaultSyncedAt holds the default value on creation for the synced_at field.
 	rwuser.DefaultSyncedAt = rwuserDescSyncedAt.Default.(func() time.Time)
 	subscriptionMixin := schema.Subscription{}.Mixin()

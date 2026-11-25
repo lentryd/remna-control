@@ -121,3 +121,25 @@ func TestSyncJob(t *testing.T) {
 		t.Errorf("idle pass = %+v, %v", res, err)
 	}
 }
+
+func TestUpsertStoresExternalSquad(t *testing.T) {
+	ctx := context.Background()
+	db, _, err := store.OpenDB(ctx, filepath.Join(t.TempDir(), "db.sqlite"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = db.Close() })
+	sq := "ext-1"
+	if err := Upsert(ctx, db, &remnawave.User{ID: 1, Username: "one", ExternalSquadUUID: &sq}); err != nil {
+		t.Fatal(err)
+	}
+	if got := db.RwUser.GetX(ctx, 1).ExternalSquadUUID; got != "ext-1" {
+		t.Errorf("external squad = %q, want ext-1", got)
+	}
+	if err := Upsert(ctx, db, &remnawave.User{ID: 1, Username: "one"}); err != nil {
+		t.Fatal(err)
+	}
+	if got := db.RwUser.GetX(ctx, 1).ExternalSquadUUID; got != "" {
+		t.Errorf("external squad = %q after clearing, want empty", got)
+	}
+}

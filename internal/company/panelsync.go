@@ -37,7 +37,8 @@ func (s *Service) SyncMembersPanel(ctx context.Context) (jobs.Result, error) {
 		if cached.TrafficLimitBytes == v.TrafficLimitBytes &&
 			cached.TrafficLimitStrategy == panelStrategy(v) &&
 			sameHwid(cached.HwidDeviceLimit, v.HwidLimit) &&
-			sameSet(cached.SquadUuids, v.Squads) {
+			sameSet(cached.SquadUuids, v.Squads) &&
+			(v.ExternalSquad == nil || cached.ExternalSquadUUID == *v.ExternalSquad) {
 			continue
 		}
 		if err := s.pushParams(ctx, *m.RwUserID, v); err != nil {

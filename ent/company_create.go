@@ -124,6 +124,20 @@ func (_c *CompanyCreate) SetNillableArchived(v *bool) *CompanyCreate {
 	return _c
 }
 
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (_c *CompanyCreate) SetExternalSquadUUID(v string) *CompanyCreate {
+	_c.mutation.SetExternalSquadUUID(v)
+	return _c
+}
+
+// SetNillableExternalSquadUUID sets the "external_squad_uuid" field if the given value is not nil.
+func (_c *CompanyCreate) SetNillableExternalSquadUUID(v *string) *CompanyCreate {
+	if v != nil {
+		_c.SetExternalSquadUUID(*v)
+	}
+	return _c
+}
+
 // SetArchivedAt sets the "archived_at" field.
 func (_c *CompanyCreate) SetArchivedAt(v time.Time) *CompanyCreate {
 	_c.mutation.SetArchivedAt(v)
@@ -342,6 +356,10 @@ func (_c *CompanyCreate) createSpec() (*Company, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Archived(); ok {
 		_spec.SetField(company.FieldArchived, field.TypeBool, value)
 		_node.Archived = value
+	}
+	if value, ok := _c.mutation.ExternalSquadUUID(); ok {
+		_spec.SetField(company.FieldExternalSquadUUID, field.TypeString, value)
+		_node.ExternalSquadUUID = &value
 	}
 	if value, ok := _c.mutation.ArchivedAt(); ok {
 		_spec.SetField(company.FieldArchivedAt, field.TypeTime, value)
@@ -603,6 +621,24 @@ func (u *CompanyUpsert) UpdateArchived() *CompanyUpsert {
 	return u
 }
 
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (u *CompanyUpsert) SetExternalSquadUUID(v string) *CompanyUpsert {
+	u.Set(company.FieldExternalSquadUUID, v)
+	return u
+}
+
+// UpdateExternalSquadUUID sets the "external_squad_uuid" field to the value that was provided on create.
+func (u *CompanyUpsert) UpdateExternalSquadUUID() *CompanyUpsert {
+	u.SetExcluded(company.FieldExternalSquadUUID)
+	return u
+}
+
+// ClearExternalSquadUUID clears the value of the "external_squad_uuid" field.
+func (u *CompanyUpsert) ClearExternalSquadUUID() *CompanyUpsert {
+	u.SetNull(company.FieldExternalSquadUUID)
+	return u
+}
+
 // SetArchivedAt sets the "archived_at" field.
 func (u *CompanyUpsert) SetArchivedAt(v time.Time) *CompanyUpsert {
 	u.Set(company.FieldArchivedAt, v)
@@ -824,6 +860,27 @@ func (u *CompanyUpsertOne) SetArchived(v bool) *CompanyUpsertOne {
 func (u *CompanyUpsertOne) UpdateArchived() *CompanyUpsertOne {
 	return u.Update(func(s *CompanyUpsert) {
 		s.UpdateArchived()
+	})
+}
+
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (u *CompanyUpsertOne) SetExternalSquadUUID(v string) *CompanyUpsertOne {
+	return u.Update(func(s *CompanyUpsert) {
+		s.SetExternalSquadUUID(v)
+	})
+}
+
+// UpdateExternalSquadUUID sets the "external_squad_uuid" field to the value that was provided on create.
+func (u *CompanyUpsertOne) UpdateExternalSquadUUID() *CompanyUpsertOne {
+	return u.Update(func(s *CompanyUpsert) {
+		s.UpdateExternalSquadUUID()
+	})
+}
+
+// ClearExternalSquadUUID clears the value of the "external_squad_uuid" field.
+func (u *CompanyUpsertOne) ClearExternalSquadUUID() *CompanyUpsertOne {
+	return u.Update(func(s *CompanyUpsert) {
+		s.ClearExternalSquadUUID()
 	})
 }
 
@@ -1217,6 +1274,27 @@ func (u *CompanyUpsertBulk) SetArchived(v bool) *CompanyUpsertBulk {
 func (u *CompanyUpsertBulk) UpdateArchived() *CompanyUpsertBulk {
 	return u.Update(func(s *CompanyUpsert) {
 		s.UpdateArchived()
+	})
+}
+
+// SetExternalSquadUUID sets the "external_squad_uuid" field.
+func (u *CompanyUpsertBulk) SetExternalSquadUUID(v string) *CompanyUpsertBulk {
+	return u.Update(func(s *CompanyUpsert) {
+		s.SetExternalSquadUUID(v)
+	})
+}
+
+// UpdateExternalSquadUUID sets the "external_squad_uuid" field to the value that was provided on create.
+func (u *CompanyUpsertBulk) UpdateExternalSquadUUID() *CompanyUpsertBulk {
+	return u.Update(func(s *CompanyUpsert) {
+		s.UpdateExternalSquadUUID()
+	})
+}
+
+// ClearExternalSquadUUID clears the value of the "external_squad_uuid" field.
+func (u *CompanyUpsertBulk) ClearExternalSquadUUID() *CompanyUpsertBulk {
+	return u.Update(func(s *CompanyUpsert) {
+		s.ClearExternalSquadUUID()
 	})
 }
 

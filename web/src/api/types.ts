@@ -173,6 +173,7 @@ export interface Tariff {
     traffic_strategy: string
     hwid_limit: number | null
     squad_uuids: string[]
+    external_squad_uuid: string | null
     periods: Period[]
     included_addon_tariff_ids: number[]
     subscribers: number
@@ -226,6 +227,12 @@ export interface ApiToken {
     company_id?: number | null
     // only in the creation response
     token?: string
+}
+
+export interface ExternalSquad {
+    uuid: string
+    name: string
+    info: { membersCount: number }
 }
 
 export interface Squad {
@@ -567,6 +574,8 @@ export interface Company {
     customer_id: number
     tariff_id: number
     tariff_name: string
+    // overrides the tariff's external squad; null follows the tariff
+    external_squad_uuid: string | null
     report_day: number
     period_start: string
     // the next report date
@@ -580,7 +589,7 @@ export interface Company {
     created_at: string
 }
 
-export type MemberOverrideField = 'price' | 'traffic_limit' | 'traffic_strategy' | 'hwid_limit' | 'squads'
+export type MemberOverrideField = 'price' | 'traffic_limit' | 'traffic_strategy' | 'hwid_limit' | 'squads' | 'external_squad'
 
 export interface CompanyMember {
     id: number
@@ -598,6 +607,8 @@ export interface CompanyMember {
     traffic_strategy: string
     hwid_limit: number | null
     squad_uuids: string[]
+    // null: none set, '': explicitly none for this employee
+    external_squad_uuid: string | null
     overrides: MemberOverrideField[]
     panel_status: string
     panel_deleted: boolean
@@ -620,6 +631,7 @@ export interface MemberSegment {
     traffic_strategy: string
     hwid_limit: number | null
     squad_uuids: string[]
+    external_squad_uuid: string | null
     overrides: MemberOverrideField[]
 }
 

@@ -39,6 +39,7 @@ import { StatStrip } from '@shared/ui/stat-strip'
 import { EntityAdd, EntityCard, EntityFigure, EntityGrid, EntityParam } from '@shared/ui/entity-card'
 import { FooterFigure } from '@shared/ui/entity-card/footer-figure'
 
+import { ExternalSquadSelect, useExternalSquadName } from '@shared/ui/infra/squad'
 import classes from './tariffs.module.css'
 import { CurrencyIcon } from '@shared/currencies'
 import { useTranslation } from 'react-i18next'
@@ -265,6 +266,7 @@ function SectionTitle({ title, description, mt }: { title: string; description?:
 // and how many pay for it. A click opens it for editing.
 function TariffCard({ tariff: tf, onEdit }: { tariff: Tariff; onEdit: () => void }) {
     const { t } = useTranslation()
+    const externalSquadName = useExternalSquadName()
     const invalidate = useInvalidateAll()
     const setArchived = async (archive: boolean) => {
         try {
@@ -332,6 +334,11 @@ function TariffCard({ tariff: tf, onEdit }: { tariff: Tariff; onEdit: () => void
                         <EntityParam icon={IconCirclesRelation} label={t('tariffs.squads_label')}>
                             {t('tariffs.squads', { count: tf.squad_uuids.length })}
                         </EntityParam>
+                        {tf.external_squad_uuid && (
+                            <EntityParam icon={IconCirclesRelation} label={t('tariffs.external_squad_label')}>
+                                {externalSquadName(tf.external_squad_uuid)}
+                            </EntityParam>
+                        )}
                     </>
                 ) : (
                     <Text c="dimmed" size="xs">
@@ -381,6 +388,7 @@ function TariffForm({ draft, addons, onDone }: { draft: Draft; addons: Addon[]; 
             traffic_strategy: draft.traffic_strategy ?? 'NO_RESET',
             hwid_limit: draft.hwid_limit ?? ('' as number | ''),
             squad_uuids: draft.squad_uuids ?? [],
+            external_squad_uuid: (draft.external_squad_uuid ?? null) as string | null,
             periods: (draft.periods ?? []).map((p) => ({ ...p, days: p.days ?? 0 })),
             included: (draft.included_addon_tariff_ids ?? []).map(String),
             // what to do with current subscribers when included add-ons change
@@ -412,6 +420,7 @@ function TariffForm({ draft, addons, onDone }: { draft: Draft; addons: Addon[]; 
             traffic_strategy: v.traffic_strategy,
             hwid_limit: v.hwid_limit === '' ? null : Number(v.hwid_limit),
             squad_uuids: v.squad_uuids,
+            external_squad_uuid: v.external_squad_uuid,
             periods: v.periods.filter((p) => p.months + p.days > 0 && !(p.months === 1 && !p.days)),
             included_addon_tariff_ids: v.kind === 'base' ? v.included.map(Number) : [],
             price_change: v.price_change
@@ -625,6 +634,12 @@ function TariffForm({ draft, addons, onDone }: { draft: Draft; addons: Addon[]; 
                                 {...form.getInputProps('squad_uuids')}
                             />
                             {squads.error && <Alert color="red" variant="soft">{squads.error.message}</Alert>}
+                            <ExternalSquadSelect
+                                description={t('tariffs.external_squad_hint')}
+                                label={t('tariffs.external_squad_label')}
+                                placeholder={t('tariffs.choose')}
+                                {...form.getInputProps('external_squad_uuid')}
+                            />
                         </>
                     )}
                 </FormSection>
