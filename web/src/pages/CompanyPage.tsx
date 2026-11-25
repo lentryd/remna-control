@@ -205,7 +205,9 @@ function MembersTab({ company }: { company: Company }) {
     const columns = useMemo<MRT_ColumnDef<CompanyMember>[]>(
         () => [
             {
-                accessorKey: 'username',
+                id: 'username',
+                // the label is part of the value so that the search finds it too
+                accessorFn: (r) => (r.label ? `${r.username} ${r.label}` : r.username),
                 header: t('companies.username'),
                 Cell: ({ row }) => (
                     <Group gap={6} wrap="nowrap" pl={10}>
