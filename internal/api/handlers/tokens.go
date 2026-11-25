@@ -10,6 +10,7 @@ import (
 	"remna-control/ent"
 	"remna-control/ent/addon"
 	"remna-control/ent/apitoken"
+	"remna-control/ent/company"
 	"remna-control/internal/addons"
 	appmiddleware "remna-control/internal/api/middleware"
 	"remna-control/internal/apperr"
@@ -22,6 +23,7 @@ type tokenView struct {
 	Name       string     `json:"name"`
 	Prefix     string     `json:"prefix"`
 	Scopes     []string   `json:"scopes"`
+	CompanyID  *int       `json:"company_id"`
 	CreatedAt  time.Time  `json:"created_at"`
 	ExpireAt   *time.Time `json:"expire_at"`
 	LastUsedAt *time.Time `json:"last_used_at"`
@@ -31,7 +33,7 @@ type tokenView struct {
 
 func viewToken(t *ent.APIToken) tokenView {
 	return tokenView{
-		ID: t.ID, UUID: t.UUID, Name: t.Name, Prefix: t.Prefix, Scopes: t.Scopes,
+		ID: t.ID, UUID: t.UUID, Name: t.Name, Prefix: t.Prefix, Scopes: t.Scopes, CompanyID: t.CompanyID,
 		CreatedAt: t.CreatedAt, ExpireAt: t.ExpireAt, LastUsedAt: t.LastUsedAt,
 	}
 }
@@ -59,6 +61,7 @@ func (h *Handlers) CreateToken(c *fiber.Ctx) error {
 		Name          string   `json:"name"`
 		ExpiresInDays int      `json:"expires_in_days"`
 		Scopes        []string `json:"scopes"`
+		CompanyID     *int     `json:"company_id"`
 	}
 	if err := bind(c, &in); err != nil {
 		return err
@@ -78,13 +81,27 @@ func (h *Handlers) CreateToken(c *fiber.Ctx) error {
 			return apperr.New("token.unknown_scope", "unknown scope {{scope}}", "scope", s)
 		}
 	}
+	ctx := c.UserContext()
+	switch {
+	case in.CompanyID == nil && appmiddleware.GrantsCompany(in.Scopes):
+		return apperr.New("token.company_required", "company scopes need a company to bind the token to")
+	case in.CompanyID != nil:
+		if ok, err := h.DB.Company.Query().Where(company.ID(*in.CompanyID), company.Archived(false)).Exist(ctx); err != nil {
+			return err
+		} else if !ok {
+			return apperr.New("token.bad_company", "company {{id}} not found or archived", "id", *in.CompanyID)
+		}
+		if !appmiddleware.CompanyScopesOnly(in.Scopes) {
+			return apperr.New("token.company_scopes_only", "a token bound to a company can only have company scopes")
+		}
+	}
 	token, hash, err := appmiddleware.NewToken()
 	if err != nil {
 		return err
 	}
-	ctx := c.UserContext()
 	t, err := h.DB.APIToken.Create().
 		SetUUID(uuid.NewString()).SetName(in.Name).SetTokenHash(hash).SetPrefix(token[:12]).SetScopes(in.Scopes).
+		SetNillableCompanyID(in.CompanyID).
 		SetExpireAt(time.Now().AddDate(0, 0, in.ExpiresInDays)).
 		Save(ctx)
 	audit.Log(ctx, h.DB, "api_token.create", "api_token", tokenID(t), in, err)

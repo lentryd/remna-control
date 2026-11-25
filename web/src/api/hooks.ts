@@ -5,6 +5,9 @@ import type {
     Accrual,
     Addon,
     AuditRow,
+    Company,
+    CompanyMember,
+    CompanyStatement,
     Customer,
     CustomerDetail,
     Dashboard,
@@ -44,6 +47,11 @@ export const qk = {
     accruals: ['referrals', 'accruals'],
     settings: ['settings'],
     audit: ['audit'],
+    companies: ['companies'],
+    company: (id: number) => ['companies', id],
+    companyMembers: (id: number) => ['companies', id, 'members'],
+    companyStatements: (id: number) => ['companies', id, 'statements'],
+    companyStatement: (id: number, sid: number) => ['companies', id, 'statements', sid],
     jobs: ['jobs'],
     jobRuns: (key: string) => ['jobs', key, 'runs']
 }
@@ -55,6 +63,24 @@ export const useCustomers = (enabled = true) =>
     useQuery({ queryKey: qk.customers, queryFn: () => api.get<Customer[]>('customers'), enabled })
 export const useCustomer = (id: number) =>
     useQuery({ queryKey: qk.customer(id), queryFn: () => api.get<CustomerDetail>(`customers/${id}`), enabled: id > 0 })
+export const useCompanies = () =>
+    useQuery({ queryKey: qk.companies, queryFn: () => api.get<{ companies: Company[] }>('companies').then((r) => r.companies) })
+export const useCompany = (id: number) =>
+    useQuery({ queryKey: qk.company(id), queryFn: () => api.get<Company>(`companies/${id}`), enabled: id > 0 })
+export const useCompanyMembers = (id: number) =>
+    useQuery({
+        queryKey: qk.companyMembers(id),
+        queryFn: () => api.get<{ members: CompanyMember[] }>(`companies/${id}/members`).then((r) => r.members),
+        enabled: id > 0
+    })
+export const useCompanyStatements = (id: number) =>
+    useQuery({
+        queryKey: qk.companyStatements(id),
+        queryFn: () => api.get<{ statements: CompanyStatement[] }>(`companies/${id}/statements`).then((r) => r.statements),
+        enabled: id > 0
+    })
+export const useCompanyStatement = (id: number, sid: number) =>
+    useQuery({ queryKey: qk.companyStatement(id, sid), queryFn: () => api.get<CompanyStatement>(`companies/${id}/statements/${sid}`), enabled: id > 0 && sid > 0 })
 export const useSubscriptions = (enabled = true) =>
     useQuery({ queryKey: qk.subscriptions, queryFn: () => api.get<Subscription[]>('subscriptions'), enabled })
 export const usePayments = () => useQuery({ queryKey: qk.payments, queryFn: () => api.get<Payment[]>('payments') })

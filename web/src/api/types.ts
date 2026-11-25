@@ -90,6 +90,8 @@ export interface Customer {
     total_paid: number
     last_payment_at: string | null
     created_at: string
+    // set for a company's billing account
+    company_id?: number | null
 }
 
 export interface Payment {
@@ -105,10 +107,11 @@ export interface Payment {
 
 export interface LedgerEntry {
     id: number
-    type: 'payment' | 'charge' | 'adjustment' | 'refund' | 'referral'
+    type: 'payment' | 'charge' | 'adjustment' | 'refund' | 'referral' | 'company_charge'
     amount: number
     date: string
     note: string
+    statement_id?: number | null
 }
 
 export interface Accrual {
@@ -220,6 +223,7 @@ export interface ApiToken {
     // null: made before tokens expired, never expires
     expire_at: string | null
     last_used_at: string | null
+    company_id?: number | null
     // only in the creation response
     token?: string
 }
@@ -394,6 +398,8 @@ export interface Dashboard {
     active_customers: number
     active_subs: number
     active_addons: number
+    active_companies: number
+    active_members: number
     income_total: number
     expenses_total: number
     cash_balance: number
@@ -551,4 +557,94 @@ export interface Infra {
     providers: InfraProvider[]
     billing_nodes: InfraBillingNode[]
     error: string | null
+}
+
+export interface Company {
+    id: number
+    name: string
+    notes: string
+    // the billing account: payments and balance history live there
+    customer_id: number
+    tariff_id: number
+    tariff_name: string
+    report_day: number
+    period_start: string
+    // the next report date
+    period_end: string
+    archived: boolean
+    members_count: number
+    protected_count: number
+    balance: number
+    accrued: number
+    forecast: number
+    created_at: string
+}
+
+export type MemberOverrideField = 'price' | 'traffic_limit' | 'traffic_strategy' | 'hwid_limit' | 'squads'
+
+export interface CompanyMember {
+    id: number
+    username: string
+    label: string
+    active: boolean
+    protected: boolean
+    tariff_pinned: boolean
+    added_at: string
+    removed_at: string | null
+    tariff_id: number
+    tariff_name: string
+    price: number
+    traffic_limit_bytes: number
+    traffic_strategy: string
+    hwid_limit: number | null
+    squad_uuids: string[]
+    overrides: MemberOverrideField[]
+    panel_status: string
+    panel_deleted: boolean
+    subscription_url: string
+    rw_user: RwUser | null
+    // What the employee was billed on, oldest first.
+    segments: MemberSegment[]
+}
+
+// MemberSegment is a stretch of days billed on one set of values; `to` is the
+// exclusive end, null while it is still running.
+export interface MemberSegment {
+    id: number
+    from: string
+    to: string | null
+    tariff_id: number
+    tariff_name: string
+    price: number
+    traffic_limit_bytes: number
+    traffic_strategy: string
+    hwid_limit: number | null
+    squad_uuids: string[]
+    overrides: MemberOverrideField[]
+}
+
+export interface StatementLine {
+    member_id: number | null
+    username: string
+    tariff_name: string
+    from: string
+    // exclusive
+    to: string
+    days: number
+    days_in_period: number
+    monthly_price: number
+    amount: number
+}
+
+export interface CompanyStatement {
+    id: number
+    company_id: number
+    period_from: string
+    period_to: string
+    days_in_period: number
+    total: number
+    ledger_entry_id: number | null
+    generated_by: string
+    created_at: string
+    lines?: StatementLine[]
 }

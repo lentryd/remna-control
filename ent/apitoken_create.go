@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"remna-control/ent/apitoken"
+	"remna-control/ent/company"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -100,6 +101,25 @@ func (_c *APITokenCreate) SetNillableLastUsedAt(v *time.Time) *APITokenCreate {
 		_c.SetLastUsedAt(*v)
 	}
 	return _c
+}
+
+// SetCompanyID sets the "company_id" field.
+func (_c *APITokenCreate) SetCompanyID(v int) *APITokenCreate {
+	_c.mutation.SetCompanyID(v)
+	return _c
+}
+
+// SetNillableCompanyID sets the "company_id" field if the given value is not nil.
+func (_c *APITokenCreate) SetNillableCompanyID(v *int) *APITokenCreate {
+	if v != nil {
+		_c.SetCompanyID(*v)
+	}
+	return _c
+}
+
+// SetCompany sets the "company" edge to the Company entity.
+func (_c *APITokenCreate) SetCompany(v *Company) *APITokenCreate {
+	return _c.SetCompanyID(v.ID)
 }
 
 // Mutation returns the APITokenMutation object of the builder.
@@ -223,6 +243,23 @@ func (_c *APITokenCreate) createSpec() (*APIToken, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.LastUsedAt(); ok {
 		_spec.SetField(apitoken.FieldLastUsedAt, field.TypeTime, value)
 		_node.LastUsedAt = &value
+	}
+	if nodes := _c.mutation.CompanyIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   apitoken.CompanyTable,
+			Columns: []string{apitoken.CompanyColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.CompanyID = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }
@@ -375,6 +412,24 @@ func (u *APITokenUpsert) UpdateLastUsedAt() *APITokenUpsert {
 // ClearLastUsedAt clears the value of the "last_used_at" field.
 func (u *APITokenUpsert) ClearLastUsedAt() *APITokenUpsert {
 	u.SetNull(apitoken.FieldLastUsedAt)
+	return u
+}
+
+// SetCompanyID sets the "company_id" field.
+func (u *APITokenUpsert) SetCompanyID(v int) *APITokenUpsert {
+	u.Set(apitoken.FieldCompanyID, v)
+	return u
+}
+
+// UpdateCompanyID sets the "company_id" field to the value that was provided on create.
+func (u *APITokenUpsert) UpdateCompanyID() *APITokenUpsert {
+	u.SetExcluded(apitoken.FieldCompanyID)
+	return u
+}
+
+// ClearCompanyID clears the value of the "company_id" field.
+func (u *APITokenUpsert) ClearCompanyID() *APITokenUpsert {
+	u.SetNull(apitoken.FieldCompanyID)
 	return u
 }
 
@@ -539,6 +594,27 @@ func (u *APITokenUpsertOne) UpdateLastUsedAt() *APITokenUpsertOne {
 func (u *APITokenUpsertOne) ClearLastUsedAt() *APITokenUpsertOne {
 	return u.Update(func(s *APITokenUpsert) {
 		s.ClearLastUsedAt()
+	})
+}
+
+// SetCompanyID sets the "company_id" field.
+func (u *APITokenUpsertOne) SetCompanyID(v int) *APITokenUpsertOne {
+	return u.Update(func(s *APITokenUpsert) {
+		s.SetCompanyID(v)
+	})
+}
+
+// UpdateCompanyID sets the "company_id" field to the value that was provided on create.
+func (u *APITokenUpsertOne) UpdateCompanyID() *APITokenUpsertOne {
+	return u.Update(func(s *APITokenUpsert) {
+		s.UpdateCompanyID()
+	})
+}
+
+// ClearCompanyID clears the value of the "company_id" field.
+func (u *APITokenUpsertOne) ClearCompanyID() *APITokenUpsertOne {
+	return u.Update(func(s *APITokenUpsert) {
+		s.ClearCompanyID()
 	})
 }
 
@@ -869,6 +945,27 @@ func (u *APITokenUpsertBulk) UpdateLastUsedAt() *APITokenUpsertBulk {
 func (u *APITokenUpsertBulk) ClearLastUsedAt() *APITokenUpsertBulk {
 	return u.Update(func(s *APITokenUpsert) {
 		s.ClearLastUsedAt()
+	})
+}
+
+// SetCompanyID sets the "company_id" field.
+func (u *APITokenUpsertBulk) SetCompanyID(v int) *APITokenUpsertBulk {
+	return u.Update(func(s *APITokenUpsert) {
+		s.SetCompanyID(v)
+	})
+}
+
+// UpdateCompanyID sets the "company_id" field to the value that was provided on create.
+func (u *APITokenUpsertBulk) UpdateCompanyID() *APITokenUpsertBulk {
+	return u.Update(func(s *APITokenUpsert) {
+		s.UpdateCompanyID()
+	})
+}
+
+// ClearCompanyID clears the value of the "company_id" field.
+func (u *APITokenUpsertBulk) ClearCompanyID() *APITokenUpsertBulk {
+	return u.Update(func(s *APITokenUpsert) {
+		s.ClearCompanyID()
 	})
 }
 

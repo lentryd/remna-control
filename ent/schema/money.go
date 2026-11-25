@@ -49,7 +49,7 @@ func (LedgerEntry) Mixin() []ent.Mixin { return []ent.Mixin{TimeMixin{}} }
 func (LedgerEntry) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int("customer_id"),
-		field.Enum("type").Values("payment", "charge", "adjustment", "refund", "referral"),
+		field.Enum("type").Values("payment", "charge", "adjustment", "refund", "referral", "company_charge"),
 		// Amount is signed, in kopecks: payments are positive, charges negative.
 		field.Int64("amount"),
 		field.Time("date").Default(time.Now),

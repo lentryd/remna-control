@@ -15,6 +15,15 @@ type Addon func(*sql.Selector)
 // AuditLog is the predicate function for auditlog builders.
 type AuditLog func(*sql.Selector)
 
+// Company is the predicate function for company builders.
+type Company func(*sql.Selector)
+
+// CompanyMember is the predicate function for companymember builders.
+type CompanyMember func(*sql.Selector)
+
+// CompanyStatement is the predicate function for companystatement builders.
+type CompanyStatement func(*sql.Selector)
+
 // Customer is the predicate function for customer builders.
 type Customer func(*sql.Selector)
 
@@ -39,6 +48,9 @@ type JobStatus func(*sql.Selector)
 // LedgerEntry is the predicate function for ledgerentry builders.
 type LedgerEntry func(*sql.Selector)
 
+// MemberSegment is the predicate function for membersegment builders.
+type MemberSegment func(*sql.Selector)
+
 // Payment is the predicate function for payment builders.
 type Payment func(*sql.Selector)
 
@@ -50,6 +62,9 @@ type RwUser func(*sql.Selector)
 
 // Setting is the predicate function for setting builders.
 type Setting func(*sql.Selector)
+
+// StatementLine is the predicate function for statementline builders.
+type StatementLine func(*sql.Selector)
 
 // Subscription is the predicate function for subscription builders.
 type Subscription func(*sql.Selector)

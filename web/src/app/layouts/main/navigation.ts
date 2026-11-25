@@ -1,5 +1,6 @@
 import {
     IconAffiliate,
+    IconBuilding,
     IconBuildingBank,
     IconCreditCard,
     IconLayoutDashboard,
@@ -37,6 +38,7 @@ export const NAV: NavGroup[] = [
         label: 'menu.customers',
         items: [
             { to: '/customers', label: 'menu.customers', icon: IconUsers },
+            { to: '/companies', label: 'menu.companies', icon: IconBuilding },
             { to: '/subscriptions', label: 'menu.subscriptions', icon: IconStack2 },
             { to: '/payments', label: 'menu.payments', icon: IconCreditCard },
             { to: '/referrals', label: 'menu.referrals', icon: IconAffiliate }

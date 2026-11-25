@@ -146,6 +146,20 @@ func (h *Handlers) Dashboard(c *fiber.Ctx) error {
 			}
 		}
 	}
+	// Company employees are billed by statements: their monthly prices count
+	// towards MRR like subscriptions do, while live.
+	members, err := h.activeMembers(ctx)
+	if err != nil {
+		return err
+	}
+	companiesLive, membersLive := map[int]bool{}, 0
+	for _, m := range members {
+		if m.Live {
+			mrr += m.Price
+			membersLive++
+			companiesLive[m.CompanyID] = true
+		}
+	}
 	sort.Slice(expiring, func(i, j int) bool { return expiring[i].ExpireAt.Before(*expiring[j].ExpireAt) })
 	sort.Slice(trafficLow, func(i, j int) bool { return trafficLow[i].UsedPct > trafficLow[j].UsedPct })
 
@@ -339,6 +353,8 @@ func (h *Handlers) Dashboard(c *fiber.Ctx) error {
 		"active_customers": len(customers),
 		"active_subs":      activeSubs,
 		"active_addons":    activeAddons,
+		"active_companies": len(companiesLive),
+		"active_members":   membersLive,
 		"income_total":     money.ToMajor(incomeTotal),
 		"expenses_total":   money.ToMajor(expTotal),
 		"cash_balance":     money.ToMajor(incomeTotal - expTotal),

@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"remna-control/ent/apitoken"
+	"remna-control/ent/company"
 	"remna-control/ent/predicate"
 	"time"
 
@@ -143,9 +144,40 @@ func (_u *APITokenUpdate) ClearLastUsedAt() *APITokenUpdate {
 	return _u
 }
 
+// SetCompanyID sets the "company_id" field.
+func (_u *APITokenUpdate) SetCompanyID(v int) *APITokenUpdate {
+	_u.mutation.SetCompanyID(v)
+	return _u
+}
+
+// SetNillableCompanyID sets the "company_id" field if the given value is not nil.
+func (_u *APITokenUpdate) SetNillableCompanyID(v *int) *APITokenUpdate {
+	if v != nil {
+		_u.SetCompanyID(*v)
+	}
+	return _u
+}
+
+// ClearCompanyID clears the value of the "company_id" field.
+func (_u *APITokenUpdate) ClearCompanyID() *APITokenUpdate {
+	_u.mutation.ClearCompanyID()
+	return _u
+}
+
+// SetCompany sets the "company" edge to the Company entity.
+func (_u *APITokenUpdate) SetCompany(v *Company) *APITokenUpdate {
+	return _u.SetCompanyID(v.ID)
+}
+
 // Mutation returns the APITokenMutation object of the builder.
 func (_u *APITokenUpdate) Mutation() *APITokenMutation {
 	return _u.mutation
+}
+
+// ClearCompany clears the "company" edge to the Company entity.
+func (_u *APITokenUpdate) ClearCompany() *APITokenUpdate {
+	_u.mutation.ClearCompany()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -231,6 +263,35 @@ func (_u *APITokenUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.LastUsedAtCleared() {
 		_spec.ClearField(apitoken.FieldLastUsedAt, field.TypeTime)
+	}
+	if _u.mutation.CompanyCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   apitoken.CompanyTable,
+			Columns: []string{apitoken.CompanyColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.CompanyIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   apitoken.CompanyTable,
+			Columns: []string{apitoken.CompanyColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -366,9 +427,40 @@ func (_u *APITokenUpdateOne) ClearLastUsedAt() *APITokenUpdateOne {
 	return _u
 }
 
+// SetCompanyID sets the "company_id" field.
+func (_u *APITokenUpdateOne) SetCompanyID(v int) *APITokenUpdateOne {
+	_u.mutation.SetCompanyID(v)
+	return _u
+}
+
+// SetNillableCompanyID sets the "company_id" field if the given value is not nil.
+func (_u *APITokenUpdateOne) SetNillableCompanyID(v *int) *APITokenUpdateOne {
+	if v != nil {
+		_u.SetCompanyID(*v)
+	}
+	return _u
+}
+
+// ClearCompanyID clears the value of the "company_id" field.
+func (_u *APITokenUpdateOne) ClearCompanyID() *APITokenUpdateOne {
+	_u.mutation.ClearCompanyID()
+	return _u
+}
+
+// SetCompany sets the "company" edge to the Company entity.
+func (_u *APITokenUpdateOne) SetCompany(v *Company) *APITokenUpdateOne {
+	return _u.SetCompanyID(v.ID)
+}
+
 // Mutation returns the APITokenMutation object of the builder.
 func (_u *APITokenUpdateOne) Mutation() *APITokenMutation {
 	return _u.mutation
+}
+
+// ClearCompany clears the "company" edge to the Company entity.
+func (_u *APITokenUpdateOne) ClearCompany() *APITokenUpdateOne {
+	_u.mutation.ClearCompany()
+	return _u
 }
 
 // Where appends a list predicates to the APITokenUpdate builder.
@@ -484,6 +576,35 @@ func (_u *APITokenUpdateOne) sqlSave(ctx context.Context) (_node *APIToken, err 
 	}
 	if _u.mutation.LastUsedAtCleared() {
 		_spec.ClearField(apitoken.FieldLastUsedAt, field.TypeTime)
+	}
+	if _u.mutation.CompanyCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   apitoken.CompanyTable,
+			Columns: []string{apitoken.CompanyColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.CompanyIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   apitoken.CompanyTable,
+			Columns: []string{apitoken.CompanyColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &APIToken{config: _u.config}
 	_spec.Assign = _node.assignValues

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"log/slog"
 	"sort"
 	"strconv"
@@ -9,6 +10,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 
 	"remna-control/ent"
+	"remna-control/ent/company"
+	"remna-control/ent/companymember"
+	"remna-control/ent/companystatement"
 	"remna-control/ent/customer"
 	"remna-control/ent/extension"
 	"remna-control/ent/ledgerentry"
@@ -26,6 +30,7 @@ import (
 
 type CustomerView struct {
 	ID                 int        `json:"id"`
+	CompanyID          *int       `json:"company_id"` // set for a company's billing account
 	Name               string     `json:"name"`
 	Contact            string     `json:"contact"`
 	TelegramID         *int64     `json:"telegram_id"`
@@ -92,6 +97,15 @@ func (h *Handlers) customerViews(c *fiber.Ctx, where ...func(*ent.CustomerQuery)
 		}
 	}
 
+	companies, err := h.DB.Company.Query().All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	companyOf := make(map[int]int, len(companies))
+	for _, co := range companies {
+		companyOf[co.CustomerID] = co.ID
+	}
+
 	out := make([]CustomerView, 0, len(customers))
 	for _, cu := range customers {
 		v := CustomerView{
@@ -104,6 +118,9 @@ func (h *Handlers) customerViews(c *fiber.Ctx, where ...func(*ent.CustomerQuery)
 		}
 		if r := cu.Edges.Referrer; r != nil {
 			v.ReferrerName = r.Name
+		}
+		if id, ok := companyOf[cu.ID]; ok {
+			v.CompanyID = &id
 		}
 		for _, s := range bySub[cu.ID] {
 			v.SubscriptionsCount++
@@ -163,11 +180,12 @@ type PaymentView struct {
 }
 
 type LedgerView struct {
-	ID     int       `json:"id"`
-	Type   string    `json:"type"`
-	Amount float64   `json:"amount"`
-	Date   time.Time `json:"date"`
-	Note   string    `json:"note"`
+	ID          int       `json:"id"`
+	Type        string    `json:"type"`
+	Amount      float64   `json:"amount"`
+	Date        time.Time `json:"date"`
+	Note        string    `json:"note"`
+	StatementID *int      `json:"statement_id"` // the company statement behind a company_charge
 }
 
 type AccrualView struct {
@@ -284,8 +302,16 @@ func (h *Handlers) customerDetail(c *fiber.Ctx, id int) error {
 	if err != nil {
 		return err
 	}
+	statementOf, err := h.statementsByLedger(ctx, ledger)
+	if err != nil {
+		return err
+	}
 	for _, e := range ledger {
-		d.Ledger = append(d.Ledger, LedgerView{ID: e.ID, Type: e.Type.String(), Amount: money.ToMajor(e.Amount), Date: e.Date, Note: e.Note})
+		lv := LedgerView{ID: e.ID, Type: e.Type.String(), Amount: money.ToMajor(e.Amount), Date: e.Date, Note: e.Note}
+		if sid, ok := statementOf[e.ID]; ok {
+			lv.StatementID = &sid
+		}
+		d.Ledger = append(d.Ledger, lv)
 	}
 	if d.Accruals, err = h.accrualViews(c, func(q *ent.ReferralAccrualQuery) {
 		q.Where(referralaccrual.Or(referralaccrual.ReferrerID(id), referralaccrual.RefereeID(id)))
@@ -395,6 +421,9 @@ func (h *Handlers) DeleteCustomer(c *fiber.Ctx) error {
 		return err
 	}
 	ctx := c.UserContext()
+	if err := h.rejectCompanyAccount(ctx, id); err != nil {
+		return err
+	}
 	if n, _ := h.DB.Payment.Query().Where(payment.CustomerID(id)).Count(ctx); n > 0 {
 		return apperr.Status(fiber.StatusConflict, "customer.has_payments", "the customer has payments; archive them instead")
 	}
@@ -781,4 +810,58 @@ func (h *Handlers) ListAccruals(c *fiber.Ctx) error {
 		return err
 	}
 	return c.JSON(out)
+}
+
+// rejectCompanyAccount answers 409 when the customer is a company's billing
+// account: it has no subscriptions and is managed through the company.
+func (h *Handlers) rejectCompanyAccount(ctx context.Context, customerID int) error {
+	isAccount, err := h.DB.Company.Query().Where(company.CustomerID(customerID)).Exist(ctx)
+	if err != nil {
+		return err
+	}
+	if isAccount {
+		return apperr.Status(fiber.StatusConflict, "customer.company_account", "this customer is a company's billing account; manage it through the company")
+	}
+	return nil
+}
+
+// statementsByLedger maps ledger entry ids to the company statement that
+// posted them.
+func (h *Handlers) statementsByLedger(ctx context.Context, entries []*ent.LedgerEntry) (map[int]int, error) {
+	var ids []int
+	for _, e := range entries {
+		if e.Type == ledgerentry.TypeCompanyCharge {
+			ids = append(ids, e.ID)
+		}
+	}
+	out := map[int]int{}
+	if len(ids) == 0 {
+		return out, nil
+	}
+	sts, err := h.DB.CompanyStatement.Query().Where(companystatement.LedgerEntryIDIn(ids...)).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	for _, st := range sts {
+		if st.LedgerEntryID != nil {
+			out[*st.LedgerEntryID] = st.ID
+		}
+	}
+	return out, nil
+}
+
+// rejectCompanyMemberUser answers 409 when the panel user is a company
+// employee: they are billed by statements and can't back a subscription.
+func (h *Handlers) rejectCompanyMemberUser(ctx context.Context, rwUserID *int) error {
+	if rwUserID == nil {
+		return nil
+	}
+	isMember, err := h.DB.CompanyMember.Query().Where(companymember.RwUserID(*rwUserID)).Exist(ctx)
+	if err != nil {
+		return err
+	}
+	if isMember {
+		return apperr.Status(fiber.StatusConflict, "subscription.company_member", "this panel user is a company employee")
+	}
+	return nil
 }

@@ -14,6 +14,9 @@ import (
 	"remna-control/ent/addon"
 	"remna-control/ent/apitoken"
 	"remna-control/ent/auditlog"
+	"remna-control/ent/company"
+	"remna-control/ent/companymember"
+	"remna-control/ent/companystatement"
 	"remna-control/ent/customer"
 	"remna-control/ent/expense"
 	"remna-control/ent/expenseitem"
@@ -22,10 +25,12 @@ import (
 	"remna-control/ent/jobrun"
 	"remna-control/ent/jobstatus"
 	"remna-control/ent/ledgerentry"
+	"remna-control/ent/membersegment"
 	"remna-control/ent/payment"
 	"remna-control/ent/referralaccrual"
 	"remna-control/ent/rwuser"
 	"remna-control/ent/setting"
+	"remna-control/ent/statementline"
 	"remna-control/ent/subscription"
 	"remna-control/ent/subscriptionaddon"
 	"remna-control/ent/tariff"
@@ -49,6 +54,12 @@ type Client struct {
 	Addon *AddonClient
 	// AuditLog is the client for interacting with the AuditLog builders.
 	AuditLog *AuditLogClient
+	// Company is the client for interacting with the Company builders.
+	Company *CompanyClient
+	// CompanyMember is the client for interacting with the CompanyMember builders.
+	CompanyMember *CompanyMemberClient
+	// CompanyStatement is the client for interacting with the CompanyStatement builders.
+	CompanyStatement *CompanyStatementClient
 	// Customer is the client for interacting with the Customer builders.
 	Customer *CustomerClient
 	// Expense is the client for interacting with the Expense builders.
@@ -65,6 +76,8 @@ type Client struct {
 	JobStatus *JobStatusClient
 	// LedgerEntry is the client for interacting with the LedgerEntry builders.
 	LedgerEntry *LedgerEntryClient
+	// MemberSegment is the client for interacting with the MemberSegment builders.
+	MemberSegment *MemberSegmentClient
 	// Payment is the client for interacting with the Payment builders.
 	Payment *PaymentClient
 	// ReferralAccrual is the client for interacting with the ReferralAccrual builders.
@@ -73,6 +86,8 @@ type Client struct {
 	RwUser *RwUserClient
 	// Setting is the client for interacting with the Setting builders.
 	Setting *SettingClient
+	// StatementLine is the client for interacting with the StatementLine builders.
+	StatementLine *StatementLineClient
 	// Subscription is the client for interacting with the Subscription builders.
 	Subscription *SubscriptionClient
 	// SubscriptionAddon is the client for interacting with the SubscriptionAddon builders.
@@ -97,6 +112,9 @@ func (c *Client) init() {
 	c.APIToken = NewAPITokenClient(c.config)
 	c.Addon = NewAddonClient(c.config)
 	c.AuditLog = NewAuditLogClient(c.config)
+	c.Company = NewCompanyClient(c.config)
+	c.CompanyMember = NewCompanyMemberClient(c.config)
+	c.CompanyStatement = NewCompanyStatementClient(c.config)
 	c.Customer = NewCustomerClient(c.config)
 	c.Expense = NewExpenseClient(c.config)
 	c.ExpenseItem = NewExpenseItemClient(c.config)
@@ -105,10 +123,12 @@ func (c *Client) init() {
 	c.JobRun = NewJobRunClient(c.config)
 	c.JobStatus = NewJobStatusClient(c.config)
 	c.LedgerEntry = NewLedgerEntryClient(c.config)
+	c.MemberSegment = NewMemberSegmentClient(c.config)
 	c.Payment = NewPaymentClient(c.config)
 	c.ReferralAccrual = NewReferralAccrualClient(c.config)
 	c.RwUser = NewRwUserClient(c.config)
 	c.Setting = NewSettingClient(c.config)
+	c.StatementLine = NewStatementLineClient(c.config)
 	c.Subscription = NewSubscriptionClient(c.config)
 	c.SubscriptionAddon = NewSubscriptionAddonClient(c.config)
 	c.Tariff = NewTariffClient(c.config)
@@ -209,6 +229,9 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		APIToken:          NewAPITokenClient(cfg),
 		Addon:             NewAddonClient(cfg),
 		AuditLog:          NewAuditLogClient(cfg),
+		Company:           NewCompanyClient(cfg),
+		CompanyMember:     NewCompanyMemberClient(cfg),
+		CompanyStatement:  NewCompanyStatementClient(cfg),
 		Customer:          NewCustomerClient(cfg),
 		Expense:           NewExpenseClient(cfg),
 		ExpenseItem:       NewExpenseItemClient(cfg),
@@ -217,10 +240,12 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		JobRun:            NewJobRunClient(cfg),
 		JobStatus:         NewJobStatusClient(cfg),
 		LedgerEntry:       NewLedgerEntryClient(cfg),
+		MemberSegment:     NewMemberSegmentClient(cfg),
 		Payment:           NewPaymentClient(cfg),
 		ReferralAccrual:   NewReferralAccrualClient(cfg),
 		RwUser:            NewRwUserClient(cfg),
 		Setting:           NewSettingClient(cfg),
+		StatementLine:     NewStatementLineClient(cfg),
 		Subscription:      NewSubscriptionClient(cfg),
 		SubscriptionAddon: NewSubscriptionAddonClient(cfg),
 		Tariff:            NewTariffClient(cfg),
@@ -248,6 +273,9 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		APIToken:          NewAPITokenClient(cfg),
 		Addon:             NewAddonClient(cfg),
 		AuditLog:          NewAuditLogClient(cfg),
+		Company:           NewCompanyClient(cfg),
+		CompanyMember:     NewCompanyMemberClient(cfg),
+		CompanyStatement:  NewCompanyStatementClient(cfg),
 		Customer:          NewCustomerClient(cfg),
 		Expense:           NewExpenseClient(cfg),
 		ExpenseItem:       NewExpenseItemClient(cfg),
@@ -256,10 +284,12 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		JobRun:            NewJobRunClient(cfg),
 		JobStatus:         NewJobStatusClient(cfg),
 		LedgerEntry:       NewLedgerEntryClient(cfg),
+		MemberSegment:     NewMemberSegmentClient(cfg),
 		Payment:           NewPaymentClient(cfg),
 		ReferralAccrual:   NewReferralAccrualClient(cfg),
 		RwUser:            NewRwUserClient(cfg),
 		Setting:           NewSettingClient(cfg),
+		StatementLine:     NewStatementLineClient(cfg),
 		Subscription:      NewSubscriptionClient(cfg),
 		SubscriptionAddon: NewSubscriptionAddonClient(cfg),
 		Tariff:            NewTariffClient(cfg),
@@ -294,9 +324,10 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.APIToken, c.Addon, c.AuditLog, c.Customer, c.Expense, c.ExpenseItem,
-		c.Extension, c.FxRate, c.JobRun, c.JobStatus, c.LedgerEntry, c.Payment,
-		c.ReferralAccrual, c.RwUser, c.Setting, c.Subscription, c.SubscriptionAddon,
+		c.APIToken, c.Addon, c.AuditLog, c.Company, c.CompanyMember, c.CompanyStatement,
+		c.Customer, c.Expense, c.ExpenseItem, c.Extension, c.FxRate, c.JobRun,
+		c.JobStatus, c.LedgerEntry, c.MemberSegment, c.Payment, c.ReferralAccrual,
+		c.RwUser, c.Setting, c.StatementLine, c.Subscription, c.SubscriptionAddon,
 		c.Tariff, c.TariffPeriod, c.TrafficSnapshot,
 	} {
 		n.Use(hooks...)
@@ -307,9 +338,10 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.APIToken, c.Addon, c.AuditLog, c.Customer, c.Expense, c.ExpenseItem,
-		c.Extension, c.FxRate, c.JobRun, c.JobStatus, c.LedgerEntry, c.Payment,
-		c.ReferralAccrual, c.RwUser, c.Setting, c.Subscription, c.SubscriptionAddon,
+		c.APIToken, c.Addon, c.AuditLog, c.Company, c.CompanyMember, c.CompanyStatement,
+		c.Customer, c.Expense, c.ExpenseItem, c.Extension, c.FxRate, c.JobRun,
+		c.JobStatus, c.LedgerEntry, c.MemberSegment, c.Payment, c.ReferralAccrual,
+		c.RwUser, c.Setting, c.StatementLine, c.Subscription, c.SubscriptionAddon,
 		c.Tariff, c.TariffPeriod, c.TrafficSnapshot,
 	} {
 		n.Intercept(interceptors...)
@@ -325,6 +357,12 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Addon.mutate(ctx, m)
 	case *AuditLogMutation:
 		return c.AuditLog.mutate(ctx, m)
+	case *CompanyMutation:
+		return c.Company.mutate(ctx, m)
+	case *CompanyMemberMutation:
+		return c.CompanyMember.mutate(ctx, m)
+	case *CompanyStatementMutation:
+		return c.CompanyStatement.mutate(ctx, m)
 	case *CustomerMutation:
 		return c.Customer.mutate(ctx, m)
 	case *ExpenseMutation:
@@ -341,6 +379,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.JobStatus.mutate(ctx, m)
 	case *LedgerEntryMutation:
 		return c.LedgerEntry.mutate(ctx, m)
+	case *MemberSegmentMutation:
+		return c.MemberSegment.mutate(ctx, m)
 	case *PaymentMutation:
 		return c.Payment.mutate(ctx, m)
 	case *ReferralAccrualMutation:
@@ -349,6 +389,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.RwUser.mutate(ctx, m)
 	case *SettingMutation:
 		return c.Setting.mutate(ctx, m)
+	case *StatementLineMutation:
+		return c.StatementLine.mutate(ctx, m)
 	case *SubscriptionMutation:
 		return c.Subscription.mutate(ctx, m)
 	case *SubscriptionAddonMutation:
@@ -470,6 +512,22 @@ func (c *APITokenClient) GetX(ctx context.Context, id int) *APIToken {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryCompany queries the company edge of a APIToken.
+func (c *APITokenClient) QueryCompany(_m *APIToken) *CompanyQuery {
+	query := (&CompanyClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(apitoken.Table, apitoken.FieldID, id),
+			sqlgraph.To(company.Table, company.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, apitoken.CompanyTable, apitoken.CompanyColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
@@ -792,6 +850,549 @@ func (c *AuditLogClient) mutate(ctx context.Context, m *AuditLogMutation) (Value
 		return (&AuditLogDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown AuditLog mutation op: %q", m.Op())
+	}
+}
+
+// CompanyClient is a client for the Company schema.
+type CompanyClient struct {
+	config
+}
+
+// NewCompanyClient returns a client for the Company from the given config.
+func NewCompanyClient(c config) *CompanyClient {
+	return &CompanyClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `company.Hooks(f(g(h())))`.
+func (c *CompanyClient) Use(hooks ...Hook) {
+	c.hooks.Company = append(c.hooks.Company, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `company.Intercept(f(g(h())))`.
+func (c *CompanyClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Company = append(c.inters.Company, interceptors...)
+}
+
+// Create returns a builder for creating a Company entity.
+func (c *CompanyClient) Create() *CompanyCreate {
+	mutation := newCompanyMutation(c.config, OpCreate)
+	return &CompanyCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Company entities.
+func (c *CompanyClient) CreateBulk(builders ...*CompanyCreate) *CompanyCreateBulk {
+	return &CompanyCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *CompanyClient) MapCreateBulk(slice any, setFunc func(*CompanyCreate, int)) *CompanyCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &CompanyCreateBulk{err: fmt.Errorf("calling to CompanyClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*CompanyCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &CompanyCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Company.
+func (c *CompanyClient) Update() *CompanyUpdate {
+	mutation := newCompanyMutation(c.config, OpUpdate)
+	return &CompanyUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *CompanyClient) UpdateOne(_m *Company) *CompanyUpdateOne {
+	mutation := newCompanyMutation(c.config, OpUpdateOne, withCompany(_m))
+	return &CompanyUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *CompanyClient) UpdateOneID(id int) *CompanyUpdateOne {
+	mutation := newCompanyMutation(c.config, OpUpdateOne, withCompanyID(id))
+	return &CompanyUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Company.
+func (c *CompanyClient) Delete() *CompanyDelete {
+	mutation := newCompanyMutation(c.config, OpDelete)
+	return &CompanyDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *CompanyClient) DeleteOne(_m *Company) *CompanyDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *CompanyClient) DeleteOneID(id int) *CompanyDeleteOne {
+	builder := c.Delete().Where(company.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &CompanyDeleteOne{builder}
+}
+
+// Query returns a query builder for Company.
+func (c *CompanyClient) Query() *CompanyQuery {
+	return &CompanyQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeCompany},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Company entity by its id.
+func (c *CompanyClient) Get(ctx context.Context, id int) (*Company, error) {
+	return c.Query().Where(company.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *CompanyClient) GetX(ctx context.Context, id int) *Company {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryCustomer queries the customer edge of a Company.
+func (c *CompanyClient) QueryCustomer(_m *Company) *CustomerQuery {
+	query := (&CustomerClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(company.Table, company.FieldID, id),
+			sqlgraph.To(customer.Table, customer.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, company.CustomerTable, company.CustomerColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTariff queries the tariff edge of a Company.
+func (c *CompanyClient) QueryTariff(_m *Company) *TariffQuery {
+	query := (&TariffClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(company.Table, company.FieldID, id),
+			sqlgraph.To(tariff.Table, tariff.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, company.TariffTable, company.TariffColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryMembers queries the members edge of a Company.
+func (c *CompanyClient) QueryMembers(_m *Company) *CompanyMemberQuery {
+	query := (&CompanyMemberClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(company.Table, company.FieldID, id),
+			sqlgraph.To(companymember.Table, companymember.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, company.MembersTable, company.MembersColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryStatements queries the statements edge of a Company.
+func (c *CompanyClient) QueryStatements(_m *Company) *CompanyStatementQuery {
+	query := (&CompanyStatementClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(company.Table, company.FieldID, id),
+			sqlgraph.To(companystatement.Table, companystatement.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, company.StatementsTable, company.StatementsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *CompanyClient) Hooks() []Hook {
+	return c.hooks.Company
+}
+
+// Interceptors returns the client interceptors.
+func (c *CompanyClient) Interceptors() []Interceptor {
+	return c.inters.Company
+}
+
+func (c *CompanyClient) mutate(ctx context.Context, m *CompanyMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&CompanyCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&CompanyUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&CompanyUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&CompanyDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Company mutation op: %q", m.Op())
+	}
+}
+
+// CompanyMemberClient is a client for the CompanyMember schema.
+type CompanyMemberClient struct {
+	config
+}
+
+// NewCompanyMemberClient returns a client for the CompanyMember from the given config.
+func NewCompanyMemberClient(c config) *CompanyMemberClient {
+	return &CompanyMemberClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `companymember.Hooks(f(g(h())))`.
+func (c *CompanyMemberClient) Use(hooks ...Hook) {
+	c.hooks.CompanyMember = append(c.hooks.CompanyMember, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `companymember.Intercept(f(g(h())))`.
+func (c *CompanyMemberClient) Intercept(interceptors ...Interceptor) {
+	c.inters.CompanyMember = append(c.inters.CompanyMember, interceptors...)
+}
+
+// Create returns a builder for creating a CompanyMember entity.
+func (c *CompanyMemberClient) Create() *CompanyMemberCreate {
+	mutation := newCompanyMemberMutation(c.config, OpCreate)
+	return &CompanyMemberCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of CompanyMember entities.
+func (c *CompanyMemberClient) CreateBulk(builders ...*CompanyMemberCreate) *CompanyMemberCreateBulk {
+	return &CompanyMemberCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *CompanyMemberClient) MapCreateBulk(slice any, setFunc func(*CompanyMemberCreate, int)) *CompanyMemberCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &CompanyMemberCreateBulk{err: fmt.Errorf("calling to CompanyMemberClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*CompanyMemberCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &CompanyMemberCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for CompanyMember.
+func (c *CompanyMemberClient) Update() *CompanyMemberUpdate {
+	mutation := newCompanyMemberMutation(c.config, OpUpdate)
+	return &CompanyMemberUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *CompanyMemberClient) UpdateOne(_m *CompanyMember) *CompanyMemberUpdateOne {
+	mutation := newCompanyMemberMutation(c.config, OpUpdateOne, withCompanyMember(_m))
+	return &CompanyMemberUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *CompanyMemberClient) UpdateOneID(id int) *CompanyMemberUpdateOne {
+	mutation := newCompanyMemberMutation(c.config, OpUpdateOne, withCompanyMemberID(id))
+	return &CompanyMemberUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for CompanyMember.
+func (c *CompanyMemberClient) Delete() *CompanyMemberDelete {
+	mutation := newCompanyMemberMutation(c.config, OpDelete)
+	return &CompanyMemberDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *CompanyMemberClient) DeleteOne(_m *CompanyMember) *CompanyMemberDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *CompanyMemberClient) DeleteOneID(id int) *CompanyMemberDeleteOne {
+	builder := c.Delete().Where(companymember.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &CompanyMemberDeleteOne{builder}
+}
+
+// Query returns a query builder for CompanyMember.
+func (c *CompanyMemberClient) Query() *CompanyMemberQuery {
+	return &CompanyMemberQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeCompanyMember},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a CompanyMember entity by its id.
+func (c *CompanyMemberClient) Get(ctx context.Context, id int) (*CompanyMember, error) {
+	return c.Query().Where(companymember.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *CompanyMemberClient) GetX(ctx context.Context, id int) *CompanyMember {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryCompany queries the company edge of a CompanyMember.
+func (c *CompanyMemberClient) QueryCompany(_m *CompanyMember) *CompanyQuery {
+	query := (&CompanyClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(companymember.Table, companymember.FieldID, id),
+			sqlgraph.To(company.Table, company.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, companymember.CompanyTable, companymember.CompanyColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryRwUser queries the rw_user edge of a CompanyMember.
+func (c *CompanyMemberClient) QueryRwUser(_m *CompanyMember) *RwUserQuery {
+	query := (&RwUserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(companymember.Table, companymember.FieldID, id),
+			sqlgraph.To(rwuser.Table, rwuser.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, companymember.RwUserTable, companymember.RwUserColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySegments queries the segments edge of a CompanyMember.
+func (c *CompanyMemberClient) QuerySegments(_m *CompanyMember) *MemberSegmentQuery {
+	query := (&MemberSegmentClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(companymember.Table, companymember.FieldID, id),
+			sqlgraph.To(membersegment.Table, membersegment.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, companymember.SegmentsTable, companymember.SegmentsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *CompanyMemberClient) Hooks() []Hook {
+	return c.hooks.CompanyMember
+}
+
+// Interceptors returns the client interceptors.
+func (c *CompanyMemberClient) Interceptors() []Interceptor {
+	return c.inters.CompanyMember
+}
+
+func (c *CompanyMemberClient) mutate(ctx context.Context, m *CompanyMemberMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&CompanyMemberCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&CompanyMemberUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&CompanyMemberUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&CompanyMemberDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown CompanyMember mutation op: %q", m.Op())
+	}
+}
+
+// CompanyStatementClient is a client for the CompanyStatement schema.
+type CompanyStatementClient struct {
+	config
+}
+
+// NewCompanyStatementClient returns a client for the CompanyStatement from the given config.
+func NewCompanyStatementClient(c config) *CompanyStatementClient {
+	return &CompanyStatementClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `companystatement.Hooks(f(g(h())))`.
+func (c *CompanyStatementClient) Use(hooks ...Hook) {
+	c.hooks.CompanyStatement = append(c.hooks.CompanyStatement, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `companystatement.Intercept(f(g(h())))`.
+func (c *CompanyStatementClient) Intercept(interceptors ...Interceptor) {
+	c.inters.CompanyStatement = append(c.inters.CompanyStatement, interceptors...)
+}
+
+// Create returns a builder for creating a CompanyStatement entity.
+func (c *CompanyStatementClient) Create() *CompanyStatementCreate {
+	mutation := newCompanyStatementMutation(c.config, OpCreate)
+	return &CompanyStatementCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of CompanyStatement entities.
+func (c *CompanyStatementClient) CreateBulk(builders ...*CompanyStatementCreate) *CompanyStatementCreateBulk {
+	return &CompanyStatementCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *CompanyStatementClient) MapCreateBulk(slice any, setFunc func(*CompanyStatementCreate, int)) *CompanyStatementCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &CompanyStatementCreateBulk{err: fmt.Errorf("calling to CompanyStatementClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*CompanyStatementCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &CompanyStatementCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for CompanyStatement.
+func (c *CompanyStatementClient) Update() *CompanyStatementUpdate {
+	mutation := newCompanyStatementMutation(c.config, OpUpdate)
+	return &CompanyStatementUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *CompanyStatementClient) UpdateOne(_m *CompanyStatement) *CompanyStatementUpdateOne {
+	mutation := newCompanyStatementMutation(c.config, OpUpdateOne, withCompanyStatement(_m))
+	return &CompanyStatementUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *CompanyStatementClient) UpdateOneID(id int) *CompanyStatementUpdateOne {
+	mutation := newCompanyStatementMutation(c.config, OpUpdateOne, withCompanyStatementID(id))
+	return &CompanyStatementUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for CompanyStatement.
+func (c *CompanyStatementClient) Delete() *CompanyStatementDelete {
+	mutation := newCompanyStatementMutation(c.config, OpDelete)
+	return &CompanyStatementDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *CompanyStatementClient) DeleteOne(_m *CompanyStatement) *CompanyStatementDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *CompanyStatementClient) DeleteOneID(id int) *CompanyStatementDeleteOne {
+	builder := c.Delete().Where(companystatement.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &CompanyStatementDeleteOne{builder}
+}
+
+// Query returns a query builder for CompanyStatement.
+func (c *CompanyStatementClient) Query() *CompanyStatementQuery {
+	return &CompanyStatementQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeCompanyStatement},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a CompanyStatement entity by its id.
+func (c *CompanyStatementClient) Get(ctx context.Context, id int) (*CompanyStatement, error) {
+	return c.Query().Where(companystatement.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *CompanyStatementClient) GetX(ctx context.Context, id int) *CompanyStatement {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryCompany queries the company edge of a CompanyStatement.
+func (c *CompanyStatementClient) QueryCompany(_m *CompanyStatement) *CompanyQuery {
+	query := (&CompanyClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(companystatement.Table, companystatement.FieldID, id),
+			sqlgraph.To(company.Table, company.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, companystatement.CompanyTable, companystatement.CompanyColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryLines queries the lines edge of a CompanyStatement.
+func (c *CompanyStatementClient) QueryLines(_m *CompanyStatement) *StatementLineQuery {
+	query := (&StatementLineClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(companystatement.Table, companystatement.FieldID, id),
+			sqlgraph.To(statementline.Table, statementline.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, companystatement.LinesTable, companystatement.LinesColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *CompanyStatementClient) Hooks() []Hook {
+	return c.hooks.CompanyStatement
+}
+
+// Interceptors returns the client interceptors.
+func (c *CompanyStatementClient) Interceptors() []Interceptor {
+	return c.inters.CompanyStatement
+}
+
+func (c *CompanyStatementClient) mutate(ctx context.Context, m *CompanyStatementMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&CompanyStatementCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&CompanyStatementUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&CompanyStatementUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&CompanyStatementDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown CompanyStatement mutation op: %q", m.Op())
 	}
 }
 
@@ -1955,6 +2556,171 @@ func (c *LedgerEntryClient) mutate(ctx context.Context, m *LedgerEntryMutation) 
 	}
 }
 
+// MemberSegmentClient is a client for the MemberSegment schema.
+type MemberSegmentClient struct {
+	config
+}
+
+// NewMemberSegmentClient returns a client for the MemberSegment from the given config.
+func NewMemberSegmentClient(c config) *MemberSegmentClient {
+	return &MemberSegmentClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `membersegment.Hooks(f(g(h())))`.
+func (c *MemberSegmentClient) Use(hooks ...Hook) {
+	c.hooks.MemberSegment = append(c.hooks.MemberSegment, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `membersegment.Intercept(f(g(h())))`.
+func (c *MemberSegmentClient) Intercept(interceptors ...Interceptor) {
+	c.inters.MemberSegment = append(c.inters.MemberSegment, interceptors...)
+}
+
+// Create returns a builder for creating a MemberSegment entity.
+func (c *MemberSegmentClient) Create() *MemberSegmentCreate {
+	mutation := newMemberSegmentMutation(c.config, OpCreate)
+	return &MemberSegmentCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of MemberSegment entities.
+func (c *MemberSegmentClient) CreateBulk(builders ...*MemberSegmentCreate) *MemberSegmentCreateBulk {
+	return &MemberSegmentCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *MemberSegmentClient) MapCreateBulk(slice any, setFunc func(*MemberSegmentCreate, int)) *MemberSegmentCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &MemberSegmentCreateBulk{err: fmt.Errorf("calling to MemberSegmentClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*MemberSegmentCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &MemberSegmentCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for MemberSegment.
+func (c *MemberSegmentClient) Update() *MemberSegmentUpdate {
+	mutation := newMemberSegmentMutation(c.config, OpUpdate)
+	return &MemberSegmentUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *MemberSegmentClient) UpdateOne(_m *MemberSegment) *MemberSegmentUpdateOne {
+	mutation := newMemberSegmentMutation(c.config, OpUpdateOne, withMemberSegment(_m))
+	return &MemberSegmentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *MemberSegmentClient) UpdateOneID(id int) *MemberSegmentUpdateOne {
+	mutation := newMemberSegmentMutation(c.config, OpUpdateOne, withMemberSegmentID(id))
+	return &MemberSegmentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for MemberSegment.
+func (c *MemberSegmentClient) Delete() *MemberSegmentDelete {
+	mutation := newMemberSegmentMutation(c.config, OpDelete)
+	return &MemberSegmentDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *MemberSegmentClient) DeleteOne(_m *MemberSegment) *MemberSegmentDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *MemberSegmentClient) DeleteOneID(id int) *MemberSegmentDeleteOne {
+	builder := c.Delete().Where(membersegment.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &MemberSegmentDeleteOne{builder}
+}
+
+// Query returns a query builder for MemberSegment.
+func (c *MemberSegmentClient) Query() *MemberSegmentQuery {
+	return &MemberSegmentQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeMemberSegment},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a MemberSegment entity by its id.
+func (c *MemberSegmentClient) Get(ctx context.Context, id int) (*MemberSegment, error) {
+	return c.Query().Where(membersegment.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *MemberSegmentClient) GetX(ctx context.Context, id int) *MemberSegment {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryMember queries the member edge of a MemberSegment.
+func (c *MemberSegmentClient) QueryMember(_m *MemberSegment) *CompanyMemberQuery {
+	query := (&CompanyMemberClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(membersegment.Table, membersegment.FieldID, id),
+			sqlgraph.To(companymember.Table, companymember.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, membersegment.MemberTable, membersegment.MemberColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTariff queries the tariff edge of a MemberSegment.
+func (c *MemberSegmentClient) QueryTariff(_m *MemberSegment) *TariffQuery {
+	query := (&TariffClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(membersegment.Table, membersegment.FieldID, id),
+			sqlgraph.To(tariff.Table, tariff.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, membersegment.TariffTable, membersegment.TariffColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *MemberSegmentClient) Hooks() []Hook {
+	return c.hooks.MemberSegment
+}
+
+// Interceptors returns the client interceptors.
+func (c *MemberSegmentClient) Interceptors() []Interceptor {
+	return c.inters.MemberSegment
+}
+
+func (c *MemberSegmentClient) mutate(ctx context.Context, m *MemberSegmentMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&MemberSegmentCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&MemberSegmentUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&MemberSegmentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&MemberSegmentDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown MemberSegment mutation op: %q", m.Op())
+	}
+}
+
 // PaymentClient is a client for the Payment schema.
 type PaymentClient struct {
 	config
@@ -2564,6 +3330,155 @@ func (c *SettingClient) mutate(ctx context.Context, m *SettingMutation) (Value, 
 		return (&SettingDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Setting mutation op: %q", m.Op())
+	}
+}
+
+// StatementLineClient is a client for the StatementLine schema.
+type StatementLineClient struct {
+	config
+}
+
+// NewStatementLineClient returns a client for the StatementLine from the given config.
+func NewStatementLineClient(c config) *StatementLineClient {
+	return &StatementLineClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `statementline.Hooks(f(g(h())))`.
+func (c *StatementLineClient) Use(hooks ...Hook) {
+	c.hooks.StatementLine = append(c.hooks.StatementLine, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `statementline.Intercept(f(g(h())))`.
+func (c *StatementLineClient) Intercept(interceptors ...Interceptor) {
+	c.inters.StatementLine = append(c.inters.StatementLine, interceptors...)
+}
+
+// Create returns a builder for creating a StatementLine entity.
+func (c *StatementLineClient) Create() *StatementLineCreate {
+	mutation := newStatementLineMutation(c.config, OpCreate)
+	return &StatementLineCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of StatementLine entities.
+func (c *StatementLineClient) CreateBulk(builders ...*StatementLineCreate) *StatementLineCreateBulk {
+	return &StatementLineCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *StatementLineClient) MapCreateBulk(slice any, setFunc func(*StatementLineCreate, int)) *StatementLineCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &StatementLineCreateBulk{err: fmt.Errorf("calling to StatementLineClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*StatementLineCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &StatementLineCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for StatementLine.
+func (c *StatementLineClient) Update() *StatementLineUpdate {
+	mutation := newStatementLineMutation(c.config, OpUpdate)
+	return &StatementLineUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *StatementLineClient) UpdateOne(_m *StatementLine) *StatementLineUpdateOne {
+	mutation := newStatementLineMutation(c.config, OpUpdateOne, withStatementLine(_m))
+	return &StatementLineUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *StatementLineClient) UpdateOneID(id int) *StatementLineUpdateOne {
+	mutation := newStatementLineMutation(c.config, OpUpdateOne, withStatementLineID(id))
+	return &StatementLineUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for StatementLine.
+func (c *StatementLineClient) Delete() *StatementLineDelete {
+	mutation := newStatementLineMutation(c.config, OpDelete)
+	return &StatementLineDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *StatementLineClient) DeleteOne(_m *StatementLine) *StatementLineDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *StatementLineClient) DeleteOneID(id int) *StatementLineDeleteOne {
+	builder := c.Delete().Where(statementline.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &StatementLineDeleteOne{builder}
+}
+
+// Query returns a query builder for StatementLine.
+func (c *StatementLineClient) Query() *StatementLineQuery {
+	return &StatementLineQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeStatementLine},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a StatementLine entity by its id.
+func (c *StatementLineClient) Get(ctx context.Context, id int) (*StatementLine, error) {
+	return c.Query().Where(statementline.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *StatementLineClient) GetX(ctx context.Context, id int) *StatementLine {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryStatement queries the statement edge of a StatementLine.
+func (c *StatementLineClient) QueryStatement(_m *StatementLine) *CompanyStatementQuery {
+	query := (&CompanyStatementClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(statementline.Table, statementline.FieldID, id),
+			sqlgraph.To(companystatement.Table, companystatement.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, statementline.StatementTable, statementline.StatementColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *StatementLineClient) Hooks() []Hook {
+	return c.hooks.StatementLine
+}
+
+// Interceptors returns the client interceptors.
+func (c *StatementLineClient) Interceptors() []Interceptor {
+	return c.inters.StatementLine
+}
+
+func (c *StatementLineClient) mutate(ctx context.Context, m *StatementLineMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&StatementLineCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&StatementLineUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&StatementLineUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&StatementLineDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown StatementLine mutation op: %q", m.Op())
 	}
 }
 
@@ -3475,14 +4390,16 @@ func (c *TrafficSnapshotClient) mutate(ctx context.Context, m *TrafficSnapshotMu
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		APIToken, Addon, AuditLog, Customer, Expense, ExpenseItem, Extension, FxRate,
-		JobRun, JobStatus, LedgerEntry, Payment, ReferralAccrual, RwUser, Setting,
+		APIToken, Addon, AuditLog, Company, CompanyMember, CompanyStatement, Customer,
+		Expense, ExpenseItem, Extension, FxRate, JobRun, JobStatus, LedgerEntry,
+		MemberSegment, Payment, ReferralAccrual, RwUser, Setting, StatementLine,
 		Subscription, SubscriptionAddon, Tariff, TariffPeriod,
 		TrafficSnapshot []ent.Hook
 	}
 	inters struct {
-		APIToken, Addon, AuditLog, Customer, Expense, ExpenseItem, Extension, FxRate,
-		JobRun, JobStatus, LedgerEntry, Payment, ReferralAccrual, RwUser, Setting,
+		APIToken, Addon, AuditLog, Company, CompanyMember, CompanyStatement, Customer,
+		Expense, ExpenseItem, Extension, FxRate, JobRun, JobStatus, LedgerEntry,
+		MemberSegment, Payment, ReferralAccrual, RwUser, Setting, StatementLine,
 		Subscription, SubscriptionAddon, Tariff, TariffPeriod,
 		TrafficSnapshot []ent.Interceptor
 	}

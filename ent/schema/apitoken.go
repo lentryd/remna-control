@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
 
@@ -29,5 +30,14 @@ func (APIToken) Fields() []ent.Field {
 		field.Time("expire_at").Optional().Nillable(),
 		field.Time("created_at").Immutable().Default(time.Now),
 		field.Time("last_used_at").Optional().Nillable(),
+		// CompanyID binds the token to one company: it then sees only that
+		// company's employees, balance and statements.
+		field.Int("company_id").Optional().Nillable(),
+	}
+}
+
+func (APIToken) Edges() []ent.Edge {
+	return []ent.Edge{
+		edge.To("company", Company.Type).Field("company_id").Unique(),
 	}
 }

@@ -10,6 +10,9 @@ import (
 	"remna-control/ent/addon"
 	"remna-control/ent/apitoken"
 	"remna-control/ent/auditlog"
+	"remna-control/ent/company"
+	"remna-control/ent/companymember"
+	"remna-control/ent/companystatement"
 	"remna-control/ent/customer"
 	"remna-control/ent/expense"
 	"remna-control/ent/expenseitem"
@@ -18,10 +21,12 @@ import (
 	"remna-control/ent/jobrun"
 	"remna-control/ent/jobstatus"
 	"remna-control/ent/ledgerentry"
+	"remna-control/ent/membersegment"
 	"remna-control/ent/payment"
 	"remna-control/ent/referralaccrual"
 	"remna-control/ent/rwuser"
 	"remna-control/ent/setting"
+	"remna-control/ent/statementline"
 	"remna-control/ent/subscription"
 	"remna-control/ent/subscriptionaddon"
 	"remna-control/ent/tariff"
@@ -95,6 +100,9 @@ func checkColumn(t, c string) error {
 			apitoken.Table:          apitoken.ValidColumn,
 			addon.Table:             addon.ValidColumn,
 			auditlog.Table:          auditlog.ValidColumn,
+			company.Table:           company.ValidColumn,
+			companymember.Table:     companymember.ValidColumn,
+			companystatement.Table:  companystatement.ValidColumn,
 			customer.Table:          customer.ValidColumn,
 			expense.Table:           expense.ValidColumn,
 			expenseitem.Table:       expenseitem.ValidColumn,
@@ -103,10 +111,12 @@ func checkColumn(t, c string) error {
 			jobrun.Table:            jobrun.ValidColumn,
 			jobstatus.Table:         jobstatus.ValidColumn,
 			ledgerentry.Table:       ledgerentry.ValidColumn,
+			membersegment.Table:     membersegment.ValidColumn,
 			payment.Table:           payment.ValidColumn,
 			referralaccrual.Table:   referralaccrual.ValidColumn,
 			rwuser.Table:            rwuser.ValidColumn,
 			setting.Table:           setting.ValidColumn,
+			statementline.Table:     statementline.ValidColumn,
 			subscription.Table:      subscription.ValidColumn,
 			subscriptionaddon.Table: subscriptionaddon.ValidColumn,
 			tariff.Table:            tariff.ValidColumn,

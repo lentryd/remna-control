@@ -80,6 +80,25 @@ func RegisterRoutes(app *fiber.App, deps *Deps) {
 	a.Post("/addons/:id/archive", h.SetAddonArchived(true))
 	a.Post("/addons/:id/restore", h.SetAddonArchived(false))
 
+	a.Get("/companies", h.ListCompanies)
+	a.Post("/companies", h.CreateCompany)
+	a.Get("/companies/:id", h.GetCompany)
+	a.Put("/companies/:id", h.UpdateCompany)
+	a.Post("/companies/:id/archive", h.ArchiveCompany)
+	a.Put("/companies/:id/tariff", h.SetCompanyTariff)
+	a.Get("/companies/:id/members", h.ListCompanyMembers)
+	a.Post("/companies/:id/members", h.AddCompanyMember)
+	a.Get("/companies/:id/members/:mid", h.GetCompanyMember)
+	a.Put("/companies/:id/members/:mid", h.UpdateCompanyMember)
+	a.Delete("/companies/:id/members/:mid", h.RemoveCompanyMember)
+	a.Put("/companies/:id/members/:mid/override", h.SetMemberOverrides)
+	a.Put("/companies/:id/members/:mid/protect", h.SetMemberProtected)
+	a.Get("/companies/:id/balance", h.CompanyBalance)
+	a.Get("/companies/:id/accrued", h.CompanyAccrued)
+	a.Get("/companies/:id/statements", h.ListCompanyStatements)
+	a.Get("/companies/:id/statements/:sid", h.GetCompanyStatement)
+	a.Post("/companies/:id/close-period", h.CloseCompanyPeriod)
+
 	a.Get("/api-tokens", h.ListTokens)
 	a.Get("/api-tokens/scopes", h.TokenScopes)
 	a.Post("/api-tokens", h.CreateToken)
@@ -219,6 +238,33 @@ func registerPublic(v1 fiber.Router, h *handlers.Handlers) {
 		"stats:fx_rate":   h.FxRate,
 		"stats:settings":  h.GetSettings,
 		"stats:audit":     h.ListAudit,
+
+		"company:members":       h.ListCompanyMembers,
+		"company:member_get":    h.GetCompanyMember,
+		"company:member_add":    h.AddCompanyMember,
+		"company:member_update": h.UpdateCompanyMember,
+		"company:member_remove": h.RemoveCompanyMember,
+		"company:balance":       h.CompanyBalance,
+		"company:statements":    h.ListCompanyStatements,
+		"company:statement_get": h.GetCompanyStatement,
+
+		"companies:list":            h.ListCompanies,
+		"companies:get":             h.GetCompany,
+		"companies:create":          h.CreateCompany,
+		"companies:update":          h.UpdateCompany,
+		"companies:archive":         h.ArchiveCompany,
+		"companies:set_tariff":      h.SetCompanyTariff,
+		"companies:members":         h.ListCompanyMembers,
+		"companies:member_add":      h.AddCompanyMember,
+		"companies:member_update":   h.UpdateCompanyMember,
+		"companies:member_remove":   h.RemoveCompanyMember,
+		"companies:member_override": h.SetMemberOverrides,
+		"companies:member_protect":  h.SetMemberProtected,
+		"companies:balance":         h.CompanyBalance,
+		"companies:accrued":         h.CompanyAccrued,
+		"companies:statements":      h.ListCompanyStatements,
+		"companies:statement_get":   h.GetCompanyStatement,
+		"companies:close_period":    h.CloseCompanyPeriod,
 
 		"backups:list":     h.ListSnapshots,
 		"backups:download": h.DownloadSnapshot,

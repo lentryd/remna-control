@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"remna-control/ent"
+	"remna-control/ent/company"
 	"remna-control/ent/customer"
 	"remna-control/ent/ledgerentry"
 	"remna-control/ent/referralaccrual"
@@ -35,6 +36,9 @@ var (
 	ErrIncluded            = apperr.New("billing.included", "the add-on comes with the subscription's tariff and is extended with it")
 	usernameRe             = regexp.MustCompile(`^[a-zA-Z0-9_-]{3,36}$`)
 )
+
+// ValidUsername reports whether s can be a panel username.
+func ValidUsername(s string) bool { return usernameRe.MatchString(s) }
 
 type Service struct {
 	db       *ent.Client
@@ -327,6 +331,10 @@ type Referral struct {
 func (s *Service) referralFor(ctx context.Context, payer *ent.Customer, amount int64) (*Referral, error) {
 	if payer.ReferrerID == nil {
 		return nil, nil
+	}
+	// A company's billing account earns its referrer nothing.
+	if isAccount, err := s.db.Company.Query().Where(company.CustomerID(payer.ID)).Exist(ctx); err != nil || isAccount {
+		return nil, err
 	}
 	ref, err := s.db.Customer.Get(ctx, *payer.ReferrerID)
 	if err != nil {

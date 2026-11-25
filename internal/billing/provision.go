@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"remna-control/ent"
+	"remna-control/ent/companymember"
 	"remna-control/ent/extension"
 	"remna-control/ent/rwuser"
 	"remna-control/ent/subscription"
@@ -165,6 +166,12 @@ func (s *Service) provisioned(ctx context.Context, customerID int, u *remnawave.
 	} else if linked {
 		return nil, taken()
 	}
+	// A company's employee is billed by its statements, never as a subscription.
+	if member, err := s.db.CompanyMember.Query().Where(companymember.RwUserID(u.ID)).Exist(ctx); err != nil {
+		return nil, err
+	} else if member {
+		return nil, taken()
+	}
 	return nil, nil
 }
 
@@ -286,6 +293,11 @@ func (s *Service) connectAddonUser(ctx context.Context, sub *ent.Subscription, t
 	existing, err := s.rw.GetUserByUsername(ctx, username)
 	switch {
 	case err == nil:
+		if member, merr := s.db.CompanyMember.Query().Where(companymember.RwUserID(existing.ID)).Exist(ctx); merr != nil {
+			return nil, time.Time{}, merr
+		} else if member {
+			return nil, time.Time{}, apperr.Status(http.StatusConflict, "billing.username_taken", "panel user {{name}} already belongs to a company employee", "name", username)
+		}
 		// Adopt a user created by hand: apply the tariff parameters, and
 		// never shorten what it already has.
 		if extendBy != nil {

@@ -24,6 +24,10 @@ type ScopeEndpoint struct {
 	Path        string `json:"path"`
 	Description string `json:"description"`
 	Kind        string `json:"kind"` // read | write
+	// Company marks the endpoints of a company-bound token: they act on the
+	// token's own company. Bound tokens can use nothing else, and unbound
+	// tokens can't use these.
+	Company bool `json:"company"`
 }
 
 // ScopeResource groups endpoints like the panel's API token scopes.
@@ -119,6 +123,35 @@ var ScopeCatalog = []ScopeResource{
 		{Key: "stats:settings", Method: "GET", Path: "/api/v1/settings", Description: "Settings (read only)", Kind: "read"},
 		{Key: "stats:audit", Method: "GET", Path: "/api/v1/audit", Description: "Audit log", Kind: "read"},
 	}},
+	{Resource: "company", Endpoints: []ScopeEndpoint{
+		{Key: "company:members", Method: "GET", Path: "/api/v1/company/members", Description: "List the company's employees", Kind: "read", Company: true},
+		{Key: "company:member_get", Method: "GET", Path: "/api/v1/company/members/{mid}", Description: "One employee", Kind: "read", Company: true},
+		{Key: "company:member_add", Method: "POST", Path: "/api/v1/company/members", Description: "Add an employee (or bring a removed one back); 200 with the existing one if already there", Kind: "write", Company: true},
+		{Key: "company:member_update", Method: "PUT", Path: "/api/v1/company/members/{mid}", Description: "Change an employee's label", Kind: "write", Company: true},
+		{Key: "company:member_remove", Method: "DELETE", Path: "/api/v1/company/members/{mid}", Description: "Remove an employee (disabled in the panel); protected ones answer 409", Kind: "write", Company: true},
+		{Key: "company:balance", Method: "GET", Path: "/api/v1/company/balance", Description: "Balance, accrued so far and the next report date", Kind: "read", Company: true},
+		{Key: "company:statements", Method: "GET", Path: "/api/v1/company/statements", Description: "List statements", Kind: "read", Company: true},
+		{Key: "company:statement_get", Method: "GET", Path: "/api/v1/company/statements/{sid}", Description: "A statement with its lines", Kind: "read", Company: true},
+	}},
+	{Resource: "companies", Endpoints: []ScopeEndpoint{
+		{Key: "companies:list", Method: "GET", Path: "/api/v1/companies", Description: "List companies", Kind: "read"},
+		{Key: "companies:get", Method: "GET", Path: "/api/v1/companies/{id}", Description: "A company", Kind: "read"},
+		{Key: "companies:create", Method: "POST", Path: "/api/v1/companies", Description: "Create a company", Kind: "write"},
+		{Key: "companies:update", Method: "PUT", Path: "/api/v1/companies/{id}", Description: "Rename, notes and report day", Kind: "write"},
+		{Key: "companies:archive", Method: "POST", Path: "/api/v1/companies/{id}/archive", Description: "Archive: final statement, employees removed", Kind: "write"},
+		{Key: "companies:set_tariff", Method: "PUT", Path: "/api/v1/companies/{id}/tariff", Description: "Change the company tariff (moves employees that follow it)", Kind: "write"},
+		{Key: "companies:members", Method: "GET", Path: "/api/v1/companies/{id}/members", Description: "List employees", Kind: "read"},
+		{Key: "companies:member_add", Method: "POST", Path: "/api/v1/companies/{id}/members", Description: "Add an employee", Kind: "write"},
+		{Key: "companies:member_update", Method: "PUT", Path: "/api/v1/companies/{id}/members/{mid}", Description: "Change an employee's label", Kind: "write"},
+		{Key: "companies:member_remove", Method: "DELETE", Path: "/api/v1/companies/{id}/members/{mid}", Description: "Remove an employee", Kind: "write"},
+		{Key: "companies:member_override", Method: "PUT", Path: "/api/v1/companies/{id}/members/{mid}/override", Description: "Set an employee's tariff and per-field overrides", Kind: "write"},
+		{Key: "companies:member_protect", Method: "PUT", Path: "/api/v1/companies/{id}/members/{mid}/protect", Description: "Protect or unprotect an employee from removal", Kind: "write"},
+		{Key: "companies:balance", Method: "GET", Path: "/api/v1/companies/{id}/balance", Description: "Balance and accrued so far", Kind: "read"},
+		{Key: "companies:accrued", Method: "GET", Path: "/api/v1/companies/{id}/accrued", Description: "Accrued and forecast of the open period, by employee", Kind: "read"},
+		{Key: "companies:statements", Method: "GET", Path: "/api/v1/companies/{id}/statements", Description: "List statements", Kind: "read"},
+		{Key: "companies:statement_get", Method: "GET", Path: "/api/v1/companies/{id}/statements/{sid}", Description: "A statement with its lines", Kind: "read"},
+		{Key: "companies:close_period", Method: "POST", Path: "/api/v1/companies/{id}/close-period", Description: "Post the open period now", Kind: "write"},
+	}},
 	{Resource: "backups", Endpoints: []ScopeEndpoint{
 		{Key: "backups:list", Method: "GET", Path: "/api/v1/backups", Description: "List snapshots", Kind: "read"},
 		{Key: "backups:download", Method: "GET", Path: "/api/v1/backups/{name}", Description: "Download a snapshot", Kind: "read"},
@@ -170,6 +203,29 @@ func Allowed(scopes []string, key string) bool {
 // LocalsToken is the fiber.Ctx.Locals key holding the calling *ent.APIToken.
 const LocalsToken = "token"
 
+// LocalsCompanyID holds the company id (int) of a company-bound token.
+const LocalsCompanyID = "company_id"
+
+// companyScope reports whether s is "company:*|read|write" or the key of a
+// company endpoint.
+func companyScope(s string) bool {
+	if res, ep := findEndpoint(s); ep != nil {
+		return ep.Company && res == "company"
+	}
+	res, rest, ok := strings.Cut(s, ":")
+	return ok && res == "company" && (rest == "*" || rest == "read" || rest == "write")
+}
+
+// GrantsCompany reports whether the scopes name company endpoints, which only
+// a company-bound token can use. "*" doesn't count.
+func GrantsCompany(scopes []string) bool { return slices.ContainsFunc(scopes, companyScope) }
+
+// CompanyScopesOnly reports whether every scope is "*" or a company scope,
+// the only ones a company-bound token may carry.
+func CompanyScopesOnly(scopes []string) bool {
+	return !slices.ContainsFunc(scopes, func(s string) bool { return s != "*" && !companyScope(s) })
+}
+
 const tokenPrefix = "vpc_"
 
 // NewToken returns a fresh API token and the hash to store.
@@ -207,11 +263,23 @@ func RequireToken(db *ent.Client, key string) fiber.Handler {
 		if !Allowed(t.Scopes, key) {
 			return apperr.Status(fiber.StatusForbidden, "token.scope", "token lacks scope {{scope}}", "scope", key)
 		}
+		// A company-bound token reaches company endpoints only, and only
+		// those: whatever scopes it carries.
+		_, ep := findEndpoint(key)
+		switch {
+		case t.CompanyID != nil && !ep.Company:
+			return apperr.Status(fiber.StatusForbidden, "token.company_bound", "a company token can't use this endpoint")
+		case t.CompanyID == nil && ep.Company:
+			return apperr.Status(fiber.StatusForbidden, "token.company_required", "this endpoint needs a token bound to a company")
+		}
 		// Coarse last-use tracking: one write a minute at most.
 		if t.LastUsedAt == nil || time.Since(*t.LastUsedAt) > time.Minute {
 			_ = db.APIToken.UpdateOne(t).SetLastUsedAt(time.Now()).Exec(ctx)
 		}
 		c.Locals(LocalsToken, t)
+		if t.CompanyID != nil {
+			c.Locals(LocalsCompanyID, *t.CompanyID)
+		}
 		c.SetUserContext(audit.WithActor(ctx, "token:"+t.Name))
 		return c.Next()
 	}

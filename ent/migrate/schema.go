@@ -20,12 +20,21 @@ var (
 		{Name: "expire_at", Type: field.TypeTime, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "last_used_at", Type: field.TypeTime, Nullable: true},
+		{Name: "company_id", Type: field.TypeInt, Nullable: true},
 	}
 	// APITokensTable holds the schema information for the "api_tokens" table.
 	APITokensTable = &schema.Table{
 		Name:       "api_tokens",
 		Columns:    APITokensColumns,
 		PrimaryKey: []*schema.Column{APITokensColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "api_tokens_companies_company",
+				Columns:    []*schema.Column{APITokensColumns[9]},
+				RefColumns: []*schema.Column{CompaniesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// AddonsColumns holds the columns for the "addons" table.
 	AddonsColumns = []*schema.Column{
@@ -65,6 +74,110 @@ var (
 		Name:       "audit_logs",
 		Columns:    AuditLogsColumns,
 		PrimaryKey: []*schema.Column{AuditLogsColumns[0]},
+	}
+	// CompaniesColumns holds the columns for the "companies" table.
+	CompaniesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "name", Type: field.TypeString},
+		{Name: "notes", Type: field.TypeString, Nullable: true},
+		{Name: "report_day", Type: field.TypeInt},
+		{Name: "period_start", Type: field.TypeTime},
+		{Name: "period_end", Type: field.TypeTime},
+		{Name: "period_days", Type: field.TypeInt},
+		{Name: "archived", Type: field.TypeBool, Default: false},
+		{Name: "archived_at", Type: field.TypeTime, Nullable: true},
+		{Name: "customer_id", Type: field.TypeInt},
+		{Name: "tariff_id", Type: field.TypeInt},
+	}
+	// CompaniesTable holds the schema information for the "companies" table.
+	CompaniesTable = &schema.Table{
+		Name:       "companies",
+		Columns:    CompaniesColumns,
+		PrimaryKey: []*schema.Column{CompaniesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "companies_customers_customer",
+				Columns:    []*schema.Column{CompaniesColumns[11]},
+				RefColumns: []*schema.Column{CustomersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "companies_tariffs_tariff",
+				Columns:    []*schema.Column{CompaniesColumns[12]},
+				RefColumns: []*schema.Column{TariffsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
+	// CompanyMembersColumns holds the columns for the "company_members" table.
+	CompanyMembersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "username", Type: field.TypeString, Unique: true},
+		{Name: "label", Type: field.TypeString, Nullable: true},
+		{Name: "protected", Type: field.TypeBool, Default: false},
+		{Name: "tariff_pinned", Type: field.TypeBool, Default: false},
+		{Name: "added_at", Type: field.TypeTime},
+		{Name: "removed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "company_id", Type: field.TypeInt},
+		{Name: "rw_user_id", Type: field.TypeInt, Nullable: true},
+	}
+	// CompanyMembersTable holds the schema information for the "company_members" table.
+	CompanyMembersTable = &schema.Table{
+		Name:       "company_members",
+		Columns:    CompanyMembersColumns,
+		PrimaryKey: []*schema.Column{CompanyMembersColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "company_members_companies_members",
+				Columns:    []*schema.Column{CompanyMembersColumns[9]},
+				RefColumns: []*schema.Column{CompaniesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "company_members_rw_users_rw_user",
+				Columns:    []*schema.Column{CompanyMembersColumns[10]},
+				RefColumns: []*schema.Column{RwUsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// CompanyStatementsColumns holds the columns for the "company_statements" table.
+	CompanyStatementsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "period_from", Type: field.TypeTime},
+		{Name: "period_to", Type: field.TypeTime},
+		{Name: "days_in_period", Type: field.TypeInt},
+		{Name: "total", Type: field.TypeInt64},
+		{Name: "ledger_entry_id", Type: field.TypeInt, Nullable: true},
+		{Name: "generated_by", Type: field.TypeString, Nullable: true},
+		{Name: "company_id", Type: field.TypeInt},
+	}
+	// CompanyStatementsTable holds the schema information for the "company_statements" table.
+	CompanyStatementsTable = &schema.Table{
+		Name:       "company_statements",
+		Columns:    CompanyStatementsColumns,
+		PrimaryKey: []*schema.Column{CompanyStatementsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "company_statements_companies_statements",
+				Columns:    []*schema.Column{CompanyStatementsColumns[9]},
+				RefColumns: []*schema.Column{CompaniesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "companystatement_company_id_period_from",
+				Unique:  true,
+				Columns: []*schema.Column{CompanyStatementsColumns[9], CompanyStatementsColumns[3]},
+			},
+		},
 	}
 	// CustomersColumns holds the columns for the "customers" table.
 	CustomersColumns = []*schema.Column{
@@ -250,7 +363,7 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "type", Type: field.TypeEnum, Enums: []string{"payment", "charge", "adjustment", "refund", "referral"}},
+		{Name: "type", Type: field.TypeEnum, Enums: []string{"payment", "charge", "adjustment", "refund", "referral", "company_charge"}},
 		{Name: "amount", Type: field.TypeInt64},
 		{Name: "date", Type: field.TypeTime},
 		{Name: "payment_id", Type: field.TypeInt, Nullable: true},
@@ -268,6 +381,55 @@ var (
 				Columns:    []*schema.Column{LedgerEntriesColumns[8]},
 				RefColumns: []*schema.Column{CustomersColumns[0]},
 				OnDelete:   schema.NoAction,
+			},
+		},
+	}
+	// MemberSegmentsColumns holds the columns for the "member_segments" table.
+	MemberSegmentsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "from_date", Type: field.TypeTime},
+		{Name: "to_date", Type: field.TypeTime, Nullable: true},
+		{Name: "price", Type: field.TypeInt64},
+		{Name: "traffic_limit_bytes", Type: field.TypeInt64},
+		{Name: "traffic_strategy", Type: field.TypeString},
+		{Name: "hwid_limit", Type: field.TypeInt, Nullable: true},
+		{Name: "squad_uuids", Type: field.TypeJSON, Nullable: true},
+		{Name: "overrides", Type: field.TypeJSON, Nullable: true},
+		{Name: "member_id", Type: field.TypeInt},
+		{Name: "tariff_id", Type: field.TypeInt},
+	}
+	// MemberSegmentsTable holds the schema information for the "member_segments" table.
+	MemberSegmentsTable = &schema.Table{
+		Name:       "member_segments",
+		Columns:    MemberSegmentsColumns,
+		PrimaryKey: []*schema.Column{MemberSegmentsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "member_segments_company_members_segments",
+				Columns:    []*schema.Column{MemberSegmentsColumns[9]},
+				RefColumns: []*schema.Column{CompanyMembersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "member_segments_tariffs_tariff",
+				Columns:    []*schema.Column{MemberSegmentsColumns[10]},
+				RefColumns: []*schema.Column{TariffsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "membersegment_member_id_from_date",
+				Unique:  false,
+				Columns: []*schema.Column{MemberSegmentsColumns[9], MemberSegmentsColumns[1]},
+			},
+			{
+				Name:    "membersegment_member_id",
+				Unique:  true,
+				Columns: []*schema.Column{MemberSegmentsColumns[9]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "to_date IS NULL",
+				},
 			},
 		},
 	}
@@ -363,6 +525,34 @@ var (
 		Name:       "settings",
 		Columns:    SettingsColumns,
 		PrimaryKey: []*schema.Column{SettingsColumns[0]},
+	}
+	// StatementLinesColumns holds the columns for the "statement_lines" table.
+	StatementLinesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "member_id", Type: field.TypeInt, Nullable: true},
+		{Name: "username", Type: field.TypeString},
+		{Name: "tariff_name", Type: field.TypeString},
+		{Name: "from_date", Type: field.TypeTime},
+		{Name: "to_date", Type: field.TypeTime},
+		{Name: "days", Type: field.TypeInt},
+		{Name: "days_in_period", Type: field.TypeInt},
+		{Name: "monthly_price", Type: field.TypeInt64},
+		{Name: "amount", Type: field.TypeInt64},
+		{Name: "statement_id", Type: field.TypeInt},
+	}
+	// StatementLinesTable holds the schema information for the "statement_lines" table.
+	StatementLinesTable = &schema.Table{
+		Name:       "statement_lines",
+		Columns:    StatementLinesColumns,
+		PrimaryKey: []*schema.Column{StatementLinesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "statement_lines_company_statements_lines",
+				Columns:    []*schema.Column{StatementLinesColumns[10]},
+				RefColumns: []*schema.Column{CompanyStatementsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
 	}
 	// SubscriptionsColumns holds the columns for the "subscriptions" table.
 	SubscriptionsColumns = []*schema.Column{
@@ -557,6 +747,9 @@ var (
 		APITokensTable,
 		AddonsTable,
 		AuditLogsTable,
+		CompaniesTable,
+		CompanyMembersTable,
+		CompanyStatementsTable,
 		CustomersTable,
 		ExpensesTable,
 		ExpenseItemsTable,
@@ -565,10 +758,12 @@ var (
 		JobRunsTable,
 		JobStatusTable,
 		LedgerEntriesTable,
+		MemberSegmentsTable,
 		PaymentsTable,
 		ReferralAccrualsTable,
 		RwUsersTable,
 		SettingsTable,
+		StatementLinesTable,
 		SubscriptionsTable,
 		SubscriptionAddonsTable,
 		TariffsTable,
@@ -579,6 +774,12 @@ var (
 )
 
 func init() {
+	APITokensTable.ForeignKeys[0].RefTable = CompaniesTable
+	CompaniesTable.ForeignKeys[0].RefTable = CustomersTable
+	CompaniesTable.ForeignKeys[1].RefTable = TariffsTable
+	CompanyMembersTable.ForeignKeys[0].RefTable = CompaniesTable
+	CompanyMembersTable.ForeignKeys[1].RefTable = RwUsersTable
+	CompanyStatementsTable.ForeignKeys[0].RefTable = CompaniesTable
 	CustomersTable.ForeignKeys[0].RefTable = CustomersTable
 	JobRunsTable.Annotation = &entsql.Annotation{
 		Table: "job_runs",
@@ -587,8 +788,11 @@ func init() {
 		Table: "job_status",
 	}
 	LedgerEntriesTable.ForeignKeys[0].RefTable = CustomersTable
+	MemberSegmentsTable.ForeignKeys[0].RefTable = CompanyMembersTable
+	MemberSegmentsTable.ForeignKeys[1].RefTable = TariffsTable
 	PaymentsTable.ForeignKeys[0].RefTable = CustomersTable
 	ReferralAccrualsTable.ForeignKeys[0].RefTable = PaymentsTable
+	StatementLinesTable.ForeignKeys[0].RefTable = CompanyStatementsTable
 	SubscriptionsTable.ForeignKeys[0].RefTable = CustomersTable
 	SubscriptionsTable.ForeignKeys[1].RefTable = RwUsersTable
 	SubscriptionsTable.ForeignKeys[2].RefTable = TariffsTable

@@ -107,3 +107,9 @@ export const isTrafficLow = (u: { used_traffic_bytes: number; traffic_limit_byte
 
 export const strategyLabel = (s: string) =>
     (STRATEGIES as readonly string[]).includes(s) ? i18n.t(`format.strategy.${s as (typeof STRATEGIES)[number]}`) : s
+
+// lastDayOf turns an exclusive end date into the last day it covers.
+export const lastDayOf = (to: string) => dayjs(to).subtract(1, 'day').toISOString()
+
+// daysBetween counts calendar days in [from, to).
+export const daysBetween = (from: string, to: string) => dayjs(to).startOf('day').diff(dayjs(from).startOf('day'), 'day')

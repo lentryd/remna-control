@@ -83,7 +83,9 @@ export function DashboardPage() {
         {
             title: t('dashboard.mrr'),
             value: fmtMoney(data.mrr),
-            hint: t('dashboard.mrr_hint', { customers: data.active_customers, subs: data.active_subs, addons: data.active_addons }),
+            hint:
+                t('dashboard.mrr_hint', { customers: data.active_customers, subs: data.active_subs, addons: data.active_addons }) +
+                (data.active_companies > 0 ? ` · ${t('dashboard.mrr_hint_companies', { companies: data.active_companies, members: data.active_members })}` : ''),
             tone: undefined
         },
         { title: t('dashboard.expenses_month'), value: fmtMoney(data.planned_expenses), hint: t('dashboard.expenses_hint'), tone: undefined },

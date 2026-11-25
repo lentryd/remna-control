@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math"
 	"remna-control/ent/apitoken"
+	"remna-control/ent/company"
 	"remna-control/ent/predicate"
 
 	"entgo.io/ent"
@@ -18,10 +19,11 @@ import (
 // APITokenQuery is the builder for querying APIToken entities.
 type APITokenQuery struct {
 	config
-	ctx        *QueryContext
-	order      []apitoken.OrderOption
-	inters     []Interceptor
-	predicates []predicate.APIToken
+	ctx         *QueryContext
+	order       []apitoken.OrderOption
+	inters      []Interceptor
+	predicates  []predicate.APIToken
+	withCompany *CompanyQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -56,6 +58,28 @@ func (_q *APITokenQuery) Unique(unique bool) *APITokenQuery {
 func (_q *APITokenQuery) Order(o ...apitoken.OrderOption) *APITokenQuery {
 	_q.order = append(_q.order, o...)
 	return _q
+}
+
+// QueryCompany chains the current query on the "company" edge.
+func (_q *APITokenQuery) QueryCompany() *CompanyQuery {
+	query := (&CompanyClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(apitoken.Table, apitoken.FieldID, selector),
+			sqlgraph.To(company.Table, company.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, apitoken.CompanyTable, apitoken.CompanyColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first APIToken entity from the query.
@@ -245,15 +269,27 @@ func (_q *APITokenQuery) Clone() *APITokenQuery {
 		return nil
 	}
 	return &APITokenQuery{
-		config:     _q.config,
-		ctx:        _q.ctx.Clone(),
-		order:      append([]apitoken.OrderOption{}, _q.order...),
-		inters:     append([]Interceptor{}, _q.inters...),
-		predicates: append([]predicate.APIToken{}, _q.predicates...),
+		config:      _q.config,
+		ctx:         _q.ctx.Clone(),
+		order:       append([]apitoken.OrderOption{}, _q.order...),
+		inters:      append([]Interceptor{}, _q.inters...),
+		predicates:  append([]predicate.APIToken{}, _q.predicates...),
+		withCompany: _q.withCompany.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
 	}
+}
+
+// WithCompany tells the query-builder to eager-load the nodes that are connected to
+// the "company" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *APITokenQuery) WithCompany(opts ...func(*CompanyQuery)) *APITokenQuery {
+	query := (&CompanyClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withCompany = query
+	return _q
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -332,8 +368,11 @@ func (_q *APITokenQuery) prepareQuery(ctx context.Context) error {
 
 func (_q *APITokenQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*APIToken, error) {
 	var (
-		nodes = []*APIToken{}
-		_spec = _q.querySpec()
+		nodes       = []*APIToken{}
+		_spec       = _q.querySpec()
+		loadedTypes = [1]bool{
+			_q.withCompany != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*APIToken).scanValues(nil, columns)
@@ -341,6 +380,7 @@ func (_q *APITokenQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*API
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &APIToken{config: _q.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -352,7 +392,46 @@ func (_q *APITokenQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*API
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := _q.withCompany; query != nil {
+		if err := _q.loadCompany(ctx, query, nodes, nil,
+			func(n *APIToken, e *Company) { n.Edges.Company = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (_q *APITokenQuery) loadCompany(ctx context.Context, query *CompanyQuery, nodes []*APIToken, init func(*APIToken), assign func(*APIToken, *Company)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*APIToken)
+	for i := range nodes {
+		if nodes[i].CompanyID == nil {
+			continue
+		}
+		fk := *nodes[i].CompanyID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(company.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "company_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
 }
 
 func (_q *APITokenQuery) sqlCount(ctx context.Context) (int, error) {
@@ -379,6 +458,9 @@ func (_q *APITokenQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != apitoken.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if _q.withCompany != nil {
+			_spec.Node.AddColumnOnce(apitoken.FieldCompanyID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

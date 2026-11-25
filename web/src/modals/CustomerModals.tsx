@@ -125,7 +125,7 @@ function CustomerForm({
                     <SearchSelect
                             allowDeselect
                             clearable
-                            data={(customers.data ?? []).filter((c) => c.id !== customer?.id).map((c) => ({ value: String(c.id), label: c.name }))}
+                            data={(customers.data ?? []).filter((c) => c.id !== customer?.id && !c.company_id).map((c) => ({ value: String(c.id), label: c.name }))}
                             label={t('customers.referrer')}
                             leftSection={<IconUsersGroup size={16} />}
                             placeholder={t('customers.no_referrer')}

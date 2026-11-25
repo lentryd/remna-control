@@ -12,19 +12,21 @@ import {
     Tabs,
     Text
 } from '@mantine/core'
-import { IconCalendarPlus, IconChevronDown, IconCreditCard, IconLink, IconPencil, IconPlus, IconScale, IconTrash, IconUserPlus, IconWallet } from '@tabler/icons-react'
+import { IconBuilding, IconCalendarPlus, IconChevronDown, IconCreditCard, IconLink, IconPencil, IconPlus, IconScale, IconTrash, IconUserPlus, IconWallet } from '@tabler/icons-react'
 import { Link, useNavigate, useParams } from 'react-router'
 
 import { api } from '@/api/client'
 import { useCustomer, useInvalidateAll } from '@/api/hooks'
-import type { CustomerDetail, Extension, LedgerEntry } from '@/api/types'
+import type { CustomerDetail, Extension } from '@/api/types'
 import { durationLabel, fmtDate, fmtDateTime, fmtMoney } from '@/components/format'
 import { notifyError, errorText } from '@/components/notify'
+import { ledgerColumns } from '@/components/ledger'
 import { paymentColumns, paymentTableProps } from '@/components/PaymentTable'
 import { SubscriptionCard } from '@/components/SubscriptionCard'
 import { BackLink, Money, PageHeader } from '@/components/ui'
 import { openAdjustModal, openCustomerForm } from '@/modals/CustomerModals'
 import { confirmDanger } from '@/modals/open'
+import { openStatementModal } from '@/modals/StatementModal'
 import { openPaymentModal } from '@/modals/PaymentModal'
 import { openProvisionModal, openSubscriptionForm } from '@/modals/SubscriptionModals'
 import { LoadingScreen } from '@shared/ui/loading-screen'
@@ -35,9 +37,6 @@ import i18n from '@/app/i18n/i18n'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
-const ledgerColor: Record<string, string> = { payment: 'teal', charge: 'orange', adjustment: 'blue', refund: 'grape' }
-const ledgerLabel = (type: string) =>
-    ['payment', 'charge', 'adjustment', 'refund', 'referral'].includes(type) ? i18n.t(`customer.ledger.${type as 'payment'}`) : type
 const extKind = (kind: string) =>
     ['extend', 'connect', 'tariff_change'].includes(kind) ? i18n.t(`customer.ext.${kind as 'extend'}`) : kind
 
@@ -48,30 +47,6 @@ const mono = (v: string) => (
 )
 
 // Columns are built per render language (see CustomerPage).
-const ledgerColumns = (): MRT_ColumnDef<LedgerEntry>[] => [
-    { id: 'date', header: i18n.t('customer.col_date'), sortingFn: 'datetime', accessorFn: (r) => new Date(r.date), Cell: ({ row }) => mono(fmtDateTime(row.original.date)) },
-    {
-        accessorKey: 'type',
-        header: i18n.t('customer.col_operation'),
-        Cell: ({ row }) => (
-            <Badge color={ledgerColor[row.original.type]} size="md">
-                {ledgerLabel(row.original.type)}
-            </Badge>
-        )
-    },
-    {
-        accessorKey: 'amount',
-        header: i18n.t('customer.col_amount'),
-        Cell: ({ cell }) => (
-            <Text c={cell.getValue<number>() > 0 ? 'teal' : 'red'} className="num" fw={600} size="sm">
-                {cell.getValue<number>() > 0 ? '+' : ''}
-                {fmtMoney(cell.getValue<number>(), 2)}
-            </Text>
-        )
-    },
-    { accessorKey: 'note', header: i18n.t('customer.col_note'), size: 320 }
-]
-
 const extColumns = (): MRT_ColumnDef<Extension>[] => [
     {
         accessorKey: 'created_at',
@@ -119,13 +94,23 @@ export function CustomerPage() {
     const { data, isPending, error } = useCustomer(id)
     const navigate = useNavigate()
     const invalidate = useInvalidateAll()
-    const cols = useMemo(() => ({ payments: paymentColumns(false), ledger: ledgerColumns(), ext: extColumns() }), [t])
+    const companyId = data?.company_id ?? null
+    const cols = useMemo(
+        () => ({
+            payments: paymentColumns(false),
+            ledger: ledgerColumns(companyId ? (sid) => openStatementModal(companyId, sid) : undefined),
+            ext: extColumns()
+        }),
+        [t, companyId]
+    )
 
     if (isPending) {
         return <LoadingScreen height="60vh" />
     }
     if (error || !data) return <Alert color="red">{error ? errorText(error) : t('errors.customer.not_found')}</Alert>
     const c: CustomerDetail = data
+    // a company's billing account has no subscriptions or referrals: it is managed through the company
+    const isCompany = !!c.company_id
 
     const remove = () =>
         confirmDanger(t('customer.delete'), t('customer.delete_hint'), async () => {
@@ -144,11 +129,18 @@ export function CustomerPage() {
                 eyebrow={<BackLink to="/customers">{t('menu.customers')}</BackLink>}
                 title={c.name}
                 badges={
-                    c.archived && (
-                        <Badge color="gray" size="lg">
-                            {t('customer.archived')}
-                        </Badge>
-                    )
+                    <>
+                        {c.company_id && (
+                            <Badge color="brand" leftSection={<IconBuilding size={14} />} size="lg">
+                                {t('companies.account_badge')}
+                            </Badge>
+                        )}
+                        {c.archived && (
+                            <Badge color="gray" size="lg">
+                                {t('customer.archived')}
+                            </Badge>
+                        )}
+                    </>
                 }
                 description={
                     <Group gap={6} component="span">
@@ -178,22 +170,30 @@ export function CustomerPage() {
                                 </Button>
                             </Menu.Target>
                             <Menu.Dropdown>
-                                <Menu.Item leftSection={<IconUserPlus size={16} />} onClick={() => openProvisionModal(c)}>
-                                    {t('customer.create_subscription')}
-                                </Menu.Item>
-                                <Menu.Item leftSection={<IconLink size={16} />} onClick={() => openSubscriptionForm({ customerId: c.id })}>
-                                    {t('sub.link_title')}
-                                </Menu.Item>
+                                {!isCompany && (
+                                    <>
+                                        <Menu.Item leftSection={<IconUserPlus size={16} />} onClick={() => openProvisionModal(c)}>
+                                            {t('customer.create_subscription')}
+                                        </Menu.Item>
+                                        <Menu.Item leftSection={<IconLink size={16} />} onClick={() => openSubscriptionForm({ customerId: c.id })}>
+                                            {t('sub.link_title')}
+                                        </Menu.Item>
+                                    </>
+                                )}
                                 <Menu.Item leftSection={<IconScale size={16} />} onClick={() => openAdjustModal(c)}>
                                     {t('customer.adjust_balance')}
                                 </Menu.Item>
                                 <Menu.Item leftSection={<IconPencil size={16} />} onClick={() => openCustomerForm(c)}>
                                     {t('common.edit')}
                                 </Menu.Item>
-                                <Menu.Divider />
-                                <Menu.Item color="red" leftSection={<IconTrash size={16} />} onClick={remove}>
-                                    {t('common.delete')}
-                                </Menu.Item>
+                                {!isCompany && (
+                                    <>
+                                        <Menu.Divider />
+                                        <Menu.Item color="red" leftSection={<IconTrash size={16} />} onClick={remove}>
+                                            {t('common.delete')}
+                                        </Menu.Item>
+                                    </>
+                                )}
                             </Menu.Dropdown>
                         </Menu>
                     </>
@@ -216,6 +216,15 @@ export function CustomerPage() {
                 mb="lg"
             />
 
+            {c.company_id && (
+                <Alert color="brand" icon={<IconBuilding size={18} />} mb="lg" variant="soft">
+                    {t('companies.account_hint')}{' '}
+                    <Anchor component={Link} size="sm" to={`/companies/${c.company_id}`}>
+                        {t('companies.open_card')}
+                    </Anchor>
+                </Alert>
+            )}
+
             {c.notes && (
                 <Card mb="lg" padding="md">
                     <Text c="dimmed" fw={500} mb={4} size="xs">
@@ -227,13 +236,13 @@ export function CustomerPage() {
                 </Card>
             )}
 
-            <Tabs defaultValue="subs" keepMounted={false}>
+            <Tabs defaultValue={isCompany ? 'payments' : 'subs'} keepMounted={false}>
                 <Tabs.List mb="md">
-                    <Tabs.Tab value="subs">{t('customer.tab_subs', { count: c.subscriptions.length })}</Tabs.Tab>
+                    {!isCompany && <Tabs.Tab value="subs">{t('customer.tab_subs', { count: c.subscriptions.length })}</Tabs.Tab>}
                     <Tabs.Tab value="payments">{t('customer.tab_payments', { count: c.payments?.length ?? 0 })}</Tabs.Tab>
                     <Tabs.Tab value="ledger">{t('dashboard.col_balance')}</Tabs.Tab>
-                    <Tabs.Tab value="refs">{t('customer.tab_refs', { count: c.referrals?.length ?? 0 })}</Tabs.Tab>
-                    <Tabs.Tab value="ext">{t('customer.tab_ext')}</Tabs.Tab>
+                    {!isCompany && <Tabs.Tab value="refs">{t('customer.tab_refs', { count: c.referrals?.length ?? 0 })}</Tabs.Tab>}
+                    {!isCompany && <Tabs.Tab value="ext">{t('customer.tab_ext')}</Tabs.Tab>}
                 </Tabs.List>
 
                 <Tabs.Panel value="subs">

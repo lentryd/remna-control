@@ -17,6 +17,7 @@ import (
 	"remna-control/internal/apperr"
 	"remna-control/internal/backup"
 	"remna-control/internal/billing"
+	"remna-control/internal/company"
 	"remna-control/internal/config"
 	"remna-control/internal/expenses"
 	"remna-control/internal/fx"
@@ -31,6 +32,7 @@ type Handlers struct {
 	SQL       *sql.DB // same database, for table-level backups
 	RW        *remnawave.Client
 	Billing   *billing.Service
+	Company   *company.Service
 	Expenses  *expenses.Service
 	FX        *fx.Service
 	Sync      *rwsync.Service

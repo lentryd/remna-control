@@ -14,6 +14,8 @@ import { LoadingScreen } from '@shared/ui/loading-screen'
 // Pages load on demand, each in its own chunk; the layout's <Suspense> shows
 // a progress bar meanwhile. The login page stays in the main bundle.
 const CustomerPage = lazy(() => import('@/pages/CustomerPage').then((m) => ({ default: m.CustomerPage })))
+const CompaniesPage = lazy(() => import('@/pages/CompaniesPage').then((m) => ({ default: m.CompaniesPage })))
+const CompanyPage = lazy(() => import('@/pages/CompanyPage').then((m) => ({ default: m.CompanyPage })))
 const CustomersPage = lazy(() => import('@/pages/CustomersPage').then((m) => ({ default: m.CustomersPage })))
 const DashboardPage = lazy(() => import('@/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })))
 const ExpenseItemsPage = lazy(() => import('@/pages/ExpenseItemsPage').then((m) => ({ default: m.ExpenseItemsPage })))
@@ -61,6 +63,8 @@ export function App() {
                 <Route index element={<DashboardPage />} />
                 <Route path="customers" element={<CustomersPage />} />
                 <Route path="customers/:id" element={<CustomerPage />} />
+                <Route path="companies" element={<CompaniesPage />} />
+                <Route path="companies/:id" element={<CompanyPage />} />
                 <Route path="subscriptions" element={<SubscriptionsPage />} />
                 <Route path="payments" element={<PaymentsPage />} />
                 <Route path="referrals" element={<ReferralsPage />} />

@@ -18,6 +18,12 @@ type Tx struct {
 	Addon *AddonClient
 	// AuditLog is the client for interacting with the AuditLog builders.
 	AuditLog *AuditLogClient
+	// Company is the client for interacting with the Company builders.
+	Company *CompanyClient
+	// CompanyMember is the client for interacting with the CompanyMember builders.
+	CompanyMember *CompanyMemberClient
+	// CompanyStatement is the client for interacting with the CompanyStatement builders.
+	CompanyStatement *CompanyStatementClient
 	// Customer is the client for interacting with the Customer builders.
 	Customer *CustomerClient
 	// Expense is the client for interacting with the Expense builders.
@@ -34,6 +40,8 @@ type Tx struct {
 	JobStatus *JobStatusClient
 	// LedgerEntry is the client for interacting with the LedgerEntry builders.
 	LedgerEntry *LedgerEntryClient
+	// MemberSegment is the client for interacting with the MemberSegment builders.
+	MemberSegment *MemberSegmentClient
 	// Payment is the client for interacting with the Payment builders.
 	Payment *PaymentClient
 	// ReferralAccrual is the client for interacting with the ReferralAccrual builders.
@@ -42,6 +50,8 @@ type Tx struct {
 	RwUser *RwUserClient
 	// Setting is the client for interacting with the Setting builders.
 	Setting *SettingClient
+	// StatementLine is the client for interacting with the StatementLine builders.
+	StatementLine *StatementLineClient
 	// Subscription is the client for interacting with the Subscription builders.
 	Subscription *SubscriptionClient
 	// SubscriptionAddon is the client for interacting with the SubscriptionAddon builders.
@@ -186,6 +196,9 @@ func (tx *Tx) init() {
 	tx.APIToken = NewAPITokenClient(tx.config)
 	tx.Addon = NewAddonClient(tx.config)
 	tx.AuditLog = NewAuditLogClient(tx.config)
+	tx.Company = NewCompanyClient(tx.config)
+	tx.CompanyMember = NewCompanyMemberClient(tx.config)
+	tx.CompanyStatement = NewCompanyStatementClient(tx.config)
 	tx.Customer = NewCustomerClient(tx.config)
 	tx.Expense = NewExpenseClient(tx.config)
 	tx.ExpenseItem = NewExpenseItemClient(tx.config)
@@ -194,10 +207,12 @@ func (tx *Tx) init() {
 	tx.JobRun = NewJobRunClient(tx.config)
 	tx.JobStatus = NewJobStatusClient(tx.config)
 	tx.LedgerEntry = NewLedgerEntryClient(tx.config)
+	tx.MemberSegment = NewMemberSegmentClient(tx.config)
 	tx.Payment = NewPaymentClient(tx.config)
 	tx.ReferralAccrual = NewReferralAccrualClient(tx.config)
 	tx.RwUser = NewRwUserClient(tx.config)
 	tx.Setting = NewSettingClient(tx.config)
+	tx.StatementLine = NewStatementLineClient(tx.config)
 	tx.Subscription = NewSubscriptionClient(tx.config)
 	tx.SubscriptionAddon = NewSubscriptionAddonClient(tx.config)
 	tx.Tariff = NewTariffClient(tx.config)

@@ -19,7 +19,7 @@ func TestPublicRoutes(t *testing.T) {
 	RegisterRoutes(app, &Deps{Handlers: &handlers.Handlers{Config: &config.Config{JWTSecret: "x"}}, NoWeb: true})
 	for _, r := range appmiddleware.ScopeCatalog {
 		for _, ep := range r.Endpoints {
-			resp, err := app.Test(httptest.NewRequest(ep.Method, strings.NewReplacer("{kind}", "subscription", "{id}", "1", "{name}", "x.zip").Replace(ep.Path), nil))
+			resp, err := app.Test(httptest.NewRequest(ep.Method, strings.NewReplacer("{kind}", "subscription", "{id}", "1", "{mid}", "1", "{sid}", "1", "{name}", "x.zip").Replace(ep.Path), nil))
 			if err != nil {
 				t.Fatal(err)
 			}

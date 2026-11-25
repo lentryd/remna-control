@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"remna-control/ent/apitoken"
+	"remna-control/ent/company"
 	"strings"
 	"time"
 
@@ -33,8 +34,33 @@ type APIToken struct {
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// LastUsedAt holds the value of the "last_used_at" field.
-	LastUsedAt   *time.Time `json:"last_used_at,omitempty"`
+	LastUsedAt *time.Time `json:"last_used_at,omitempty"`
+	// CompanyID holds the value of the "company_id" field.
+	CompanyID *int `json:"company_id,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the APITokenQuery when eager-loading is set.
+	Edges        APITokenEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// APITokenEdges holds the relations/edges for other nodes in the graph.
+type APITokenEdges struct {
+	// Company holds the value of the company edge.
+	Company *Company `json:"company,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// CompanyOrErr returns the Company value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e APITokenEdges) CompanyOrErr() (*Company, error) {
+	if e.Company != nil {
+		return e.Company, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: company.Label}
+	}
+	return nil, &NotLoadedError{edge: "company"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -44,7 +70,7 @@ func (*APIToken) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case apitoken.FieldScopes:
 			values[i] = new([]byte)
-		case apitoken.FieldID:
+		case apitoken.FieldID, apitoken.FieldCompanyID:
 			values[i] = new(sql.NullInt64)
 		case apitoken.FieldUUID, apitoken.FieldName, apitoken.FieldTokenHash, apitoken.FieldPrefix:
 			values[i] = new(sql.NullString)
@@ -123,6 +149,13 @@ func (_m *APIToken) assignValues(columns []string, values []any) error {
 				_m.LastUsedAt = new(time.Time)
 				*_m.LastUsedAt = value.Time
 			}
+		case apitoken.FieldCompanyID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field company_id", values[i])
+			} else if value.Valid {
+				_m.CompanyID = new(int)
+				*_m.CompanyID = int(value.Int64)
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -134,6 +167,11 @@ func (_m *APIToken) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *APIToken) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryCompany queries the "company" edge of the APIToken entity.
+func (_m *APIToken) QueryCompany() *CompanyQuery {
+	return NewAPITokenClient(_m.config).QueryCompany(_m)
 }
 
 // Update returns a builder for updating this APIToken.
@@ -184,6 +222,11 @@ func (_m *APIToken) String() string {
 	if v := _m.LastUsedAt; v != nil {
 		builder.WriteString("last_used_at=")
 		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.CompanyID; v != nil {
+		builder.WriteString("company_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteByte(')')
 	return builder.String()

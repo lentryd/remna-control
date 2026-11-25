@@ -10,14 +10,14 @@ import { ApiTokenItem } from './api-token-item'
 import { isMobileViewport, useApiTokens } from './hooks'
 import { CreateApiTokenContent } from './modals/create-api-token-modal'
 
-function openCreate(title: string) {
+export function openCreateApiToken(title: string, companyId?: number) {
     const isMobile = isMobileViewport()
     modals.open({
         title: <BaseOverlayHeader IconComponent={IconKey} title={title} />,
         fullScreen: isMobile,
         centered: true,
         size: 'min(800px, 90vw)',
-        children: <CreateApiTokenContent isMobile={isMobile} />
+        children: <CreateApiTokenContent companyId={companyId} isMobile={isMobile} />
     })
 }
 
@@ -27,7 +27,7 @@ export function ApiTokensCard() {
     const { t } = useTranslation()
     const { data, isRefetching, refetch } = useApiTokens()
     const tokens = data?.tokens ?? []
-    const create = () => openCreate(t('tokens.create'))
+    const create = () => openCreateApiToken(t('tokens.create'))
 
     return (
         <Box>

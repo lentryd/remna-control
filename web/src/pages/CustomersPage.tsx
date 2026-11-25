@@ -1,8 +1,8 @@
 import type { MRT_ColumnDef } from '@kastov/mantine-react-table-open'
 import { ActionIcon, Badge, Button, Group, SegmentedControl, Text, Tooltip } from '@mantine/core'
 import { useMemo, useState } from 'react'
-import { IconCreditCard, IconPencil, IconUserPlus, IconUsers } from '@tabler/icons-react'
-import { useNavigate } from 'react-router'
+import { IconBuilding, IconCreditCard, IconPencil, IconUserPlus, IconUsers } from '@tabler/icons-react'
+import { Link, useNavigate } from 'react-router'
 
 import { useCustomers } from '@/api/hooks'
 import type { Customer } from '@/api/types'
@@ -51,6 +51,20 @@ export function CustomersPage() {
                         <Text fw={500} size="sm">
                             {row.original.name}
                         </Text>
+                        {row.original.company_id && (
+                            <Badge
+                                color="brand"
+                                component={Link}
+                                leftSection={<IconBuilding size={12} />}
+                                onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                                size="xs"
+                                style={{ cursor: 'pointer' }}
+                                to={`/companies/${row.original.company_id}`}
+                                variant="soft"
+                            >
+                                {t('companies.account_badge')}
+                            </Badge>
+                        )}
                         {row.original.archived && (
                             <Badge size="xs" color="gray" variant="soft">
                                 {t('customer.archived')}

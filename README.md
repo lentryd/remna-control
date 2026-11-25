@@ -37,6 +37,7 @@ Remnawave manages VPN users well, but it doesn't track money. Who paid, for how 
 - **Referrals.** A "who referred whom" tree, with bookkeeping accruals of X% of referred customers' payments. Accruals don't change balances.
 - **Expenses in any currency.** Amounts are converted to the base currency at the date's rate (Bank of Russia, ECB). You can add a bank fee and a cost share. The converted amount is fixed when the expense is recorded. Refunds are kept separately.
 - **Traffic-metered expenses.** For CDNs and per-GB transit, the cost comes from a node's traffic, with a forecast for the period and the top consumers. See [Metered pricing](#metered-pricing).
+- **Companies.** A client with employees, billed by period statements on one report date and prorated by days, with a token-bound API for adding and removing employees. See [Companies](#companies).
 - **Backups.** Export and import by category, scheduled snapshots, and snapshot download over the API.
 - **English and Russian UI.** It installs as a PWA. Offline, it shows cached data and disables changes.
 
@@ -165,6 +166,27 @@ Examples:
 | Plans with included traffic | decimal | fee + free allowance | overage per GB |
 
 **Close period** books the calculated cost as an expense. When the invoice arrives, change the amount to the invoiced one. The calculated value is kept for comparison.
+
+## Companies
+
+A company is a client with employees that is billed in arrears, on one report date, instead of by per-subscription terms.
+
+- A company has a **billing account** (a customer, created with it): top-ups, balance and history work as for any customer, and the balance may go negative.
+- **Employees** are panel users added to the company, with no expiry. Each one is billed per calendar day: the day they are added counts, the day they are removed doesn't. Changing an employee's tariff or any field (price, traffic limit and strategy, HWID limit, squads) starts a new segment, so old days keep the old price. A field you don't override follows the tariff. A **protected** employee can't be removed through the API.
+- On the **report day** (1–28) a **statement** is posted: one charge in the account's history that opens into a line per employee and segment. Posted statements never change; correct a mistake with a balance adjustment. Nobody is disabled automatically when the balance is negative.
+- Removing an employee disables the panel user, it is never deleted from the panel. Adding the same username again brings them back.
+
+A company can call the API itself with a **token bound to the company** (Settings → API tokens, preset *Company*): it sees only its own employees, balance and statements, and can only change an employee's label. Prices, tariffs, overrides and protection are changed in the admin or with an unbound token.
+
+```bash
+curl -H "Authorization: Bearer vpc_…" -X POST https://control.example.com/api/v1/company/members \
+  -d '{"username":"ivanov","label":"Ivan Ivanov"}'      # 201 new / 200 already there; a removed employee comes back
+curl -H "Authorization: Bearer vpc_…" -X DELETE https://control.example.com/api/v1/company/members/12   # 409 if protected
+curl -H "Authorization: Bearer vpc_…" https://control.example.com/api/v1/company/balance
+curl -H "Authorization: Bearer vpc_…" https://control.example.com/api/v1/company/statements/3            # with lines
+```
+
+The endpoints are the `company:*` (bound token) and `companies:*` (admin token) keys of the scope catalog.
 
 ## Add-ons and the API
 

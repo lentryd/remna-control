@@ -44,6 +44,42 @@ func (f AuditLogFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AuditLogMutation", m)
 }
 
+// The CompanyFunc type is an adapter to allow the use of ordinary
+// function as Company mutator.
+type CompanyFunc func(context.Context, *ent.CompanyMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f CompanyFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.CompanyMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CompanyMutation", m)
+}
+
+// The CompanyMemberFunc type is an adapter to allow the use of ordinary
+// function as CompanyMember mutator.
+type CompanyMemberFunc func(context.Context, *ent.CompanyMemberMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f CompanyMemberFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.CompanyMemberMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CompanyMemberMutation", m)
+}
+
+// The CompanyStatementFunc type is an adapter to allow the use of ordinary
+// function as CompanyStatement mutator.
+type CompanyStatementFunc func(context.Context, *ent.CompanyStatementMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f CompanyStatementFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.CompanyStatementMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CompanyStatementMutation", m)
+}
+
 // The CustomerFunc type is an adapter to allow the use of ordinary
 // function as Customer mutator.
 type CustomerFunc func(context.Context, *ent.CustomerMutation) (ent.Value, error)
@@ -140,6 +176,18 @@ func (f LedgerEntryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value,
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.LedgerEntryMutation", m)
 }
 
+// The MemberSegmentFunc type is an adapter to allow the use of ordinary
+// function as MemberSegment mutator.
+type MemberSegmentFunc func(context.Context, *ent.MemberSegmentMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f MemberSegmentFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.MemberSegmentMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MemberSegmentMutation", m)
+}
+
 // The PaymentFunc type is an adapter to allow the use of ordinary
 // function as Payment mutator.
 type PaymentFunc func(context.Context, *ent.PaymentMutation) (ent.Value, error)
@@ -186,6 +234,18 @@ func (f SettingFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, err
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SettingMutation", m)
+}
+
+// The StatementLineFunc type is an adapter to allow the use of ordinary
+// function as StatementLine mutator.
+type StatementLineFunc func(context.Context, *ent.StatementLineMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f StatementLineFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.StatementLineMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.StatementLineMutation", m)
 }
 
 // The SubscriptionFunc type is an adapter to allow the use of ordinary

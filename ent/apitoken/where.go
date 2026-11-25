@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // ID filters vertices based on their ID field.
@@ -87,6 +88,11 @@ func CreatedAt(v time.Time) predicate.APIToken {
 // LastUsedAt applies equality check predicate on the "last_used_at" field. It's identical to LastUsedAtEQ.
 func LastUsedAt(v time.Time) predicate.APIToken {
 	return predicate.APIToken(sql.FieldEQ(FieldLastUsedAt, v))
+}
+
+// CompanyID applies equality check predicate on the "company_id" field. It's identical to CompanyIDEQ.
+func CompanyID(v int) predicate.APIToken {
+	return predicate.APIToken(sql.FieldEQ(FieldCompanyID, v))
 }
 
 // UUIDEQ applies the EQ predicate on the "uuid" field.
@@ -497,6 +503,59 @@ func LastUsedAtIsNil() predicate.APIToken {
 // LastUsedAtNotNil applies the NotNil predicate on the "last_used_at" field.
 func LastUsedAtNotNil() predicate.APIToken {
 	return predicate.APIToken(sql.FieldNotNull(FieldLastUsedAt))
+}
+
+// CompanyIDEQ applies the EQ predicate on the "company_id" field.
+func CompanyIDEQ(v int) predicate.APIToken {
+	return predicate.APIToken(sql.FieldEQ(FieldCompanyID, v))
+}
+
+// CompanyIDNEQ applies the NEQ predicate on the "company_id" field.
+func CompanyIDNEQ(v int) predicate.APIToken {
+	return predicate.APIToken(sql.FieldNEQ(FieldCompanyID, v))
+}
+
+// CompanyIDIn applies the In predicate on the "company_id" field.
+func CompanyIDIn(vs ...int) predicate.APIToken {
+	return predicate.APIToken(sql.FieldIn(FieldCompanyID, vs...))
+}
+
+// CompanyIDNotIn applies the NotIn predicate on the "company_id" field.
+func CompanyIDNotIn(vs ...int) predicate.APIToken {
+	return predicate.APIToken(sql.FieldNotIn(FieldCompanyID, vs...))
+}
+
+// CompanyIDIsNil applies the IsNil predicate on the "company_id" field.
+func CompanyIDIsNil() predicate.APIToken {
+	return predicate.APIToken(sql.FieldIsNull(FieldCompanyID))
+}
+
+// CompanyIDNotNil applies the NotNil predicate on the "company_id" field.
+func CompanyIDNotNil() predicate.APIToken {
+	return predicate.APIToken(sql.FieldNotNull(FieldCompanyID))
+}
+
+// HasCompany applies the HasEdge predicate on the "company" edge.
+func HasCompany() predicate.APIToken {
+	return predicate.APIToken(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, CompanyTable, CompanyColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasCompanyWith applies the HasEdge predicate on the "company" edge with a given conditions (other predicates).
+func HasCompanyWith(preds ...predicate.Company) predicate.APIToken {
+	return predicate.APIToken(func(s *sql.Selector) {
+		step := newCompanyStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

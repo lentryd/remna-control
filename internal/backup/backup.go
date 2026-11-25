@@ -48,6 +48,7 @@ var Categories = []Category{
 	{Key: "tariffs", Title: "Tariffs and add-ons", Description: "Tariffs, term prices, add-ons, add-ons included in tariffs", Tables: []string{"addons", "tariffs", "tariff_periods", "tariff_included_addons"}},
 	{Key: "subscriptions", Title: "Subscriptions", Description: "Subscriptions, connected add-ons and the Remnawave users cache", Tables: []string{"rw_users", "subscriptions", "subscription_addons"}, DependsOn: []string{"customers", "tariffs"}},
 	{Key: "payments", Title: "Payments and balances", Description: "Payments, balance movements, referral accruals, extensions", Tables: []string{"payments", "ledger_entries", "referral_accruals", "extensions"}, DependsOn: []string{"customers"}},
+	{Key: "companies", Title: "Companies", Description: "Companies, employees, their date segments and period statements", Tables: []string{"companies", "company_members", "member_segments", "company_statements", "statement_lines"}, DependsOn: []string{"customers", "tariffs", "subscriptions", "payments"}},
 	{Key: "expenses", Title: "Expenses", Description: "Expense items and the expense log", Tables: []string{"expense_items", "expenses"}},
 	{Key: "settings", Title: "Settings", Description: "App settings and API tokens", Tables: []string{"settings", "api_tokens"}},
 	{Key: "stats", Title: "Rates and traffic", Description: "Exchange rate cache and traffic statistics", Tables: []string{"fx_rates", "traffic_snapshots"}},

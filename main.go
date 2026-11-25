@@ -18,6 +18,7 @@ import (
 	"remna-control/internal/audit"
 	"remna-control/internal/backup"
 	"remna-control/internal/billing"
+	"remna-control/internal/company"
 	"remna-control/internal/config"
 	"remna-control/internal/expenses"
 	"remna-control/internal/fx"
@@ -87,6 +88,7 @@ func main() {
 	syncSvc := rwsync.New(db, rw, cfg.AddonsConfig)
 	expSvc := expenses.New(db, rw, fxs, cfg.Location)
 	billingSvc := billing.New(db, rw, st)
+	companySvc := company.New(db, rw, cfg.Location)
 
 	snapshots := backup.NewSnapshots(cfg.DBPath, sqlDB, Version)
 	snapshotEvery := func() time.Duration {
@@ -107,6 +109,24 @@ func main() {
 		Manual: billingSvc.PanelSyncJob, // audited as whoever ran it
 	})
 	mgr.Register(jobs.Job{
+		Key:   "company_statements",
+		Every: time.Hour,
+		Tick: func(ctx context.Context) (jobs.Result, error) {
+			return companySvc.CloseDue(audit.WithActor(ctx, "system"))
+		},
+		Manual:   companySvc.CloseDue, // audited as whoever ran it
+		Throttle: true,
+	})
+	mgr.Register(jobs.Job{
+		Key:   "company_panel",
+		Every: cfg.PanelSyncInterval,
+		Tick: func(ctx context.Context) (jobs.Result, error) {
+			return companySvc.SyncMembersPanel(audit.WithActor(ctx, "system"))
+		},
+		Manual:   companySvc.SyncMembersPanel,
+		Throttle: true,
+	})
+	mgr.Register(jobs.Job{
 		Key:      "backups",
 		Every:    10 * time.Minute,
 		Schedule: snapshotEvery,
@@ -122,7 +142,7 @@ func main() {
 
 	app := api.New(&api.Deps{
 		Handlers: &handlers.Handlers{
-			DB: db, SQL: sqlDB, RW: rw, Billing: billingSvc, Expenses: expSvc,
+			DB: db, SQL: sqlDB, RW: rw, Billing: billingSvc, Company: companySvc, Expenses: expSvc,
 			FX: fxs, Sync: syncSvc, Settings: st, Snapshots: snapshots, Jobs: mgr, Config: cfg, Version: Version,
 		},
 		NoWeb: *noWeb,

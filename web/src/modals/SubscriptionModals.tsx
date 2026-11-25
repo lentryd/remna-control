@@ -176,7 +176,7 @@ function SubscriptionForm({ customerId, rwUserId, onDone }: { customerId?: numbe
                     <>
                         <FormSection color="blue" icon={IconUser} title={t('sub.customer')} description={t('sub.customer_hint')}>
                             <SearchSelect
-                                data={(customers.data ?? []).map((c) => ({ value: String(c.id), label: c.name }))}
+                                data={(customers.data ?? []).filter((c) => !c.company_id).map((c) => ({ value: String(c.id), label: c.name }))}
                                 label={t('sub.customer')}
                                 leftSection={<IconUser size={16} />}
                                 required

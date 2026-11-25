@@ -4,6 +4,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 
 	"remna-control/ent"
+	"remna-control/ent/company"
+	"remna-control/ent/membersegment"
 	"remna-control/ent/subscription"
 	"remna-control/ent/subscriptionaddon"
 	"remna-control/ent/tariff"
@@ -86,6 +88,19 @@ func (h *Handlers) ListTariffs(c *fiber.Ctx) error {
 		for _, a := range s.Addons {
 			add(a.TariffID, a.Price, a.PriceOverride, a.RwUser != nil && live(a.RwUser))
 		}
+	}
+	// Company employees count as subscribers of their tariff.
+	members, err := h.activeMembers(ctx)
+	if err != nil {
+		return err
+	}
+	for _, m := range members {
+		tid := m.TariffID
+		var override *float64
+		if m.PriceOverridden {
+			override = &m.Price
+		}
+		add(&tid, m.Price, override, m.Live)
 	}
 	out := make([]TariffView, 0, len(ts))
 	for _, t := range ts {
@@ -281,6 +296,12 @@ func (h *Handlers) UpdateTariff(c *fiber.Ctx) error {
 	if err != nil {
 		return badRequest(err)
 	}
+	// Company members following this tariff move to the new values from today.
+	if h.Company != nil {
+		if err := h.Company.TariffUpdated(ctx, id); err != nil {
+			return err
+		}
+	}
 	return c.SendStatus(fiber.StatusNoContent)
 }
 
@@ -335,8 +356,10 @@ func (h *Handlers) DeleteTariff(c *fiber.Ctx) error {
 	}
 	n1, _ := h.DB.Subscription.Query().Where(subscription.TariffID(id)).Count(ctx)
 	n2, _ := h.DB.SubscriptionAddon.Query().Where(subscriptionaddon.TariffID(id)).Count(ctx)
-	if n1+n2 > 0 {
-		return apperr.Status(fiber.StatusConflict, "tariff.in_use", "the tariff is in use by subscriptions")
+	n3, _ := h.DB.Company.Query().Where(company.TariffID(id)).Count(ctx)
+	n4, _ := h.DB.MemberSegment.Query().Where(membersegment.TariffID(id)).Count(ctx)
+	if n1+n2+n3+n4 > 0 {
+		return apperr.Status(fiber.StatusConflict, "tariff.in_use", "the tariff is in use by subscriptions or companies")
 	}
 	if _, err := h.DB.TariffPeriod.Delete().Where(tariffperiod.TariffID(id)).Exec(ctx); err != nil {
 		return err

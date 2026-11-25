@@ -5,3 +5,5 @@ bin/
 *.db-*
 import-map.yml
 .DS_Store
+
+.superpowers/

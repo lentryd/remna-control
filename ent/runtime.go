@@ -6,6 +6,9 @@ import (
 	"remna-control/ent/addon"
 	"remna-control/ent/apitoken"
 	"remna-control/ent/auditlog"
+	"remna-control/ent/company"
+	"remna-control/ent/companymember"
+	"remna-control/ent/companystatement"
 	"remna-control/ent/customer"
 	"remna-control/ent/expense"
 	"remna-control/ent/expenseitem"
@@ -73,6 +76,93 @@ func init() {
 	auditlogDescOk := auditlogFields[6].Descriptor()
 	// auditlog.DefaultOk holds the default value on creation for the ok field.
 	auditlog.DefaultOk = auditlogDescOk.Default.(bool)
+	companyMixin := schema.Company{}.Mixin()
+	companyMixinFields0 := companyMixin[0].Fields()
+	_ = companyMixinFields0
+	companyFields := schema.Company{}.Fields()
+	_ = companyFields
+	// companyDescCreatedAt is the schema descriptor for created_at field.
+	companyDescCreatedAt := companyMixinFields0[0].Descriptor()
+	// company.DefaultCreatedAt holds the default value on creation for the created_at field.
+	company.DefaultCreatedAt = companyDescCreatedAt.Default.(func() time.Time)
+	// companyDescUpdatedAt is the schema descriptor for updated_at field.
+	companyDescUpdatedAt := companyMixinFields0[1].Descriptor()
+	// company.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	company.DefaultUpdatedAt = companyDescUpdatedAt.Default.(func() time.Time)
+	// company.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	company.UpdateDefaultUpdatedAt = companyDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// companyDescName is the schema descriptor for name field.
+	companyDescName := companyFields[0].Descriptor()
+	// company.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	company.NameValidator = companyDescName.Validators[0].(func(string) error)
+	// companyDescReportDay is the schema descriptor for report_day field.
+	companyDescReportDay := companyFields[4].Descriptor()
+	// company.ReportDayValidator is a validator for the "report_day" field. It is called by the builders before save.
+	company.ReportDayValidator = func() func(int) error {
+		validators := companyDescReportDay.Validators
+		fns := [...]func(int) error{
+			validators[0].(func(int) error),
+			validators[1].(func(int) error),
+		}
+		return func(report_day int) error {
+			for _, fn := range fns {
+				if err := fn(report_day); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// companyDescPeriodDays is the schema descriptor for period_days field.
+	companyDescPeriodDays := companyFields[7].Descriptor()
+	// company.PeriodDaysValidator is a validator for the "period_days" field. It is called by the builders before save.
+	company.PeriodDaysValidator = companyDescPeriodDays.Validators[0].(func(int) error)
+	// companyDescArchived is the schema descriptor for archived field.
+	companyDescArchived := companyFields[8].Descriptor()
+	// company.DefaultArchived holds the default value on creation for the archived field.
+	company.DefaultArchived = companyDescArchived.Default.(bool)
+	companymemberMixin := schema.CompanyMember{}.Mixin()
+	companymemberMixinFields0 := companymemberMixin[0].Fields()
+	_ = companymemberMixinFields0
+	companymemberFields := schema.CompanyMember{}.Fields()
+	_ = companymemberFields
+	// companymemberDescCreatedAt is the schema descriptor for created_at field.
+	companymemberDescCreatedAt := companymemberMixinFields0[0].Descriptor()
+	// companymember.DefaultCreatedAt holds the default value on creation for the created_at field.
+	companymember.DefaultCreatedAt = companymemberDescCreatedAt.Default.(func() time.Time)
+	// companymemberDescUpdatedAt is the schema descriptor for updated_at field.
+	companymemberDescUpdatedAt := companymemberMixinFields0[1].Descriptor()
+	// companymember.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	companymember.DefaultUpdatedAt = companymemberDescUpdatedAt.Default.(func() time.Time)
+	// companymember.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	companymember.UpdateDefaultUpdatedAt = companymemberDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// companymemberDescUsername is the schema descriptor for username field.
+	companymemberDescUsername := companymemberFields[1].Descriptor()
+	// companymember.UsernameValidator is a validator for the "username" field. It is called by the builders before save.
+	companymember.UsernameValidator = companymemberDescUsername.Validators[0].(func(string) error)
+	// companymemberDescProtected is the schema descriptor for protected field.
+	companymemberDescProtected := companymemberFields[4].Descriptor()
+	// companymember.DefaultProtected holds the default value on creation for the protected field.
+	companymember.DefaultProtected = companymemberDescProtected.Default.(bool)
+	// companymemberDescTariffPinned is the schema descriptor for tariff_pinned field.
+	companymemberDescTariffPinned := companymemberFields[5].Descriptor()
+	// companymember.DefaultTariffPinned holds the default value on creation for the tariff_pinned field.
+	companymember.DefaultTariffPinned = companymemberDescTariffPinned.Default.(bool)
+	companystatementMixin := schema.CompanyStatement{}.Mixin()
+	companystatementMixinFields0 := companystatementMixin[0].Fields()
+	_ = companystatementMixinFields0
+	companystatementFields := schema.CompanyStatement{}.Fields()
+	_ = companystatementFields
+	// companystatementDescCreatedAt is the schema descriptor for created_at field.
+	companystatementDescCreatedAt := companystatementMixinFields0[0].Descriptor()
+	// companystatement.DefaultCreatedAt holds the default value on creation for the created_at field.
+	companystatement.DefaultCreatedAt = companystatementDescCreatedAt.Default.(func() time.Time)
+	// companystatementDescUpdatedAt is the schema descriptor for updated_at field.
+	companystatementDescUpdatedAt := companystatementMixinFields0[1].Descriptor()
+	// companystatement.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	companystatement.DefaultUpdatedAt = companystatementDescUpdatedAt.Default.(func() time.Time)
+	// companystatement.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	companystatement.UpdateDefaultUpdatedAt = companystatementDescUpdatedAt.UpdateDefault.(func() time.Time)
 	customerMixin := schema.Customer{}.Mixin()
 	customerMixinFields0 := customerMixin[0].Fields()
 	_ = customerMixinFields0

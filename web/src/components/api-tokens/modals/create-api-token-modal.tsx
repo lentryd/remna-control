@@ -1,14 +1,14 @@
 // Adapted from remnawave/frontend (AGPL-3.0): api-tokens-card/modals/create-api-token-modal.widget
-import { ActionIcon, ActionIconGroup, Box, Button, CopyButton, Flex, Group, NumberInput, Stack, Text, TextInput, Tooltip } from '@mantine/core'
+import { ActionIcon, ActionIconGroup, Box, Button, CopyButton, Flex, Group, NumberInput, Select, Stack, Text, TextInput, Tooltip } from '@mantine/core'
 import { useField } from '@mantine/form'
 import { modals } from '@mantine/modals'
 import { notifications } from '@mantine/notifications'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { IconAlertTriangle, IconBrandTelegram, IconCheck, IconClearAll, IconClipboard, IconCookie, IconCopy, IconEye, IconHexagon, IconWorld } from '@tabler/icons-react'
+import { IconAlertTriangle, IconBrandTelegram, IconBuilding, IconCheck, IconClearAll, IconClipboard, IconCookie, IconCopy, IconEye, IconHexagon, IconWorld } from '@tabler/icons-react'
 
 import { api } from '@/api/client'
-import { useApiMutation } from '@/api/hooks'
+import { useApiMutation, useCompanies } from '@/api/hooks'
 import type { ApiToken } from '@/api/types'
 import { notifyError } from '@/components/notify'
 import { ModalFooter } from '@shared/ui/modal-footer'
@@ -50,9 +50,16 @@ const BOT_PRESET_KEYS = [
     'stats:settings'
 ]
 
+// The resource a company-bound token works on: its endpoints act on the
+// token's own company, which is chosen at creation.
+const COMPANY_RESOURCE = 'company'
+const isCompanyKey = (key: string) => key.startsWith(`${COMPANY_RESOURCE}:`)
+
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-export function CreateApiTokenContent({ isMobile }: { isMobile: boolean }) {
+// companyId fixes the company (opened from a company card): the token then
+// carries company scopes only.
+export function CreateApiTokenContent({ isMobile, companyId }: { isMobile: boolean; companyId?: number }) {
     const { t } = useTranslation()
     const { data: scopesData } = useTokenScopes()
 
@@ -66,9 +73,13 @@ export function CreateApiTokenContent({ isMobile }: { isMobile: boolean }) {
     const [expanded, setExpanded] = useState<Set<string>>(new Set())
     const [expiresInDays, setExpiresInDays] = useState<number | string>(DEFAULT_EXPIRES_IN_DAYS)
 
-    const resources = scopesData?.resources ?? []
+    const allResources = scopesData?.resources ?? []
+    const resources = companyId ? allResources.filter((r) => r.resource === COMPANY_RESOURCE) : allResources
+    const companies = useCompanies()
+    const [company, setCompany] = useState<string | null>(companyId ? String(companyId) : null)
+    const needsCompany = [...selectedEndpoints].some(isCompanyKey)
 
-    const create = useApiMutation((body: { name: string; expires_in_days: number; scopes: string[] }) => api.post<ApiToken>('api-tokens', body))
+    const create = useApiMutation((body: { name: string; expires_in_days: number; scopes: string[]; company_id?: number }) => api.post<ApiToken>('api-tokens', body))
 
     const setKeys = (keys: string[], checked: boolean) =>
         setSelectedEndpoints((prev) => {
@@ -102,6 +113,14 @@ export function CreateApiTokenContent({ isMobile }: { isMobile: boolean }) {
     const presetFull = () => setSelectedEndpoints(new Set(resources.flatMap((r) => r.endpoints.map((e) => e.key))))
     const presetSubpage = () => setSelectedEndpoints(new Set(SUBPAGE_PRESET_KEYS))
     const presetBot = () => setSelectedEndpoints(new Set(BOT_PRESET_KEYS))
+    const COMPANY_PRESET_KEYS = allResources.filter((r) => r.resource === COMPANY_RESOURCE).flatMap((r) => r.endpoints.map((e) => e.key))
+    const presetCompany = () => setSelectedEndpoints(new Set(COMPANY_PRESET_KEYS))
+
+    // opened from a company card: start with every company endpoint
+    useEffect(() => {
+        if (companyId && COMPANY_PRESET_KEYS.length) setSelectedEndpoints(new Set(COMPANY_PRESET_KEYS))
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [companyId, scopesData])
 
     const handlePasteScopes = async () => {
         try {
@@ -116,7 +135,7 @@ export function CreateApiTokenContent({ isMobile }: { isMobile: boolean }) {
 
     const handleSubmit = () =>
         create.mutate(
-            { name: nameField.getValue().trim(), expires_in_days: Number(expiresInDays), scopes: buildScopes(resources, selectedEndpoints) },
+            { name: nameField.getValue().trim(), expires_in_days: Number(expiresInDays), scopes: buildScopes(allResources, selectedEndpoints), ...(needsCompany && company ? { company_id: Number(company) } : {}) },
             {
                 onSuccess: async (data) => {
                     modals.closeAll()
@@ -136,7 +155,7 @@ export function CreateApiTokenContent({ isMobile }: { isMobile: boolean }) {
     const totalSelected = selectedEndpoints.size
     const isNameInvalid = !!nameField.error || nameField.getValue().trim() === ''
     const isExpiresInvalid = !Number.isInteger(Number(expiresInDays)) || Number(expiresInDays) < 1
-    const canCreate = !isNameInvalid && !isExpiresInvalid && totalSelected > 0
+    const canCreate = !isNameInvalid && !isExpiresInvalid && totalSelected > 0 && (!needsCompany || !!company)
 
     return (
         <Stack gap="md">
@@ -170,7 +189,22 @@ export function CreateApiTokenContent({ isMobile }: { isMobile: boolean }) {
                 />
             </Flex>
 
-            <Group gap="xs">
+            {needsCompany && (
+                <Select
+                    allowDeselect={false}
+                    data={(companies.data ?? []).filter((c) => !c.archived || String(c.id) === company).map((c) => ({ value: String(c.id), label: c.name }))}
+                    description={t('tokens.company_hint')}
+                    disabled={!!companyId}
+                    label={t('tokens.company')}
+                    leftSection={<IconBuilding size={16} />}
+                    onChange={setCompany}
+                    required
+                    searchable
+                    value={company}
+                />
+            )}
+
+            <Group gap="xs" style={companyId ? { display: 'none' } : undefined}>
                 <Button leftSection={<IconEye size={16} />} onClick={presetRead} size="xs" variant="default">
                     {t('tokens.read_only')}
                 </Button>
@@ -182,6 +216,9 @@ export function CreateApiTokenContent({ isMobile }: { isMobile: boolean }) {
                 </Button>
                 <Button leftSection={<IconBrandTelegram size={16} />} onClick={presetBot} size="xs" variant="default">
                     Telegram bot
+                </Button>
+                <Button leftSection={<IconBuilding size={16} />} onClick={presetCompany} size="xs" variant="default">
+                    {t('tokens.preset_company')}
                 </Button>
             </Group>
 
@@ -208,7 +245,7 @@ export function CreateApiTokenContent({ isMobile }: { isMobile: boolean }) {
                         </ActionIcon>
                     </Tooltip>
 
-                    <CopyButton timeout={1600} value={JSON.stringify(buildScopes(resources, selectedEndpoints), null, 2)}>
+                    <CopyButton timeout={1600} value={JSON.stringify(buildScopes(allResources, selectedEndpoints), null, 2)}>
                         {({ copied, copy }) => (
                             <Tooltip label={t('common.copy')}>
                                 <ActionIcon color={copied ? 'teal' : 'gray'} onClick={copy} size="input-md" variant="soft">

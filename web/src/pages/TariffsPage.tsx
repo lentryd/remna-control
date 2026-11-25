@@ -294,9 +294,11 @@ function TariffCard({ tariff: tf, onEdit }: { tariff: Tariff; onEdit: () => void
                     <FooterFigure label={t('tariffs.col_subscribers')}>
                         {tf.subscribers}
                         {tf.overridden > 0 && (
-                            <Text c="yellow" component="span" fw={500} size="xs">
-                                {` ${t('tariffs.overridden', { count: tf.overridden })}`}
-                            </Text>
+                            <Tooltip label={t('tariffs.overridden_hint')} multiline w={260} withArrow>
+                                <Text c="yellow" component="span" fw={500} size="xs" style={{ cursor: 'help' }}>
+                                    {` ${t('tariffs.overridden', { count: tf.overridden })}`}
+                                </Text>
+                            </Tooltip>
                         )}
                     </FooterFigure>
                     <FooterFigure align="right" label={t('tariffs.stat_mrr')}>

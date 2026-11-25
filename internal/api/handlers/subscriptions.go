@@ -8,6 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 
 	"remna-control/ent"
+	"remna-control/ent/companymember"
 	"remna-control/ent/extension"
 	"remna-control/ent/rwuser"
 	"remna-control/ent/subscriptionaddon"
@@ -41,6 +42,12 @@ func (h *Handlers) CreateSubscription(c *fiber.Ctx) error {
 	if err := bind(c, &in); err != nil {
 		return err
 	}
+	if err := h.rejectCompanyAccount(c.UserContext(), in.CustomerID); err != nil {
+		return err
+	}
+	if err := h.rejectCompanyMemberUser(c.UserContext(), in.RwUserID); err != nil {
+		return err
+	}
 	autoExtend := in.AutoExtend == nil || *in.AutoExtend
 	sub, err := h.DB.Subscription.Create().
 		SetCustomerID(in.CustomerID).SetNillableTariffID(in.TariffID).SetNillableRwUserID(in.RwUserID).
@@ -61,6 +68,12 @@ func (h *Handlers) UpdateSubscription(c *fiber.Ctx) error {
 	}
 	var in subscriptionInput
 	if err := bind(c, &in); err != nil {
+		return err
+	}
+	if err := h.rejectCompanyAccount(c.UserContext(), in.CustomerID); err != nil {
+		return err
+	}
+	if err := h.rejectCompanyMemberUser(c.UserContext(), in.RwUserID); err != nil {
 		return err
 	}
 	q := h.DB.Subscription.UpdateOneID(id).SetCustomerID(in.CustomerID).SetLabel(in.Label)
@@ -136,6 +149,9 @@ type provisionRequest struct {
 func (h *Handlers) ProvisionSubscription(c *fiber.Ctx) error {
 	var req provisionRequest
 	if err := bind(c, &req); err != nil {
+		return err
+	}
+	if err := h.rejectCompanyAccount(c.UserContext(), req.CustomerID); err != nil {
 		return err
 	}
 	sub, err := h.Billing.ProvisionSubscription(c.UserContext(), billing.ProvisionInput{
@@ -380,9 +396,22 @@ func (h *Handlers) ListRwUsers(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	members, err := h.DB.CompanyMember.Query().Where(companymember.RwUserIDNotNil()).WithCompany().All(c.UserContext())
+	if err != nil {
+		return err
+	}
+	memberOf := make(map[int]*ent.Company, len(members))
+	for _, m := range members {
+		memberOf[*m.RwUserID] = m.Edges.Company
+	}
 	out := make([]RwUserRow, 0, len(users))
 	for _, u := range users {
 		r := RwUserRow{RwUserView: *rwUserView(u)}
+		if co := memberOf[u.ID]; co != nil {
+			r.Linked, r.CustomerName = true, co.Name
+			out = append(out, r)
+			continue
+		}
 		var sub *ent.Subscription
 		if s := u.Edges.Subscription; s != nil {
 			r.SubscriptionID, sub = &s.ID, s

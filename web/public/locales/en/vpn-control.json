@@ -42,7 +42,8 @@
         "settings": "Settings",
         "overview": "Overview",
         "catalog": "Catalog",
-        "system": "System"
+        "system": "System",
+        "companies": "Companies"
     },
     "header": {
         "logout": "Sign out",
@@ -75,7 +76,11 @@
             "scope_required": "Choose at least one scope",
             "unknown_scope": "Unknown scope {{scope}}",
             "expired": "API token expired",
-            "expiry_required": "Set the expiry in days"
+            "expiry_required": "Set the expiry in days",
+            "company_bound": "A company token can't use this endpoint",
+            "company_required": "This endpoint needs a token bound to a company",
+            "bad_company": "Company {{id}} not found or archived",
+            "company_scopes_only": "A token bound to a company can only have company scopes"
         },
         "fx": {
             "rate_failed": "{{currency}} rate on {{date}}: {{error}}"
@@ -134,7 +139,8 @@
             "not_found": "Customer not found",
             "self_referral": "A customer can't refer themselves",
             "has_payments": "The customer has payments — archive them instead",
-            "has_subscriptions": "Unlink the customer's subscriptions first"
+            "has_subscriptions": "Unlink the customer's subscriptions first",
+            "company_account": "This customer is a company's billing account; manage it through the company"
         },
         "billing": {
             "insufficient_balance": "Insufficient balance",
@@ -158,7 +164,19 @@
             "running": "The job is already running",
             "unknown": "Unknown job"
         },
-        "offline": "No connection to the server, changes are unavailable"
+        "offline": "No connection to the server, changes are unavailable",
+        "company": {
+            "admin_only": "Only username and label can be set with a company token",
+            "archived": "The company is archived",
+            "bad_report_day": "Report day must be 1–28",
+            "bad_tariff": "Choose a base tariff",
+            "member_protected": "The employee is protected: remove protection in the admin first",
+            "member_removed": "The employee is removed",
+            "name_required": "Name is required",
+            "not_found": "Company not found",
+            "panel_user_busy": "This panel user already belongs to a customer or another company",
+            "username_taken": "This username is already taken"
+        }
     },
     "format": {
         "date": "MMM D, YYYY",
@@ -267,7 +285,8 @@
         "last_months_one": "last {{count}} month",
         "last_months_other": "last {{count}} months",
         "new_customer": "New customer",
-        "open_all": "Show all"
+        "open_all": "Show all",
+        "mrr_hint_companies": "{{companies}} companies · {{members}} employees"
     },
     "metered": {
         "tiered_price": "tiered price",
@@ -387,7 +406,8 @@
         "stat_mrr": "Monthly revenue",
         "per_month": "/ mo",
         "traffic": "Traffic",
-        "no_tariffs_yet": "No tariffs yet"
+        "no_tariffs_yet": "No tariffs yet",
+        "overridden_hint": "Subscribers with their own price: it differs from the tariff price. Company employees are included."
     },
     "expense_items": {
         "archive": "Archive",
@@ -580,7 +600,8 @@
             "charge": "Charge",
             "adjustment": "Adjustment",
             "refund": "Refund",
-            "referral": "Referral bonus"
+            "referral": "Referral bonus",
+            "company_charge": "Company charge"
         },
         "ext": {
             "extend": "Extension",
@@ -1058,7 +1079,10 @@
         "endpoints_many": "{{count}} endpoints",
         "endpoints_other": "{{count}} endpoints",
         "delete": "Delete token «{{name}}»?",
-        "delete_hint": "Services using it will lose access immediately."
+        "delete_hint": "Services using it will lose access immediately.",
+        "company": "Company",
+        "company_hint": "The token acts on this company only",
+        "preset_company": "Company"
     },
     "panel_users": {
         "unlinked_one": "not linked",
@@ -1223,5 +1247,101 @@
         "read_only": "changes are unavailable",
         "restored": "Back online",
         "blocked": "Offline — saving is unavailable"
+    },
+    "companies": {
+        "account_badge": "Company",
+        "account": "Billing account",
+        "account_hint": "This customer is a company's billing account: payments and balance live here, employees and statements are on the company card.",
+        "open_card": "Open company card",
+        "accrued_forecast": "accrued {{accrued}} · forecast {{forecast}}",
+        "active": "Active",
+        "add_member": "Add employee",
+        "add_member_hint": "The employee is created in the panel on the company tariff «{{tariff}}». A removed employee with the same username comes back.",
+        "added": "Added",
+        "archive": "Archive company",
+        "archive_hint": "Employees are disabled in the panel, except protected ones. The company stops accruing.",
+        "archived_title": "Company archived",
+        "archived": "Company archived",
+        "protected_left_one": "{{count}} protected employee was left enabled in the panel:",
+        "protected_left_other": "{{count}} protected employees were left enabled in the panel:",
+        "change_tariff": "Change tariff",
+        "change_tariff_apply": "Change tariff",
+        "change_tariff_warning": "The tariff moves all employees who follow the company tariff ({{count}} active). Employees with their own tariff stay as they are. Their current segment closes today and a new one opens.",
+        "tariff_changed": "Tariff changed",
+        "close_period": "Close period",
+        "close_period_hint": "Post statements for every ended period now, like the nightly job does. The open period is not touched.",
+        "close_period_run": "Close",
+        "closed": "Statements posted: {{count}}",
+        "created": "Company created",
+        "dates": "Dates",
+        "days": "Days",
+        "description": "Companies pay for their employees' access by period, with proration by days.",
+        "follows_company_hint": "Follows the company tariff until you pick another one",
+        "follows_tariff": "as tariff: {{value}}",
+        "forecast": "Forecast",
+        "generated": "Posted",
+        "import": "Import CSV",
+        "import_done": "Added: {{added}}, failed: {{failed}}",
+        "import_file": "CSV file",
+        "import_hint": "One employee per line: username,label. The label is optional. Rows are added one by one; failed rows are listed afterwards.",
+        "import_progress": "Adding {{done}} of {{total}}…",
+        "import_run": "Import ({{count}})",
+        "import_text": "or paste lines",
+        "in_debt": "in debt",
+        "in_debt_since": "in debt since {{date}}",
+        "label": "Label",
+        "label_hint": "Free text: full name, department",
+        "list": "Companies",
+        "member_added": "Employee added",
+        "member_removed": "Employee removed",
+        "member_saved": "Employee saved",
+        "member_tariff": "Tariff and overrides",
+        "members": "Employees",
+        "name": "Name",
+        "new": "New company",
+        "next_report": "Report date",
+        "open_statement": "statement",
+        "override_hint": "Fields that are off follow the tariff. Turn a field on to set a value for this employee only.",
+        "override_segment_hint": "Saving closes the employee's current segment today and opens a new one; days before today keep the old price.",
+        "overrides": "Overrides",
+        "panel_deleted": "Gone from the panel behind our back",
+        "period": "Period",
+        "pinned": "own tariff",
+        "pinned_hint": "A tariff other than the company's pins the employee: a company tariff change will not move them",
+        "price_month": "Price per month",
+        "protect": "Protect",
+        "protected": "Protected",
+        "protected_cant_remove": "Protected employees can't be removed",
+        "protected_count_one": "{{count}} protected",
+        "protected_count_other": "{{count}} protected",
+        "remove": "Remove",
+        "remove_member": "Remove employee",
+        "remove_member_hint": "{{username}} will be disabled in the panel and stop accruing from today. They can be restored later.",
+        "removed_on": "removed {{date}}",
+        "report_day": "Report day",
+        "report_day_hint": "Day of month, 1–28",
+        "restore": "Restore",
+        "saved": "Company saved",
+        "scope_removed": "Removed",
+        "statement": "Statement",
+        "statements_hint": "One statement per closed period; click a row for the lines per employee.",
+        "status": "Status",
+        "tab_members": "Employees",
+        "tab_statements": "Statements",
+        "tariff": "Tariff",
+        "tariff_cascade_hint": "Changing it moves employees that follow the company tariff",
+        "tariff_hint": "Employees follow it unless given their own",
+        "tariff_required": "Choose a tariff",
+        "tokens_hint": "Tokens bound to this company see only its employees, balance and statements.",
+        "total": "Total",
+        "unprotect": "Remove protection",
+        "username": "Username",
+        "username_required": "Enter a username",
+        "history": "Billing history",
+        "history_hint": "One row per stretch of days on the same price and parameters; statements are built from these rows.",
+        "until_now": "until now",
+        "follows_tariff_short": "as tariff",
+        "settings_general": "General",
+        "settings_general_hint": "Name, report day and notes. A new report day applies from the next period."
     }
 }

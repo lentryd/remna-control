@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -29,8 +30,19 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldLastUsedAt holds the string denoting the last_used_at field in the database.
 	FieldLastUsedAt = "last_used_at"
+	// FieldCompanyID holds the string denoting the company_id field in the database.
+	FieldCompanyID = "company_id"
+	// EdgeCompany holds the string denoting the company edge name in mutations.
+	EdgeCompany = "company"
 	// Table holds the table name of the apitoken in the database.
 	Table = "api_tokens"
+	// CompanyTable is the table that holds the company relation/edge.
+	CompanyTable = "api_tokens"
+	// CompanyInverseTable is the table name for the Company entity.
+	// It exists in this package in order to avoid circular dependency with the "company" package.
+	CompanyInverseTable = "companies"
+	// CompanyColumn is the table column denoting the company relation/edge.
+	CompanyColumn = "company_id"
 )
 
 // Columns holds all SQL columns for apitoken fields.
@@ -44,6 +56,7 @@ var Columns = []string{
 	FieldExpireAt,
 	FieldCreatedAt,
 	FieldLastUsedAt,
+	FieldCompanyID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -104,4 +117,23 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByLastUsedAt orders the results by the last_used_at field.
 func ByLastUsedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLastUsedAt, opts...).ToFunc()
+}
+
+// ByCompanyID orders the results by the company_id field.
+func ByCompanyID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCompanyID, opts...).ToFunc()
+}
+
+// ByCompanyField orders the results by company field.
+func ByCompanyField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCompanyStep(), sql.OrderByField(field, opts...))
+	}
+}
+func newCompanyStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CompanyInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, false, CompanyTable, CompanyColumn),
+	)
 }

@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 // IdentityPanel is the panel user behind a subscription or add-on: who it
 // is, its status and links, then expiry, traffic and last connection.
-function IdentityPanel({ rw, caption }: { rw: RwUser | null; caption?: string }) {
+export function IdentityPanel({ rw, caption }: { rw: RwUser | null; caption?: string }) {
     const { t } = useTranslation()
     const { copyLink } = useItemActions()
     if (!rw) {
